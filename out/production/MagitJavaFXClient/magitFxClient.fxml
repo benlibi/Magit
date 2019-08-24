@@ -76,7 +76,7 @@
                   </TitledPane>
                </panes></Accordion>
                 <Button id="create-new-repository" layoutX="4.0" layoutY="510.0" mnemonicParsing="false" onAction="#createNewRepository" text="Create New Repository" />
-                <Button id="load-repository" layoutX="26.0" layoutY="550.0" mnemonicParsing="false" text="Load repository" />
+                <Button id="load-repository" layoutX="26.0" layoutY="550.0" mnemonicParsing="false" onAction="#loadRepository" text="Load repository" />
             </children>
         </AnchorPane>
     </children>
