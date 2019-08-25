@@ -25,14 +25,17 @@ public class Controller {
     @FXML
     public void createNewRepository(ActionEvent actionEvent) {
 
-        _clientManager.createRepository();
-        initRepo();
+        if (_clientManager.createRepository()) {
+            initRepo();
+        }
     }
 
     public void loadRepository(ActionEvent actionEvent) {
 
-        _clientManager.loadRepository();
-        initRepo();
+        if (_clientManager.loadRepository()) {
+
+            initRepo();
+        }
     }
 
     private void initRepo() {

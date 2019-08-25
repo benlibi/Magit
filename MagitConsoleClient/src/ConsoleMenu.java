@@ -1,10 +1,7 @@
 import Models.User;
 
 import javax.xml.bind.JAXBException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -103,8 +100,13 @@ public class ConsoleMenu {
                         break;
                     //Load Repository
                     case 6:
-                        String newRepoPath = readPath();
-                        magitManager.loadRepository(newRepoPath);
+                        try {
+                            String newRepoPath = readPath();
+                            magitManager.loadRepository(newRepoPath);
+                        } catch (FileNotFoundException e) {
+                            ConsoleMenu.displayMsg(e.getMessage());
+                        }
+
 
                         break;
                     //Load XML

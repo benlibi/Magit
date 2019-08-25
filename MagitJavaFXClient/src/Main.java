@@ -11,7 +11,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
 
         Parent root = FXMLLoader.load(getClass().getResource("magitFxClient.fxml"));
-        Scene scene = new Scene(root, 800, 675);
+        Scene scene = new Scene(root, 800, 750);
 
         primaryStage.setTitle("M.a.g.i.t");
         primaryStage.setScene(scene);

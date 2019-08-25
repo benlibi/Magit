@@ -3,6 +3,7 @@ import org.apache.commons.io.FileUtils;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -52,13 +53,12 @@ public class MagitManager {
         });
     }
 
-    protected void loadRepository(String newRepoPath) throws IOException {
+    protected void loadRepository(String newRepoPath) throws FileNotFoundException,IOException {
 
         File[] repoFiles = new File(newRepoPath).listFiles();
 
-        if (Arrays.stream(repoFiles).noneMatch(file -> file.getName().equals(".magit"))) {
-            ConsoleMenu.displayMsg("Repository Not Exist\nPlease Create It First And Try Again");
-            return;
+        if (repoFiles == null || Arrays.stream(repoFiles).noneMatch(file -> file.getName().equals(".magit"))) {
+            throw new FileNotFoundException("Repository Not Exist\nPlease Create It First And Try Again");
         }
 
         this.currentRepo = new Repository(newRepoPath, null);
