@@ -9,15 +9,36 @@ import javafx.scene.layout.GridPane;
 import java.util.ArrayList;
 
 public class Controller {
-
     private ClientManager _clientManager = new ClientManager();
 
+    @FXML
+    public Button createRepositoryBtn;
+    @FXML
+    public Button loadRepositoryBtn;
+    @FXML
+    public Button changeUserNameBtn;
+    @FXML
+    public Button showWcBtn;
+    @FXML
+    public Button commitBtn;
+    @FXML
+    public Button showCommitBtn;
+    @FXML
+    public Button showCurrentBranchBtn;
+    @FXML
+    public Button createBranchBtn;
+    @FXML
+    public Button deleteBranchBtn;
+    @FXML
+    public Button checkoutBranchBtn;
+    @FXML
+    public Button resetBranchBtn;
+    @FXML
+    public Button loadXmlBtn;
     @FXML
     public TitledPane branchesPane;
     @FXML
     public GridPane branchesGridPane;
-    @FXML
-    private Button btn;
     @FXML
     private Accordion sideMenu;
 
@@ -50,5 +71,35 @@ public class Controller {
         branchesPane.setContent(branchesGridPane);
         sideMenu.getPanes().set(sideMenu.getPanes().indexOf(branchesPane), branchesPane);
         sideMenu.setExpandedPane(branchesPane);
+    }
+
+    public void loadRepositoryWithXML(ActionEvent actionEvent) {
+    }
+
+    public void changeUserName(ActionEvent actionEvent) {
+    }
+
+    public void showWC(ActionEvent actionEvent) {
+    }
+
+    public void commit(ActionEvent actionEvent) {
+    }
+
+    public void showCommit(ActionEvent actionEvent) {
+    }
+
+    public void showCurrentBranch(ActionEvent actionEvent) {
+    }
+
+    public void createBranch(ActionEvent actionEvent) {
+    }
+
+    public void deleteBranch(ActionEvent actionEvent) {
+    }
+
+    public void checkoutBranch(ActionEvent actionEvent) {
+    }
+
+    public void resetBranch(ActionEvent actionEvent) {
     }
 }

@@ -144,62 +144,62 @@
             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Button id="create-new-repository" alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#createNewRepository" prefHeight="50.0" prefWidth="200.0" text="Create" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+            <Button id="create-new-repository" fx:id="createRepositoryBtn" alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#createNewRepository" prefHeight="50.0" prefWidth="200.0" text="Create" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button id="load-repository" defaultButton="true" mnemonicParsing="false" onAction="#loadRepository" prefHeight="50.0" prefWidth="200.0" text="Load" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+            <Button id="load-repository" fx:id="loadRepositoryBtn" defaultButton="true" mnemonicParsing="false" onAction="#loadRepository" prefHeight="50.0" prefWidth="200.0" text="Load" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button defaultButton="true" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Load XML" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+            <Button id="load-xml" fx:id="loadXmlBtn" defaultButton="true" mnemonicParsing="false" onAction="#loadRepositoryWithXML" prefHeight="50.0" prefWidth="200.0" text="Load XML" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button defaultButton="true" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Change User Name" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+            <Button id="change-user-name" fx:id="changeUserNameBtn" defaultButton="true" mnemonicParsing="false" onAction="#changeUserName" prefHeight="50.0" prefWidth="200.0" text="Change User Name" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="16.0" />
                </font>
             </Button>
-            <Button defaultButton="true" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Show WC" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+            <Button id="show-wc" fx:id="showWcBtn" defaultButton="true" mnemonicParsing="false" onAction="#showWC" prefHeight="50.0" prefWidth="200.0" text="Show WC" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button defaultButton="true" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Commit" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+            <Button id="commit" fx:id="commitBtn" defaultButton="true" mnemonicParsing="false" onAction="#commit" prefHeight="50.0" prefWidth="200.0" text="Commit" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button defaultButton="true" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Show" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+            <Button id="show-commit" fx:id="showCommitBtn" defaultButton="true" mnemonicParsing="false" onAction="#showCommit" prefHeight="50.0" prefWidth="200.0" text="Show" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button defaultButton="true" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Show" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+            <Button id="show-current-branch" fx:id="showCurrentBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#showCurrentBranch" prefHeight="50.0" prefWidth="200.0" text="Show" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button defaultButton="true" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Create" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+            <Button id="create-branch" fx:id="createBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#createBranch" prefHeight="50.0" prefWidth="200.0" text="Create" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button defaultButton="true" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Delete" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+            <Button id="delete-branch" fx:id="deleteBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#deleteBranch" prefHeight="50.0" prefWidth="200.0" text="Delete" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button defaultButton="true" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Checkout " textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+            <Button id="checkout-branch" fx:id="checkoutBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#checkoutBranch" prefHeight="50.0" prefWidth="200.0" text="Checkout " textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button defaultButton="true" mnemonicParsing="false" prefHeight="50.0" prefWidth="200.0" text="Reset" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+            <Button id="reset-branch" fx:id="resetBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#resetBranch" prefHeight="50.0" prefWidth="200.0" text="Reset" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>
