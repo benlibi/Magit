@@ -77,29 +77,39 @@ public class Controller {
     }
 
     public void changeUserName(ActionEvent actionEvent) {
+        _clientManager.changeUserName();
     }
 
     public void showWC(ActionEvent actionEvent) {
+        _clientManager.showWC();
     }
 
     public void commit(ActionEvent actionEvent) {
+        _clientManager.commit();
     }
 
     public void showCommit(ActionEvent actionEvent) {
+        _clientManager.showCommit();
     }
 
     public void showCurrentBranch(ActionEvent actionEvent) {
+        _clientManager.showCurrentBranch();
     }
 
     public void createBranch(ActionEvent actionEvent) {
+        _clientManager.createBranch();
     }
 
     public void deleteBranch(ActionEvent actionEvent) {
+        _clientManager.deleteBranch();
     }
 
     public void checkoutBranch(ActionEvent actionEvent) {
+        _clientManager.checkoutBranch();
     }
 
     public void resetBranch(ActionEvent actionEvent) {
+        _clientManager.resetBranch();
+
     }
 }

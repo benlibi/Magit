@@ -454,7 +454,6 @@ public class MagitManager {
     }
 
     protected void createEmptyRepository(String path) throws IOException {
-//        String path = ConsoleMenu.readPath();
         this.currentRepo = new Repository(path, null);
         this.currentRepo.createBlankRepository();
 
