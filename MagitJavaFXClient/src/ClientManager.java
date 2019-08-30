@@ -1,6 +1,9 @@
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.TextInputDialog;
 
+import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Optional;
@@ -47,17 +50,21 @@ class ClientManager {
         }
     }
 
-    void changeUser(){
-        Optional<String> userName = showDialogMsg("Please enter user name", "Change User Name");
-        userName.ifPresent(s -> this.magitManager.setCurrentUser(s));
+    boolean loadXMLRepository() {
+        try {
+            this.magitManager.loadXml();
 
+            return true;
+        } catch (IOException | JAXBException e) {
+            handleException(e);
+        }
+
+        return false;
     }
 
-    private Optional<String> showDialogMsg(String textInputDialog, String headerText) {
-        TextInputDialog td = new TextInputDialog(textInputDialog);
-        td.setHeaderText(headerText);
-
-        return td.showAndWait();
+    void changeUser() {
+        Optional<String> userName = showDialogMsg("Please enter user name", "Change User Name");
+        userName.ifPresent(s -> this.magitManager.setCurrentUser(s));
     }
 
     void showWC() {
@@ -67,11 +74,27 @@ class ClientManager {
     void createBranch() {
         Optional<String> branchName = showDialogMsg("Please enter branch name", "Create Branch");
         branchName.ifPresent(s -> {
-            try {
-                this.magitManager.createBranch(s);
-            } catch (IOException e) {
-                handleException(e);
-            }
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("Checkout Your New Branch ?");
+            alert.setContentText("Would You Like To Checkout ?");
+            ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType noButton = new ButtonType("Yes", ButtonBar.ButtonData.NO);
+            ButtonType cancelButton = new ButtonType("Yes", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
+            alert.showAndWait().ifPresent(type -> {
+                boolean checkout = false;
+                if (type == ButtonType.OK) {
+                    checkout = true;
+                } else if (type == ButtonType.CANCEL) {
+                    return;
+                }
+                try {
+                    this.magitManager.createBranch(s, checkout);
+                } catch (IOException e) {
+                    handleException(e);
+                }
+
+            });
         });
     }
 
@@ -87,12 +110,30 @@ class ClientManager {
     }
 
     void checkoutBranch() {
+        boolean forceCheckout = false;
         Optional<String> branchName = showDialogMsg("Please enter branch name", "Checkout Branch");
         branchName.ifPresent(s -> {
             try {
-                this.magitManager.checkoutBranch(s);
+                this.magitManager.checkoutBranch(s, forceCheckout);
             } catch (IOException e) {
-                handleException(e);
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle(e.getMessage());
+                alert.setContentText("force checkout?");
+                ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                ButtonType noButton = new ButtonType("Yes", ButtonBar.ButtonData.NO);
+                ButtonType cancelButton = new ButtonType("Yes", ButtonBar.ButtonData.CANCEL_CLOSE);
+                alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
+                alert.showAndWait().ifPresent(type -> {
+                    if (type == ButtonType.OK) {
+                        try {
+                            this.magitManager.checkoutBranch(s, true);
+                        } catch (IOException ex) {
+                            handleException(e);
+                        }
+
+                    }
+                });
+
             }
         });
     }
@@ -101,13 +142,20 @@ class ClientManager {
     }
 
     void resetBranch() {
-
     }
 
     void showCommit() {
     }
 
     void commit() {
+        Optional<String> commitMsg = showDialogMsg("Please add Commit Message", "Commit Your Changes");
+        commitMsg.ifPresent(s -> {
+            try {
+                magitManager.commit(s);
+            } catch (IOException e) {
+                handleException(e);
+            }
+        });
     }
 
     private void handleException(Exception e) {
@@ -115,4 +163,12 @@ class ClientManager {
         errorAlert.setContentText(e.getMessage());
         errorAlert.show();
     }
+
+    private Optional<String> showDialogMsg(String textInputDialog, String headerText) {
+        TextInputDialog td = new TextInputDialog(textInputDialog);
+        td.setHeaderText(headerText);
+
+        return td.showAndWait();
+    }
+
 }

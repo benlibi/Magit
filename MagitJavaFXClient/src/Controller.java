@@ -74,11 +74,10 @@ public class Controller {
     }
 
     public void loadRepositoryWithXML(ActionEvent actionEvent) {
+        if (_clientManager.loadXMLRepository()) {
+            initRepo();
+        }
     }
-
-//    public void changeUserName(ActionEvent actionEvent) {
-//        _clientManager.changeUserName();
-//    }
 
     public void showWC(ActionEvent actionEvent) {
         _clientManager.showWC();

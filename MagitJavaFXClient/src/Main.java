@@ -16,16 +16,6 @@ public class Main extends Application {
         primaryStage.setTitle("M.a.g.i.t");
         primaryStage.setScene(scene);
         primaryStage.show();
-//
-//        final Accordion accordion = new Accordion();
-//
-//
-//
-//        accordion.getPanes().addAll(gridTitlePane);
-//        accordion.setExpandedPane(gridTitlePane);
-
-
-//        clientManager.initBranchView(scene);
     }
 
 

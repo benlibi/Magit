@@ -18,7 +18,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="750.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<VBox prefHeight="750.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
     <children>
         <MenuBar nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="NEVER">
             <menus>
@@ -159,11 +159,6 @@
                   <Font name="Georgia Bold" size="18.0" />
                </font>
             </Button>
-            <Button id="change-user-name" fx:id="changeUserNameBtn" defaultButton="true" mnemonicParsing="false" onAction="#changeUserName" prefHeight="50.0" prefWidth="200.0" text="Change User Name" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="16.0" />
-               </font>
-            </Button>
             <Button id="show-wc" fx:id="showWcBtn" defaultButton="true" mnemonicParsing="false" onAction="#showWC" prefHeight="50.0" prefWidth="200.0" text="Show WC" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
@@ -200,6 +195,11 @@
                </font>
             </Button>
             <Button id="reset-branch" fx:id="resetBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#resetBranch" prefHeight="50.0" prefWidth="200.0" text="Reset" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+               <font>
+                  <Font name="Georgia Bold" size="18.0" />
+               </font>
+            </Button>
+            <Button id="change-user" fx:id="ChangeUserBtn" defaultButton="true" layoutX="44.0" layoutY="140.0" mnemonicParsing="false" onAction="#changeUserBtn" prefHeight="50.0" prefWidth="200.0" text="Change User" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                <font>
                   <Font name="Georgia Bold" size="18.0" />
                </font>

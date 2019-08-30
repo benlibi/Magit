@@ -51,8 +51,9 @@ public class ConsoleMenu {
                     //Create New Commit
                     case 2:
                         if (magitManager.currentRepo != null) {
+                            String commitMsg = ConsoleMenu.displayMsgAndReturnInput("Please Enter Commit Msg");
 
-                            magitManager.commit();
+                            magitManager.commit(commitMsg);
                         } else {
                             System.out.println("\nOperation Not Available, Please Create Repo Or Load One\n");
                         }
@@ -68,7 +69,8 @@ public class ConsoleMenu {
                                 break;
                             }
 
-                            magitManager.createBranch(branchName);
+                            String checkout = ConsoleMenu.displayMsgAndReturnInput("Would You Wish To Checkout?\nPress Y / N");
+                            magitManager.createBranch(branchName, (checkout.equals("Y") || checkout.equals("y")));
                         } else {
                             System.out.println("\nOperation Not Available, Please Create Repo Or Load One\n");
                         }
@@ -76,6 +78,7 @@ public class ConsoleMenu {
                         break;
                     //Checkout To Branch
                     case 4:
+                        boolean forceCheckout = false;
                         if (magitManager.currentRepo != null) {
                             String branchName = displayMsgAndReturnInput("Enter Branch Name");
                             ArrayList<String> availableBranches = (ArrayList<String>) magitManager.getAvailableBranches().stream()
@@ -84,7 +87,17 @@ public class ConsoleMenu {
 
                             if (availableBranches.contains(branchName)) {
 
-                                magitManager.checkoutBranch(branchName);
+                                try {
+                                    magitManager.checkoutBranch(branchName, forceCheckout);
+                                } catch (RuntimeException e) {
+                                    ConsoleMenu.displayMsg("Changes Detected!\n");
+                                    forceCheckout = ConsoleMenu.displayMsgAndReturnInput("Please Enter 'revert' or  'cancel'").equals(
+                                            "revert");
+
+                                    if (forceCheckout) {
+                                        magitManager.checkoutBranch(branchName, forceCheckout);
+                                    }
+                                }
                             } else {
                                 System.out.println("\nOperation Not Available, Cannot Checkout To This Branch\n");
                             }
