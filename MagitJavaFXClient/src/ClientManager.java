@@ -53,11 +53,11 @@ class ClientManager {
 
         return td.showAndWait();
     }
-
-    void changeUserName() {
-        Optional<String> userName = showDialogMsg("Please enter user name", "Change User Name");
-        userName.ifPresent(s -> this.magitManager.setCurrentUser(s));
-    }
+//
+//    void changeUserName() {
+//        Optional<String> userName = showDialogMsg("Please enter user name", "Change User Name");
+//        userName.ifPresent(s -> this.magitManager.setCurrentUser(s));
+//    }
 
     void showWC() {
 
@@ -98,7 +98,7 @@ class ClientManager {
 
     void showCurrentBranch() {
     }
-    
+
     void resetBranch() {
 
     }

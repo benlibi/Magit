@@ -16,8 +16,6 @@ public class Controller {
     @FXML
     public Button loadRepositoryBtn;
     @FXML
-    public Button changeUserNameBtn;
-    @FXML
     public Button showWcBtn;
     @FXML
     public Button commitBtn;
@@ -76,9 +74,9 @@ public class Controller {
     public void loadRepositoryWithXML(ActionEvent actionEvent) {
     }
 
-    public void changeUserName(ActionEvent actionEvent) {
-        _clientManager.changeUserName();
-    }
+//    public void changeUserName(ActionEvent actionEvent) {
+//        _clientManager.changeUserName();
+//    }
 
     public void showWC(ActionEvent actionEvent) {
         _clientManager.showWC();
