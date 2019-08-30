@@ -12,6 +12,8 @@ public class Controller {
     private ClientManager _clientManager = new ClientManager();
 
     @FXML
+    public Button ChangeUserBtn;
+    @FXML
     public Button createRepositoryBtn;
     @FXML
     public Button loadRepositoryBtn;
@@ -109,5 +111,9 @@ public class Controller {
     public void resetBranch(ActionEvent actionEvent) {
         _clientManager.resetBranch();
 
+    }
+
+    public void changeUserBtn(ActionEvent actionEvent) {
+        _clientManager.changeUser();
     }
 }

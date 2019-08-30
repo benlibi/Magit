@@ -47,17 +47,18 @@ class ClientManager {
         }
     }
 
+    void changeUser(){
+        Optional<String> userName = showDialogMsg("Please enter user name", "Change User Name");
+        userName.ifPresent(s -> this.magitManager.setCurrentUser(s));
+
+    }
+
     private Optional<String> showDialogMsg(String textInputDialog, String headerText) {
         TextInputDialog td = new TextInputDialog(textInputDialog);
         td.setHeaderText(headerText);
 
         return td.showAndWait();
     }
-//
-//    void changeUserName() {
-//        Optional<String> userName = showDialogMsg("Please enter user name", "Change User Name");
-//        userName.ifPresent(s -> this.magitManager.setCurrentUser(s));
-//    }
 
     void showWC() {
 
