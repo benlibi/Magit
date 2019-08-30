@@ -37,20 +37,27 @@ public class MagitManager {
         return availableBranches;
     }
 
-    protected void showCommit() {
-        Folder rootFolder = this.latestFolderReflection;
-        showCommit(rootFolder);
+    protected List<String> showCommit() throws RuntimeException {
+        if (this.currentRepo != null &&
+                this.currentCommit != null) {
+            Folder rootFolder = this.latestFolderReflection;
+            return showCommit(rootFolder);
+        } else {
+            throw new RuntimeException("Operation Not Available, Please Commit Your Changes First");
+        }
     }
 
-    private void showCommit(Folder rootFolder) {
-
-        ConsoleMenu.displayMsg(rootFolder.getPath() + ":");
-        ConsoleMenu.displayMsg(rootFolder.getDirContentToString());
+    private List<String> showCommit(Folder rootFolder) {
+        List<String> commitDetails = new ArrayList<>();
+        commitDetails.add(rootFolder.getPath() + ":");
+        commitDetails.add(rootFolder.getDirContentToString());
 
         rootFolder.getChildFolders().forEach(folder -> {
-            ConsoleMenu.displayMsg(folder.getPath() + ":");
-            ConsoleMenu.displayMsg(folder.getDirContentToString());
+            commitDetails.add(folder.getPath() + ":");
+            commitDetails.add(folder.getDirContentToString());
         });
+
+        return commitDetails;
     }
 
     protected void loadRepository(String newRepoPath) throws FileNotFoundException, IOException {

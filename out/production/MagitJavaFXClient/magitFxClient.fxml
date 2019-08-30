@@ -18,43 +18,44 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="750.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<VBox prefHeight="750.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controller">
     <children>
         <MenuBar nodeOrientation="LEFT_TO_RIGHT" VBox.vgrow="NEVER">
             <menus>
                 <Menu mnemonicParsing="false" text="File">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="New" />
-                        <MenuItem mnemonicParsing="false" text="Open…" />
-                        <Menu mnemonicParsing="false" text="Open Recent" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Close" />
-                        <MenuItem mnemonicParsing="false" text="Save" />
-                        <MenuItem mnemonicParsing="false" text="Save As…" />
-                        <MenuItem mnemonicParsing="false" text="Revert" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Preferences…" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Quit" />
+                        <MenuItem mnemonicParsing="false" text="New"/>
+                        <MenuItem mnemonicParsing="false" text="Open…"/>
+                        <Menu mnemonicParsing="false" text="Open Recent"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Close"/>
+                        <MenuItem mnemonicParsing="false" text="Save"/>
+                        <MenuItem mnemonicParsing="false" text="Save As…"/>
+                        <MenuItem mnemonicParsing="false" text="Revert"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Preferences…"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Quit"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Edit">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="Undo" />
-                        <MenuItem mnemonicParsing="false" text="Redo" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Cut" />
-                        <MenuItem mnemonicParsing="false" text="Copy" />
-                        <MenuItem mnemonicParsing="false" text="Paste" />
-                        <MenuItem mnemonicParsing="false" text="Delete" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <MenuItem mnemonicParsing="false" text="Select All" />
-                        <MenuItem mnemonicParsing="false" text="Unselect All" />
+                        <MenuItem mnemonicParsing="false" text="Undo"/>
+                        <MenuItem mnemonicParsing="false" text="Redo"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Cut"/>
+                        <MenuItem mnemonicParsing="false" text="Copy"/>
+                        <MenuItem mnemonicParsing="false" text="Paste"/>
+                        <MenuItem mnemonicParsing="false" text="Delete"/>
+                        <SeparatorMenuItem mnemonicParsing="false"/>
+                        <MenuItem mnemonicParsing="false" text="Select All"/>
+                        <MenuItem mnemonicParsing="false" text="Unselect All"/>
                     </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem mnemonicParsing="false" text="About MyHelloApp" />
+                        <MenuItem mnemonicParsing="false" text="About MyHelloApp"/>
                     </items>
                 </Menu>
             </menus>
@@ -62,152 +63,188 @@
         <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" VBox.vgrow="NEVER">
             <children>
                 <Accordion id="git-side-menu" fx:id="sideMenu" prefHeight="116.0" prefWidth="163.0">
-               <panes>
-                  <TitledPane id="branches-pane" fx:id="branchesPane" prefHeight="200.0" prefWidth="200.0" text="Branches">
-                     <content>
-                        <GridPane id="branches-grid-pane" fx:id="branchesGridPane">
-                          <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                          </columnConstraints>
-                          <rowConstraints>
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                          </rowConstraints>
-                        </GridPane>
-                     </content>
-                  </TitledPane>
-               </panes></Accordion>
+                    <panes>
+                        <TitledPane id="branches-pane" fx:id="branchesPane" prefHeight="200.0" prefWidth="200.0" text="Branches">
+                            <content>
+                                <GridPane id="branches-grid-pane" fx:id="branchesGridPane">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                                    </rowConstraints>
+                                </GridPane>
+                            </content>
+                        </TitledPane>
+                    </panes>
+                </Accordion>
             </children>
         </AnchorPane>
-      <GridPane alignment="CENTER" prefHeight="392.0" prefWidth="797.0" vgap="10.0">
-        <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-        </columnConstraints>
-        <rowConstraints>
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-        </rowConstraints>
-         <children>
-            <Button id="create-new-repository" fx:id="createRepositoryBtn" alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#createNewRepository" prefHeight="50.0" prefWidth="200.0" text="Create" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="load-repository" fx:id="loadRepositoryBtn" defaultButton="true" mnemonicParsing="false" onAction="#loadRepository" prefHeight="50.0" prefWidth="200.0" text="Load" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="load-xml" fx:id="loadXmlBtn" defaultButton="true" mnemonicParsing="false" onAction="#loadRepositoryWithXML" prefHeight="50.0" prefWidth="200.0" text="Load XML" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="show-wc" fx:id="showWcBtn" defaultButton="true" mnemonicParsing="false" onAction="#showWC" prefHeight="50.0" prefWidth="200.0" text="Show WC" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="commit" fx:id="commitBtn" defaultButton="true" mnemonicParsing="false" onAction="#commit" prefHeight="50.0" prefWidth="200.0" text="Commit" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="show-commit" fx:id="showCommitBtn" defaultButton="true" mnemonicParsing="false" onAction="#showCommit" prefHeight="50.0" prefWidth="200.0" text="Show" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="show-current-branch" fx:id="showCurrentBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#showCurrentBranch" prefHeight="50.0" prefWidth="200.0" text="Show" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="create-branch" fx:id="createBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#createBranch" prefHeight="50.0" prefWidth="200.0" text="Create" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="delete-branch" fx:id="deleteBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#deleteBranch" prefHeight="50.0" prefWidth="200.0" text="Delete" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="checkout-branch" fx:id="checkoutBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#checkoutBranch" prefHeight="50.0" prefWidth="200.0" text="Checkout " textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="reset-branch" fx:id="resetBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#resetBranch" prefHeight="50.0" prefWidth="200.0" text="Reset" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Button id="change-user" fx:id="ChangeUserBtn" defaultButton="true" layoutX="44.0" layoutY="140.0" mnemonicParsing="false" onAction="#changeUserBtn" prefHeight="50.0" prefWidth="200.0" text="Change User" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-            </Button>
-            <Label alignment="CENTER" contentDisplay="CENTER" opacity="0.49" prefHeight="17.0" prefWidth="201.0" text="Operations" textAlignment="JUSTIFY" textFill="#000000cf" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="28.0" />
-               </font>
-               <effect>
-                  <Glow level="0.5">
-                     <input>
-                        <MotionBlur angle="206.34" radius="0.1" />
-                     </input>
-                  </Glow>
-               </effect>
-            </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" opacity="0.49" prefHeight="17.0" prefWidth="201.0" text="Repository" textAlignment="JUSTIFY" textFill="#000000cf" textOverrun="CENTER_ELLIPSIS" underline="true" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-               <effect>
-                  <Glow level="0.5">
-                     <input>
-                        <MotionBlur angle="206.34" radius="0.1" />
-                     </input>
-                  </Glow>
-               </effect>
-            </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" opacity="0.49" prefHeight="17.0" prefWidth="201.0" text="Files / Commit" textAlignment="JUSTIFY" textFill="#000000cf" textOverrun="CENTER_ELLIPSIS" underline="true" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-               <effect>
-                  <Glow level="0.5">
-                     <input>
-                        <MotionBlur angle="206.34" radius="0.1" />
-                     </input>
-                  </Glow>
-               </effect>
-            </Label>
-            <Label alignment="CENTER" contentDisplay="CENTER" opacity="0.49" prefHeight="17.0" prefWidth="201.0" text="Branches" textAlignment="JUSTIFY" textFill="#000000cf" textOverrun="CENTER_ELLIPSIS" underline="true" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
-               <font>
-                  <Font name="Georgia Bold" size="18.0" />
-               </font>
-               <effect>
-                  <Glow level="0.5">
-                     <input>
-                        <MotionBlur angle="206.34" radius="0.1" />
-                     </input>
-                  </Glow>
-               </effect>
-            </Label>
-         </children>
-         <VBox.margin>
-            <Insets top="200.0" />
-         </VBox.margin>
-      </GridPane>
+        <GridPane alignment="CENTER" prefHeight="392.0" prefWidth="797.0" vgap="10.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <children>
+                <Button id="create-new-repository" fx:id="createRepositoryBtn" alignment="CENTER" contentDisplay="CENTER"
+                        defaultButton="true" mnemonicParsing="false" onAction="#createNewRepository" prefHeight="50.0" prefWidth="200.0"
+                        text="Create" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER"
+                        GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="load-repository" fx:id="loadRepositoryBtn" defaultButton="true" mnemonicParsing="false"
+                        onAction="#loadRepository" prefHeight="50.0" prefWidth="200.0" text="Load" textAlignment="CENTER"
+                        textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="load-xml" fx:id="loadXmlBtn" defaultButton="true" mnemonicParsing="false" onAction="#loadRepositoryWithXML"
+                        prefHeight="50.0" prefWidth="200.0" text="Load XML" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS"
+                        GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="show-wc" fx:id="showWcBtn" defaultButton="true" mnemonicParsing="false" onAction="#showWC" prefHeight="50.0"
+                        prefWidth="200.0" text="Show WC" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1"
+                        GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="commit" fx:id="commitBtn" defaultButton="true" mnemonicParsing="false" onAction="#commit" prefHeight="50.0"
+                        prefWidth="200.0" text="Commit" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1"
+                        GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="show-commit" fx:id="showCommitBtn" defaultButton="true" mnemonicParsing="false" onAction="#showCommit"
+                        prefHeight="50.0" prefWidth="200.0" text="Show" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS"
+                        GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="show-current-branch" fx:id="showCurrentBranchBtn" defaultButton="true" mnemonicParsing="false"
+                        onAction="#showCurrentBranch" prefHeight="50.0" prefWidth="200.0" text="Show" textAlignment="CENTER"
+                        textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2"
+                        GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="create-branch" fx:id="createBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#createBranch"
+                        prefHeight="50.0" prefWidth="200.0" text="Create" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS"
+                        GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="delete-branch" fx:id="deleteBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#deleteBranch"
+                        prefHeight="50.0" prefWidth="200.0" text="Delete" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS"
+                        GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="checkout-branch" fx:id="checkoutBranchBtn" defaultButton="true" mnemonicParsing="false"
+                        onAction="#checkoutBranch" prefHeight="50.0" prefWidth="200.0" text="Checkout " textAlignment="CENTER"
+                        textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5"
+                        GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="reset-branch" fx:id="resetBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#resetBranch"
+                        prefHeight="50.0" prefWidth="200.0" text="Reset" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS"
+                        GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Button id="change-user" fx:id="ChangeUserBtn" defaultButton="true" layoutX="44.0" layoutY="140.0" mnemonicParsing="false"
+                        onAction="#changeUserBtn" prefHeight="50.0" prefWidth="200.0" text="Change User" textAlignment="CENTER"
+                        textOverrun="LEADING_ELLIPSIS" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                </Button>
+                <Label alignment="CENTER" contentDisplay="CENTER" opacity="0.49" prefHeight="17.0" prefWidth="201.0" text="Operations"
+                       textAlignment="JUSTIFY" textFill="#000000cf" textOverrun="CENTER_ELLIPSIS" GridPane.columnIndex="1"
+                       GridPane.halignment="CENTER" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="28.0"/>
+                    </font>
+                    <effect>
+                        <Glow level="0.5">
+                            <input>
+                                <MotionBlur angle="206.34" radius="0.1"/>
+                            </input>
+                        </Glow>
+                    </effect>
+                </Label>
+                <Label alignment="CENTER" contentDisplay="CENTER" opacity="0.49" prefHeight="17.0" prefWidth="201.0" text="Repository"
+                       textAlignment="JUSTIFY" textFill="#000000cf" textOverrun="CENTER_ELLIPSIS" underline="true"
+                       GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                    <effect>
+                        <Glow level="0.5">
+                            <input>
+                                <MotionBlur angle="206.34" radius="0.1"/>
+                            </input>
+                        </Glow>
+                    </effect>
+                </Label>
+                <Label alignment="CENTER" contentDisplay="CENTER" opacity="0.49" prefHeight="17.0" prefWidth="201.0" text="Files / Commit"
+                       textAlignment="JUSTIFY" textFill="#000000cf" textOverrun="CENTER_ELLIPSIS" underline="true" GridPane.columnIndex="1"
+                       GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                    <effect>
+                        <Glow level="0.5">
+                            <input>
+                                <MotionBlur angle="206.34" radius="0.1"/>
+                            </input>
+                        </Glow>
+                    </effect>
+                </Label>
+                <Label alignment="CENTER" contentDisplay="CENTER" opacity="0.49" prefHeight="17.0" prefWidth="201.0" text="Branches"
+                       textAlignment="JUSTIFY" textFill="#000000cf" textOverrun="CENTER_ELLIPSIS" underline="true" GridPane.columnIndex="2"
+                       GridPane.halignment="CENTER" GridPane.rowIndex="1" GridPane.valignment="CENTER">
+                    <font>
+                        <Font name="Georgia Bold" size="18.0"/>
+                    </font>
+                    <effect>
+                        <Glow level="0.5">
+                            <input>
+                                <MotionBlur angle="206.34" radius="0.1"/>
+                            </input>
+                        </Glow>
+                    </effect>
+                </Label>
+            </children>
+            <VBox.margin>
+                <Insets top="200.0"/>
+            </VBox.margin>
+        </GridPane>
     </children>
 </VBox>

@@ -129,13 +129,7 @@ public class ConsoleMenu {
                         break;
                     //Show Current Commit
                     case 8:
-                        if (magitManager.currentRepo != null &&
-                                magitManager.currentCommit != null) {
-                            magitManager.showCommit();
-                        } else {
-                            System.out.println("\nOperation Not Available, Please Commit Your Changes First\n");
-                        }
-
+                        magitManager.showCommit();
                         break;
                     //Show Status
                     case 9:

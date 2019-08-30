@@ -1,11 +1,13 @@
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.TextInputDialog;
+import javafx.geometry.HPos;
+import javafx.scene.control.*;
+import javafx.scene.layout.ColumnConstraints;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
 
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 class ClientManager {
@@ -145,6 +147,33 @@ class ClientManager {
     }
 
     void showCommit() {
+        List<String> commitDetails;
+        try {
+            commitDetails = magitManager.showCommit();
+        } catch (RuntimeException e) {
+            handleException(e);
+            return;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setHeaderText("Current Commit");
+
+        GridPane grid = new GridPane();
+        for (int i = 0; i < commitDetails.size(); i++) {
+            grid.addRow(i, new Label(commitDetails.get(i)));
+        }
+
+        grid.setHgap(30);
+        ColumnConstraints right = new ColumnConstraints();
+        right.setHalignment(HPos.RIGHT);
+        grid.getColumnConstraints().setAll(new ColumnConstraints(), right);
+
+        ScrollPane sp = new ScrollPane(grid);
+        alert.getDialogPane().setExpandableContent(sp);
+        alert.getDialogPane().setExpanded(true);
+        alert.setResizable(true);
+        alert.initModality(Modality.WINDOW_MODAL);
+        alert.showAndWait();
     }
 
     void commit() {
