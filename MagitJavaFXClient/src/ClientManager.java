@@ -1,3 +1,4 @@
+import Models.XmlLoader;
 import javafx.geometry.HPos;
 import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
@@ -5,8 +6,10 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 
 import javax.xml.bind.JAXBException;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,8 +57,16 @@ class ClientManager {
 
     boolean loadXMLRepository() {
         try {
-            this.magitManager.loadXml();
+            Optional<String> repoPath = showDialogMsg("enter any repo path", "Load repository");
 
+            if (repoPath.isPresent()) {
+                XmlLoader xmlLoader = new XmlLoader(repoPath.get());
+                checkXmlRepoPath(xmlLoader.get_path());
+                this.magitManager.loadXml(xmlLoader);
+
+                return true;
+            }
+            infoMessage("Repo was loaded Successfully", "Success");
             return true;
         } catch (IOException | JAXBException e) {
             handleException(e);
@@ -198,6 +209,61 @@ class ClientManager {
         td.setHeaderText(headerText);
 
         return td.showAndWait();
+    }
+
+
+    private void checkXmlRepoPath(String repoPath) throws IOException {
+        File directory = new File(repoPath);
+        if (!directory.exists()) {
+            if (!directory.mkdir()) {
+                throw new IOException (repoPath + " Faild to be created");
+            }
+        } else {
+            String[] repoFiles = directory.list();
+            List<String> repoFilesList = new ArrayList<>(Arrays.asList(repoFiles));
+            if (repoFilesList.size() != 0) {
+                if (!repoFilesList.contains(".magit")) {
+                    throw new IOException (repoPath + " Not empy\nAborting repo creation");
+                } else {
+                    String userInput = xmlAnswer();
+                    if (userInput.equals("l")) {
+                        this.magitManager.loadRepository(repoPath);
+                    } else {
+                        this.magitManager.deleteRepo(repoPath);
+                    }
+                }
+            }
+        }
+    }
+
+    private String xmlAnswer() throws IOException {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Repo Found In Destination");
+        alert.setHeaderText(".magit folder found in destination");
+        alert.setContentText("Choose your option.");
+
+        ButtonType buttonTypeOne = new ButtonType("Load Existing Repo");
+        ButtonType buttonTypeTwo = new ButtonType("Delete Existing Repo and Load Xml");
+        ButtonType buttonTypeCancel = new ButtonType("Cancel");
+
+        alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeCancel);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == buttonTypeOne){
+            return "l";
+        } else if (result.get() == buttonTypeTwo) {
+            return "x";
+        } else {
+            throw new IOException ("Operation canceld");        }
+    }
+
+    private void infoMessage(String message, String title){
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        alert.showAndWait();
     }
 
 }

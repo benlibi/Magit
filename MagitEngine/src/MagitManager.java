@@ -60,7 +60,7 @@ public class MagitManager {
         return commitDetails;
     }
 
-    protected void loadRepository(String newRepoPath) throws FileNotFoundException, IOException {
+    public void loadRepository(String newRepoPath) throws FileNotFoundException, IOException {
 
         File[] repoFiles = new File(newRepoPath).listFiles();
 
@@ -183,7 +183,7 @@ public class MagitManager {
         }
     }
 
-    private void deleteRepo(String path) {
+    public void deleteRepo(String path) {
         try (Stream<File> files = Arrays.stream(Objects.requireNonNull(new File(path).listFiles()))) {
             files
                     .forEach(directory -> {
@@ -367,62 +367,23 @@ public class MagitManager {
         }
     }
 
-    private boolean checkXmlRepoPath(String repoPath) throws IOException {
-        boolean isOk = true;
-        File directory = new File(repoPath);
-        if (!directory.exists()) {
-            isOk = directory.mkdir();
-            if (isOk) {
-                ConsoleMenu.displayMsg(repoPath + " was created succssesfully");
-            } else {
-                ConsoleMenu.displayMsg(repoPath + " Faild to be created");
-            }
-        } else {
-            String[] repoFiles = directory.list();
-            List<String> repoFilesList = new ArrayList<>(Arrays.asList(repoFiles));
-            if (repoFilesList.size() != 0) {
-                if (!repoFilesList.contains(".magit")) {
-                    isOk = false;
-                    ConsoleMenu.displayMsg(repoPath + " Not empy\nAborting repo creation");
-                } else {
-                    ConsoleMenu.displayMsg(".magit folder found in destination");
-                    ConsoleMenu.displayMsg("l :Load Existing Repo\nx :Delete Existing Repo and Load Xml");
-                    String userInput = ConsoleMenu.lxQustion();
-                    if (userInput.equals("l")) {
-                        isOk = false;
-                        ConsoleMenu.displayMsg("Loading Existing Repo");
-                        loadRepository(repoPath);
-                    } else {
-                        ConsoleMenu.displayMsg("Deleting WC and creating repo from xml");
-                        deleteRepo(repoPath);
-                    }
-                }
-            }
-        }
-        return isOk;
-    }
 
-    protected void loadXml() throws IOException, JAXBException {
+    protected void loadXml(XmlLoader xmlLoader) throws IOException, JAXBException {
         boolean isXmlValid;
-        String path = ConsoleMenu.readXml();
-        XmlLoader xmlLoader = new XmlLoader(path);
-        if (checkXmlRepoPath(xmlLoader.get_path())) {
-            isXmlValid = xmlLoader.checkXml();
-            if (!isXmlValid) {
-                ConsoleMenu.displayMsg(xmlLoader.getXmlPropriety());
-                return;
-            }
-            this.currentRepo = new Repository(xmlLoader.get_path(), null);
-            this.currentRepo.createBlankRepository();
-            xmlLoader.createRepoRep();
-            this.currentRepo.setRootFolder(xmlLoader.getCurrentRootFolder());
-            this.currentBranch = xmlLoader.getHeadBranch();
-            this.currentCommit = xmlLoader.getCurrentCommit();
-            this.currentRepo.createHead(this.currentBranch.getName());
-            this.currentRepo.set_mainProjectSha1(currentCommit.getMainRepoSha1());
-            this.latestFolderReflection = xmlLoader.getCurrentRootFolder();
-            checkoutBranchNewWC(currentBranch.getName(), this.latestFolderReflection);
+        isXmlValid = xmlLoader.checkXml();
+        if (!isXmlValid) {
+            throw new IOException (xmlLoader.getXmlPropriety());
         }
+        this.currentRepo = new Repository(xmlLoader.get_path(), null);
+        this.currentRepo.createBlankRepository();
+        xmlLoader.createRepoRep();
+        this.currentRepo.setRootFolder(xmlLoader.getCurrentRootFolder());
+        this.currentBranch = xmlLoader.getHeadBranch();
+        this.currentCommit = xmlLoader.getCurrentCommit();
+        this.currentRepo.createHead(this.currentBranch.getName());
+        this.currentRepo.set_mainProjectSha1(currentCommit.getMainRepoSha1());
+        this.latestFolderReflection = xmlLoader.getCurrentRootFolder();
+        checkoutBranchNewWC(currentBranch.getName(), this.latestFolderReflection);
     }
 
     private void createFirstCommit(Folder currentMainFolderReflection, String commitMessage) throws IOException {

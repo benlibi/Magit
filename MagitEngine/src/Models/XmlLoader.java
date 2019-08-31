@@ -281,7 +281,7 @@ public class XmlLoader {
                         xmlPropriety = errMsg;
                         return false;
                     }
-                    if (itemId == folderId) {
+                    if (itemId.equals(folderId)) {
                         String errMsg = "folder " + folderRep.getName() + " pointing to itself";
                         System.err.println(errMsg);
                         xmlPropriety = errMsg;

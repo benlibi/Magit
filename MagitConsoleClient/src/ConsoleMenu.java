@@ -124,7 +124,7 @@ public class ConsoleMenu {
                         break;
                     //Load XML
                     case 7:
-                        magitManager.loadXml();
+                        //magitManager.loadXml("vfda");
 
                         break;
                     //Show Current Commit
@@ -201,7 +201,7 @@ public class ConsoleMenu {
                         break;
                 }
 
-            } catch (IOException | JAXBException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
