@@ -10,7 +10,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 public class Controller {
@@ -74,16 +73,6 @@ public class Controller {
     private void initRepo() {
 
         loadBranchesView();
-//        ArrayList<String> availableBranches = _clientManager.getAvailableBranches();
-//        for (int i = 0; i < availableBranches.size(); i++) {
-//            Label branchLabel = new Label(availableBranches.get(i));
-//            branchLabel.setId(availableBranches.get(i));
-//            branchesGridPane.add(branchLabel, 0, i);
-//        }
-//
-//        branchesPane.setContent(branchesGridPane);
-//        sideMenu.getPanes().set(sideMenu.getPanes().indexOf(branchesPane), branchesPane);
-//        sideMenu.setExpandedPane(branchesPane);
     }
 
     private void loadBranchesView() {
