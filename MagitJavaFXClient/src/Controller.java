@@ -1,16 +1,28 @@
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.control.Accordion;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TitledPane;
+import javafx.geometry.Pos;
+import javafx.scene.control.*;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Controller {
+
     private ClientManager _clientManager = new ClientManager();
 
+    @FXML
+    public BorderPane BorderLayoutPane;
+    @FXML
+    public HBox leftHbox;
+    @FXML
+    public ScrollPane branchesViewPane;
     @FXML
     public Button ChangeUserBtn;
     @FXML
@@ -61,16 +73,46 @@ public class Controller {
 
     private void initRepo() {
 
-        ArrayList<String> availableBranches = _clientManager.getAvailableBranches();
-        for (int i = 0; i < availableBranches.size(); i++) {
-            Label branchLabel = new Label(availableBranches.get(i));
-            branchLabel.setId(availableBranches.get(i));
-            branchesGridPane.add(branchLabel, 0, i);
-        }
+        loadBranchesView();
+//        ArrayList<String> availableBranches = _clientManager.getAvailableBranches();
+//        for (int i = 0; i < availableBranches.size(); i++) {
+//            Label branchLabel = new Label(availableBranches.get(i));
+//            branchLabel.setId(availableBranches.get(i));
+//            branchesGridPane.add(branchLabel, 0, i);
+//        }
+//
+//        branchesPane.setContent(branchesGridPane);
+//        sideMenu.getPanes().set(sideMenu.getPanes().indexOf(branchesPane), branchesPane);
+//        sideMenu.setExpandedPane(branchesPane);
+    }
 
-        branchesPane.setContent(branchesGridPane);
-        sideMenu.getPanes().set(sideMenu.getPanes().indexOf(branchesPane), branchesPane);
-        sideMenu.setExpandedPane(branchesPane);
+    private void loadBranchesView() {
+        ListView<Button> list = new ListView<Button>();
+        ObservableList<Button> items = FXCollections.observableArrayList(
+                _clientManager.getAvailableBranches().stream()
+                        .map(branch -> {
+                            Button branchRepresentation = new Button(branch);
+                            branchRepresentation.setPrefWidth(200);
+                            branchRepresentation.setAlignment(Pos.CENTER_LEFT);
+                            branchRepresentation.setBackground(Background.EMPTY);
+                            branchRepresentation.setId(branch);
+                            branchRepresentation.setOnAction(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    onBranchClick(event);
+                                }
+                            });
+
+                            return branchRepresentation;
+                        })
+                        .collect(Collectors.toList())
+        );
+
+        list.setItems(items);
+        branchesViewPane.setContent(list);
+        branchesViewPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        branchesViewPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
     }
 
     public void loadRepositoryWithXML(ActionEvent actionEvent) {
@@ -114,5 +156,11 @@ public class Controller {
 
     public void changeUserBtn(ActionEvent actionEvent) {
         _clientManager.changeUser();
+    }
+
+    private void onBranchClick(ActionEvent actionEvent) {
+
+        Button tempBranchBtn = (Button)actionEvent.getSource();
+        tempBranchBtn.setText("Ben");
     }
 }
