@@ -28,7 +28,7 @@ class ClientManager {
                 return true;
             }
             return false;
-        } catch (IOException | NullPointerException e) {
+        } catch (IOException | RuntimeException e) {
             handleException(e);
             return false;
         }
@@ -49,7 +49,7 @@ class ClientManager {
             }
 
             return false;
-        } catch (IOException e) {
+        } catch (IOException | RuntimeException e) {
             handleException(e);
 
             return false;
@@ -116,7 +116,7 @@ class ClientManager {
         branchName.ifPresent(s -> {
             try {
                 this.magitManager.deleteBranch(s);
-            } catch (IOException e) {
+            } catch (IOException | RuntimeException e) {
                 handleException(e);
             }
         });
@@ -139,7 +139,7 @@ class ClientManager {
                 if (type == ButtonType.OK) {
                     try {
                         this.magitManager.checkoutBranch(branchName, true);
-                    } catch (IOException ex) {
+                    } catch (IOException | RuntimeException ex) {
                         handleException(e);
                     }
 
@@ -191,7 +191,7 @@ class ClientManager {
         commitMsg.ifPresent(s -> {
             try {
                 magitManager.commit(s);
-            } catch (IOException e) {
+            } catch (IOException | RuntimeException e) {
                 handleException(e);
             }
         });
