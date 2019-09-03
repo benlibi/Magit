@@ -264,9 +264,14 @@ public class MagitManager {
         if (!isChangesFound(currentMainFolderReflection)) {
             throw new IOException("No Changes Detected !");
         } else {
-            Folder rootFolder = createRepo(sha1List, new File(this.currentRepo.get_path()), latestFolderReflection);
+//            Folder rootFolder = createRepo(sha1List, new File(this.currentRepo.get_path()), latestFolderReflection);
+            Folder rootFolder = createRepo(sha1List, new File(this.currentRepo.get_path()), currentMainFolderReflection);
             rootFolder.createFolderRepresentation(this.currentRepo.OBJECTS_DIR_PATH);
-            currentCommit = new Commit(commitMsg, rootFolder.getFolderSha1(), currentCommit.getCommitSha1());
+            if (currentCommit == null) {
+                currentCommit = new Commit(commitMsg, rootFolder.getFolderSha1(), null);
+            } else {
+                currentCommit = new Commit(commitMsg, rootFolder.getFolderSha1(), currentCommit.getCommitSha1());
+            }
             currentCommit.createCommitRepresentation(this.currentRepo.OBJECTS_DIR_PATH);
             latestFolderReflection = rootFolder;
             this.currentBranch.setBranchFile(this.currentBranch.getName(),
@@ -363,7 +368,7 @@ public class MagitManager {
         Branch newBranch = new Branch(branchName, this.currentCommit);
         newBranch.createBranchFile(this.currentRepo.BRANCHES_DIR_PATH);
         if (checkout) {
-            this.checkoutBranch(branchName, false);
+            this.checkoutBranch(branchName, true);
         }
     }
 

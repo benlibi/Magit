@@ -3,7 +3,10 @@ import javafx.geometry.HPos;
 import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -17,10 +20,9 @@ class ClientManager {
 
     private MagitManager magitManager = new MagitManager();
 
-    boolean createRepository() {
+    boolean createRepository(Stage stage) {
         try {
-            Optional<String> path = showDialogMsg("enter any repo path", "Creating new repository");
-
+            Optional<String> path = this.getRepoDirPath(stage);
             if (path.isPresent()) {
                 magitManager.createEmptyRepository(path.get());
                 return true;
@@ -37,10 +39,9 @@ class ClientManager {
         return magitManager.getAvailableBranches();
     }
 
-    boolean loadRepository() {
+    boolean loadRepository(Stage stage) {
         try {
-            Optional<String> repoPath = showDialogMsg("enter any repo path", "Load repository");
-
+            Optional<String> repoPath = this.getRepoDirPath(stage);
             if (repoPath.isPresent()) {
                 magitManager.loadRepository(repoPath.get());
 
@@ -55,9 +56,9 @@ class ClientManager {
         }
     }
 
-    boolean loadXMLRepository() {
+    boolean loadXMLRepository(Stage stage) {
         try {
-            Optional<String> repoPath = showDialogMsg("enter any repo path", "Load repository");
+            Optional<String> repoPath = this.getRepoFilePath(stage);
 
             if (repoPath.isPresent()) {
                 XmlLoader xmlLoader = new XmlLoader(repoPath.get());
@@ -90,23 +91,22 @@ class ClientManager {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle("Checkout Your New Branch ?");
             alert.setContentText("Would You Like To Checkout ?");
+            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
             ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-            ButtonType noButton = new ButtonType("Yes", ButtonBar.ButtonData.NO);
-            ButtonType cancelButton = new ButtonType("Yes", ButtonBar.ButtonData.CANCEL_CLOSE);
             alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
             alert.showAndWait().ifPresent(type -> {
                 boolean checkout = false;
-                if (type == ButtonType.OK) {
+                if (type == okButton) {
                     checkout = true;
-                } else if (type == ButtonType.CANCEL) {
+                } else if (type == cancelButton) {
                     return;
                 }
                 try {
                     this.magitManager.createBranch(s, checkout);
-                } catch (IOException e) {
+                } catch (IOException | RuntimeException e) {
                     handleException(e);
                 }
-
             });
         });
     }
@@ -122,33 +122,32 @@ class ClientManager {
         });
     }
 
-    void checkoutBranch() {
-        boolean forceCheckout = false;
-        Optional<String> branchName = showDialogMsg("Please enter branch name", "Checkout Branch");
-        branchName.ifPresent(s -> {
-            try {
-                this.magitManager.checkoutBranch(s, forceCheckout);
-            } catch (IOException e) {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle(e.getMessage());
-                alert.setContentText("force checkout?");
-                ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-                ButtonType noButton = new ButtonType("Yes", ButtonBar.ButtonData.NO);
-                ButtonType cancelButton = new ButtonType("Yes", ButtonBar.ButtonData.CANCEL_CLOSE);
-                alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
-                alert.showAndWait().ifPresent(type -> {
-                    if (type == ButtonType.OK) {
-                        try {
-                            this.magitManager.checkoutBranch(s, true);
-                        } catch (IOException ex) {
-                            handleException(e);
-                        }
+    void checkoutBranch(String branchName) {
+        boolean forceCheckout = true;
 
+        try {
+            this.magitManager.checkoutBranch(branchName, forceCheckout);
+        } catch (IOException | RuntimeException e) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(e.getMessage());
+            alert.setContentText("force checkout?");
+            ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
+            alert.showAndWait().ifPresent(type -> {
+                if (type == ButtonType.OK) {
+                    try {
+                        this.magitManager.checkoutBranch(branchName, true);
+                    } catch (IOException ex) {
+                        handleException(e);
                     }
-                });
 
-            }
-        });
+                }
+            });
+
+        }
+//        });
     }
 
     void showCurrentBranch() {
@@ -216,14 +215,14 @@ class ClientManager {
         File directory = new File(repoPath);
         if (!directory.exists()) {
             if (!directory.mkdir()) {
-                throw new IOException (repoPath + " Faild to be created");
+                throw new IOException(repoPath + " Faild to be created");
             }
         } else {
             String[] repoFiles = directory.list();
             List<String> repoFilesList = new ArrayList<>(Arrays.asList(repoFiles));
             if (repoFilesList.size() != 0) {
                 if (!repoFilesList.contains(".magit")) {
-                    throw new IOException (repoPath + " Not empy\nAborting repo creation");
+                    throw new IOException(repoPath + " Not empy\nAborting repo creation");
                 } else {
                     String userInput = xmlAnswer();
                     if (userInput.equals("l")) {
@@ -249,15 +248,16 @@ class ClientManager {
         alert.getButtonTypes().setAll(buttonTypeOne, buttonTypeTwo, buttonTypeCancel);
 
         Optional<ButtonType> result = alert.showAndWait();
-        if (result.get() == buttonTypeOne){
+        if (result.get() == buttonTypeOne) {
             return "l";
         } else if (result.get() == buttonTypeTwo) {
             return "x";
         } else {
-            throw new IOException ("Operation canceld");        }
+            throw new IOException("Operation canceld");
+        }
     }
 
-    private void infoMessage(String message, String title){
+    private void infoMessage(String message, String title) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -266,5 +266,25 @@ class ClientManager {
         alert.showAndWait();
     }
 
+    private Optional<String> getRepoDirPath(Stage stage) {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        File selectedDirectory = directoryChooser.showDialog(stage);
 
+        if (selectedDirectory == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(selectedDirectory.getAbsolutePath());
+        }
+    }
+
+    private Optional<String> getRepoFilePath(Stage stage) {
+        FileChooser fileChooser = new FileChooser();
+        File selectedFile = fileChooser.showOpenDialog(stage);
+
+        if (selectedFile == null) {
+            return Optional.empty();
+        } else {
+            return Optional.of(selectedFile.getAbsolutePath());
+        }
+    }
 }

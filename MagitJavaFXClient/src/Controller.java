@@ -4,11 +4,13 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 
 import java.util.stream.Collectors;
 
@@ -41,8 +43,6 @@ public class Controller {
     @FXML
     public Button deleteBranchBtn;
     @FXML
-    public Button checkoutBranchBtn;
-    @FXML
     public Button resetBranchBtn;
     @FXML
     public Button loadXmlBtn;
@@ -57,14 +57,14 @@ public class Controller {
     @FXML
     public void createNewRepository(ActionEvent actionEvent) {
 
-        if (_clientManager.createRepository()) {
+        if (_clientManager.createRepository((Stage) ((Node) actionEvent.getSource()).getScene().getWindow())) {
             initRepo();
         }
     }
 
     public void loadRepository(ActionEvent actionEvent) {
 
-        if (_clientManager.loadRepository()) {
+        if (_clientManager.loadRepository((Stage) ((Node) actionEvent.getSource()).getScene().getWindow())) {
 
             initRepo();
         }
@@ -105,7 +105,7 @@ public class Controller {
     }
 
     public void loadRepositoryWithXML(ActionEvent actionEvent) {
-        if (_clientManager.loadXMLRepository()) {
+        if (_clientManager.loadXMLRepository((Stage) ((Node) actionEvent.getSource()).getScene().getWindow())) {
             initRepo();
         }
     }
@@ -122,20 +122,16 @@ public class Controller {
         _clientManager.showCommit();
     }
 
-    public void showCurrentBranch(ActionEvent actionEvent) {
-        _clientManager.showCurrentBranch();
-    }
-
     public void createBranch(ActionEvent actionEvent) {
         _clientManager.createBranch();
+
+        loadBranchesView();
     }
 
     public void deleteBranch(ActionEvent actionEvent) {
         _clientManager.deleteBranch();
-    }
 
-    public void checkoutBranch(ActionEvent actionEvent) {
-        _clientManager.checkoutBranch();
+        loadBranchesView();
     }
 
     public void resetBranch(ActionEvent actionEvent) {
@@ -148,8 +144,9 @@ public class Controller {
     }
 
     private void onBranchClick(ActionEvent actionEvent) {
+        Button branchBtn = (Button) actionEvent.getSource();
+        _clientManager.checkoutBranch(branchBtn.getId());
 
-        Button tempBranchBtn = (Button)actionEvent.getSource();
-        tempBranchBtn.setText("Ben");
+        loadBranchesView();
     }
 }

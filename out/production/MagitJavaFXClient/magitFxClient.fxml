@@ -63,7 +63,7 @@
          <left>
             <HBox id="left-hbox" fx:id="leftHbox" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
-                  <ScrollPane id="branches-view-pane" fx:id="branchesViewPane" prefHeight="200.0" prefWidth="200.0" />
+                  <ScrollPane id="branches-view-pane" fx:id="branchesViewPane" prefHeight="200.0" prefWidth="203.0" />
                </children>
             </HBox>
          </left>
@@ -114,12 +114,7 @@
                               <Font name="Georgia Bold" size="18.0" />
                           </font>
                       </Button>
-                      <Button id="show-current-branch" fx:id="showCurrentBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#showCurrentBranch" prefHeight="50.0" prefWidth="200.0" text="Show" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
-                          <font>
-                              <Font name="Georgia Bold" size="18.0" />
-                          </font>
-                      </Button>
-                      <Button id="create-branch" fx:id="createBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#createBranch" prefHeight="50.0" prefWidth="200.0" text="Create" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
+                      <Button id="create-branch" fx:id="createBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#createBranch" prefHeight="50.0" prefWidth="200.0" text="Create" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="2" GridPane.valignment="CENTER">
                           <font>
                               <Font name="Georgia Bold" size="18.0" />
                           </font>
@@ -129,12 +124,7 @@
                               <Font name="Georgia Bold" size="18.0" />
                           </font>
                       </Button>
-                      <Button id="checkout-branch" fx:id="checkoutBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#checkoutBranch" prefHeight="50.0" prefWidth="200.0" text="Checkout " textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
-                          <font>
-                              <Font name="Georgia Bold" size="18.0" />
-                          </font>
-                      </Button>
-                      <Button id="reset-branch" fx:id="resetBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#resetBranch" prefHeight="50.0" prefWidth="200.0" text="Reset" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER">
+                      <Button id="reset-branch" fx:id="resetBranchBtn" defaultButton="true" mnemonicParsing="false" onAction="#resetBranch" prefHeight="50.0" prefWidth="200.0" text="Reset" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.rowIndex="3" GridPane.valignment="CENTER">
                           <font>
                               <Font name="Georgia Bold" size="18.0" />
                           </font>
