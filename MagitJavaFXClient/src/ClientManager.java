@@ -13,10 +13,7 @@ import javafx.stage.Stage;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 class ClientManager {
 
@@ -84,7 +81,45 @@ class ClientManager {
     }
 
     void showWC() {
+        try {
+            Map<String, List<String>> statusMap = magitManager.showStatus();
 
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setHeaderText("WC");
+
+            GridPane grid = new GridPane();
+
+            int i = 0;
+            for (String status : statusMap.keySet()) {
+                if (statusMap.get(status).size() != 0) {
+
+                    grid.addRow(i, new Label(status));
+                    i++;
+                    for (String changedFile : statusMap.get(status)) {
+                        grid.addRow(i, new Label(changedFile));
+                        i++;
+                    }
+                } else {
+                    grid.addRow(i, new Label(status));
+                }
+                i++;
+            }
+            grid.setHgap(30);
+            ColumnConstraints right = new ColumnConstraints();
+            right.setHalignment(HPos.RIGHT);
+            grid.getColumnConstraints().setAll(new ColumnConstraints(), right);
+
+            ScrollPane sp = new ScrollPane(grid);
+            alert.getDialogPane().setExpandableContent(sp);
+            alert.getDialogPane().setExpanded(true);
+            alert.setResizable(true);
+            alert.initModality(Modality.WINDOW_MODAL);
+            alert.showAndWait();
+
+
+        } catch (IOException e) {
+            handleException(e);
+        }
     }
 
     void createBranch() {
