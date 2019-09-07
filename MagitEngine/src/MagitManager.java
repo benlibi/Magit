@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MagitManager {
@@ -58,6 +59,27 @@ public class MagitManager {
         });
 
         return commitDetails;
+    }
+
+    public String getFileContent(String fileSha1) {
+        if (this.latestFolderReflection == null) {
+            throw new RuntimeException("Couldn't find any commit.");
+        }
+        if (this.latestFolderReflection.getChildFolders().stream()
+                .anyMatch(folder -> folder.getFolderSha1().equals(fileSha1))) {
+            return this.latestFolderReflection.getChildFolders().stream()
+                    .filter(folder -> folder.getFolderSha1().equals(fileSha1))
+                    .map(Folder::getDirContentToString)
+                    .collect(Collectors.joining());
+        } else if (this.latestFolderReflection.getChildBlobs().stream()
+                .anyMatch(blob -> blob.getBlobSha1().equals(fileSha1))) {
+            return this.latestFolderReflection.getChildBlobs().stream()
+                    .filter(blob -> blob.getBlobSha1().equals(fileSha1))
+                    .map(Blob::getContent)
+                    .collect(Collectors.joining());
+        }
+
+        throw new RuntimeException("There is no such file, try again");
     }
 
     public void loadRepository(String newRepoPath) throws FileNotFoundException, IOException {
@@ -377,7 +399,7 @@ public class MagitManager {
         boolean isXmlValid;
         isXmlValid = xmlLoader.checkXml();
         if (!isXmlValid) {
-            throw new IOException (xmlLoader.getXmlPropriety());
+            throw new IOException(xmlLoader.getXmlPropriety());
         }
         this.currentRepo = new Repository(xmlLoader.get_path(), null);
         this.currentRepo.createBlankRepository();

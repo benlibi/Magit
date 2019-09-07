@@ -1,4 +1,6 @@
 import Models.XmlLoader;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.*;
 import javafx.scene.layout.ColumnConstraints;
@@ -169,8 +171,16 @@ class ClientManager {
         alert.setHeaderText("Current Commit");
 
         GridPane grid = new GridPane();
-        for (int i = 0; i < commitDetails.size(); i++) {
-            grid.addRow(i, new Label(commitDetails.get(i)));
+
+        for (int i = 1; i < commitDetails.size(); i++) {
+            Hyperlink tmpLabel = new Hyperlink(commitDetails.get(i));
+            tmpLabel.setOnAction(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent event) {
+                    onFileClick(event);
+                }
+            });
+            grid.addRow(i, tmpLabel);
         }
 
         grid.setHgap(30);
@@ -286,5 +296,23 @@ class ClientManager {
         } else {
             return Optional.of(selectedFile.getAbsolutePath());
         }
+    }
+
+    private void onFileClick(ActionEvent actionEvent) {
+        Hyperlink file = (Hyperlink) actionEvent.getSource();
+        String[] fileAttr = file.getText().split(",");
+        String fileContent = magitManager.getFileContent(fileAttr[1]);
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(fileAttr[0]);
+        alert.setHeaderText(fileAttr[0]);
+
+        GridPane grid = new GridPane();
+        Label fileLabel = new Label(fileContent);
+        grid.addRow(0, fileLabel);
+        ScrollPane sp = new ScrollPane(grid);
+        alert.getDialogPane().setExpandableContent(sp);
+        alert.getDialogPane().setExpanded(true);
+        alert.setResizable(true);
+        alert.showAndWait();
     }
 }
