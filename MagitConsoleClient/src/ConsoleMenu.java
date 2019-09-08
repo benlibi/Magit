@@ -33,7 +33,6 @@ public class ConsoleMenu {
             System.out.println("10 - Show Available Branches");
             System.out.println("11 - Delete Branch");
             System.out.println("12 - Show Active Branch History");
-            System.out.println("13 - Show Status");
             System.out.println("14 - Quit");
 
 

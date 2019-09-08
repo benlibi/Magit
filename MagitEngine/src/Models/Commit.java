@@ -13,16 +13,32 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class Commit {
+public class Commit implements Comparable<Commit>{
 
     private String commitSha1;
+
+    public String getCommitDate() {
+        return commitDate;
+    }
+
     private String commitDate;
+
+    public String getCommitter() {
+        return committer;
+    }
+
     private String committer = User.getName();
     private String mainRepoSha1;
+
+    public String getCommitMassage() {
+        return commitMassage;
+    }
+
     private String commitMassage;
     private List<String> changedFiles = new ArrayList<>();
     private List<String> commitHistory = new ArrayList<>();
     private String previousCommit;
+
 
     public Commit(String commitRepresentation) {
         String[] commitAttr = commitRepresentation.split(",");
@@ -113,4 +129,10 @@ public class Commit {
     public List<String> getCommitHistory() {
         return commitHistory;
     }
+
+    @Override
+    public int compareTo(Commit o) {
+        return this.getCommitDate().compareTo(o.getCommitDate());
+    }
+
 }

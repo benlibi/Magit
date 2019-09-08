@@ -1,4 +1,10 @@
+import Models.Commit;
+import Models.ExtendedCommit;
 import Models.XmlLoader;
+import com.fxgraph.edges.Edge;
+import com.fxgraph.graph.Graph;
+import com.fxgraph.graph.ICell;
+import com.fxgraph.graph.Model;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
@@ -63,15 +69,13 @@ class ClientManager {
                 XmlLoader xmlLoader = new XmlLoader(repoPath.get());
                 checkXmlRepoPath(xmlLoader.get_path());
                 this.magitManager.loadXml(xmlLoader);
-
+                infoMessage("Repo was loaded Successfully", "Success");
                 return true;
             }
-            infoMessage("Repo was loaded Successfully", "Success");
-            return true;
         } catch (IOException | JAXBException e) {
             handleException(e);
         }
-
+        infoMessage("Path not exist", "Blat");
         return false;
     }
 
@@ -185,6 +189,155 @@ class ClientManager {
 
         }
 //        });
+    }
+
+    private void createEdges(Model model, Map<String,ICell> commitRep, Map<String,List<Commit>> commitMap){
+        for(String branchName: commitMap.keySet()){
+            for(Commit commit: commitMap.get(branchName)){
+                for(String parentCommit: commit.getCommitHistory()){
+                    final Edge edge = new Edge(commitRep.get(commit.getCommitSha1()), commitRep.get(parentCommit));
+                    model.addEdge(edge);
+                }
+            }
+        }
+
+    }
+
+//    private Map<String,List<Commit>>createCommitParantMap(){
+//        Map<String, List<Commit>> commitParentMap = new HashMap<String,List<Commit>>();
+//        List<String> branchList = getAvailableBranches();
+//        for(String branchName: branchList){
+//            String branchCommitSha1 = magitManager.readBranchFile(branchName);
+//            String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
+//                    magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+//            Commit commit = new Commit(commitRepresentation.replace("\n", ""));
+//            if(commit.getCommitHistory().size()==2){
+//                for(String commitRepresentation:commit.getCommitHistory())
+//                    magitManager.createCommitList1(commit, commitList);
+//            }
+//        }
+//
+//        return commitParentMap;
+//    }
+
+    public Map<String,List<Commit>> createCommitMap(){
+        Map<String,List<Commit>> commitMap = new HashMap<String,List<Commit>>();
+        List<String> branchList = getAvailableBranches();
+        for (String branchName: branchList){
+            branchName =branchName.replace(" (HEAD)", "");
+            List<Commit> commitList = new ArrayList<>();
+            String branchCommitSha1 = magitManager.readBranchFile(branchName);
+            String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
+                    magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+            Commit commit = new Commit(commitRepresentation.replace("\n", ""));
+            commitList.add(commit);
+            magitManager.createCommitList(commit, commitList);
+            commitMap.put(branchName, commitList);
+        }
+        return commitMap;
+    }
+
+    private void populateCommitChildrensForBranch(ExtendedCommit commit, Map<String, ExtendedCommit> extendedCommitList){
+        List<String> commitChildSha1 = commit.getCommitHistory();
+        for(String commitSha1: commitChildSha1){
+            ExtendedCommit childcommit;
+            if(!extendedCommitList.keySet().contains(commitSha1)) {
+                String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + commitSha1),
+                        magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+                childcommit = new ExtendedCommit(commitRepresentation.replace("\n", ""));
+                extendedCommitList.put(childcommit.getCommitSha1(), childcommit);
+            }else{
+                childcommit = extendedCommitList.get(commitSha1);
+            }
+            childcommit.addToCommitListChildList(commit);
+            populateCommitChildrensForBranch(childcommit, extendedCommitList);
+        }
+    }
+
+
+
+    private Map<String, ExtendedCommit> populateCommitChildrens(Set<String> branchSet){
+        Map<String, ExtendedCommit> extendedCommitList = new HashMap<>();
+        for(String branchName: branchSet){
+            String branchCommitSha1 = magitManager.readBranchFile(branchName);
+            String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
+                    magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+            ExtendedCommit commit = new ExtendedCommit(commitRepresentation.replace("\n", ""));
+            commit.setBranchName(branchName);
+            extendedCommitList.put(commit.getCommitSha1(), commit);
+            populateCommitChildrensForBranch(commit, extendedCommitList);
+        }
+        return extendedCommitList;
+
+    }
+
+    private ExtendedCommit getRootCommit(Map<String, ExtendedCommit> extendedCommitList){
+        for(ExtendedCommit commit: extendedCommitList.values()){
+            if(commit.getCommitHistory().size()==0){
+                commit.setBranchName("master");
+                return commit;
+            }
+        }
+        return null;
+    }
+
+    private void populateMasterBranchName(ExtendedCommit commit){
+        if(commit.getCommitChildes().size()!=0){
+            ExtendedCommit childCommit = commit.getOlderCommit();
+            childCommit.setBranchName(commit.getBranchName());
+            populateMasterBranchName(childCommit);
+        }
+    }
+
+    private void populateBranchConmmit(Map<String, ExtendedCommit> extendedCommitList ,ExtendedCommit commit, String branchName){
+        if(commit.getCommitHistory().size()!=0){
+            for(String parentCommit: commit.getCommitHistory()){
+                ExtendedCommit parentExtendedCommit = extendedCommitList.get(parentCommit);
+                if(parentExtendedCommit.getBranchName()!=null){
+                    parentExtendedCommit.setBranchName(branchName);
+                    populateBranchConmmit(extendedCommitList, parentExtendedCommit, branchName);
+                }
+            }
+        }
+
+    }
+
+    private void populateAllBranchesCommits(Map<String, ExtendedCommit> extendedCommitList, Set<String> branchSet){
+        for(String branchName: branchSet){
+            String branchCommitSha1 = magitManager.readBranchFile(branchName);
+            ExtendedCommit headCommit = extendedCommitList.get(branchCommitSha1);
+            headCommit.setBranchName(branchName);
+            populateBranchConmmit(extendedCommitList, headCommit, branchName);
+        }
+    }
+
+    private void populateleftovers(Map<String, ExtendedCommit> extendedCommitList){
+        for(ExtendedCommit commit: extendedCommitList.values()){
+            if(commit.getBranchName()==null){
+                commit.setBranchName(commit.getOlderCommit().getBranchName());
+            }
+        }
+    }
+
+    public void createGraph(Graph graph){
+        Map<String,List<Commit>> commitMap = createCommitMap();
+        Map<String, ExtendedCommit> extendedCommitList= populateCommitChildrens(commitMap.keySet());
+        ExtendedCommit rootCommit = getRootCommit(extendedCommitList);
+        populateMasterBranchName(rootCommit);
+        populateAllBranchesCommits(extendedCommitList, commitMap.keySet());
+        populateleftovers(extendedCommitList);
+        Map<String,ICell> commitRep = new HashMap<>();
+        final Model model = graph.getModel();
+        graph.beginUpdate();
+        for(ExtendedCommit extendedCommit: extendedCommitList.values()){
+            ICell c = new CommitNode(extendedCommit.getCommitDate(), extendedCommit.getCommitter(), extendedCommit.getCommitMassage(),extendedCommit.getBranchName());
+            model.addCell(c);
+            commitRep.put(extendedCommit.getCommitSha1(), c);
+        }
+        createEdges(model,commitRep, commitMap);
+        graph.endUpdate();
+        List<String> branches = new ArrayList<>(commitMap.keySet());
+        graph.layout(new CommitTreeLayout(branches));
     }
 
     void showCurrentBranch() {

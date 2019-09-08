@@ -1,5 +1,10 @@
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import com.fxgraph.edges.Edge;
+import com.fxgraph.graph.Graph;
+import com.fxgraph.graph.ICell;
+import com.fxgraph.graph.Model;
+import com.fxgraph.graph.PannableCanvas;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -8,13 +13,18 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.shape.Circle;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 import java.util.stream.Collectors;
 
 public class Controller {
+
+
+    public Graph tree = new Graph();
 
     private ClientManager _clientManager = new ClientManager();
 
@@ -52,13 +62,15 @@ public class Controller {
     public GridPane branchesGridPane;
     @FXML
     private Accordion sideMenu;
-
+    @FXML
+    public ScrollPane scrollpaneContainer;
 
     @FXML
     public void createNewRepository(ActionEvent actionEvent) {
 
         if (_clientManager.createRepository((Stage) ((Node) actionEvent.getSource()).getScene().getWindow())) {
             initRepo();
+            initGraph();
         }
     }
 
@@ -67,6 +79,7 @@ public class Controller {
         if (_clientManager.loadRepository((Stage) ((Node) actionEvent.getSource()).getScene().getWindow())) {
 
             initRepo();
+            initGraph();
         }
     }
 
@@ -107,6 +120,7 @@ public class Controller {
     public void loadRepositoryWithXML(ActionEvent actionEvent) {
         if (_clientManager.loadXMLRepository((Stage) ((Node) actionEvent.getSource()).getScene().getWindow())) {
             initRepo();
+            initGraph();
         }
     }
 
@@ -149,4 +163,48 @@ public class Controller {
 
         loadBranchesView();
     }
+
+
+
+////////////////////////////CommitNodeController////////////////////////////////////////
+
+    @FXML private Label commitTimeStampLabel;
+    @FXML private Label messageLabel;
+    @FXML private Label committerLabel;
+    @FXML private Circle CommitCircle;
+
+    void setCommitTimeStamp(String timeStamp) {
+        commitTimeStampLabel.setText(timeStamp);
+        commitTimeStampLabel.setTooltip(new Tooltip(timeStamp));
+    }
+
+    void setCommitter(String committerName) {
+        committerLabel.setText(committerName);
+        committerLabel.setTooltip(new Tooltip(committerName));
+    }
+
+    public void setCommitMessage(String commitMessage) {
+        messageLabel.setText(commitMessage);
+        messageLabel.setTooltip(new Tooltip(commitMessage));
+    }
+
+    public int getCircleRadius() {
+        return (int)CommitCircle.getRadius();
+    }
+
+
+    public void initGraph() {
+        tree = new Graph();
+        tree.getUseNodeGestures().set(false);
+        tree.getUseViewportGestures().set(false);
+        tree.beginUpdate();
+        _clientManager.createGraph(tree);
+
+        PannableCanvas canvas = tree.getCanvas();
+//        canvas.setPrefWidth(100);
+//        canvas.setPrefHeight(100);
+        scrollpaneContainer.setContent(canvas);
+
+    }
+
 }

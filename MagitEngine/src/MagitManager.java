@@ -187,7 +187,7 @@ public class MagitManager {
                 this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/mainFolderContent")).split("\n");
     }
 
-    private String readBranchFile(String branchName) {
+    public String readBranchFile(String branchName) {
         return Branch.getBranchCommitPointer(this.currentRepo.BRANCHES_DIR_PATH.concat("/" + branchName));
     }
 
@@ -233,7 +233,7 @@ public class MagitManager {
         }
     }
 
-    private List<String> cretaeSha1List(File[] objectFiles) {
+    private List<String> createSha1List(File[] objectFiles) {
         List<String> sha1List = new ArrayList<String>();
         for (File objectFile : objectFiles) {
             sha1List.add(objectFile.getName());
@@ -282,7 +282,7 @@ public class MagitManager {
     public void commit(String commitMsg) throws IOException {
         Folder currentMainFolderReflection = new Folder(this.currentRepo.get_path());
         File[] objectFiles = new File(this.currentRepo.OBJECTS_DIR_PATH).listFiles();
-        List<String> sha1List = cretaeSha1List(objectFiles);
+        List<String> sha1List = createSha1List(objectFiles);
         if (!isChangesFound(currentMainFolderReflection)) {
             throw new IOException("No Changes Detected !");
         } else {
@@ -395,7 +395,7 @@ public class MagitManager {
     }
 
 
-    protected void loadXml(XmlLoader xmlLoader) throws IOException, JAXBException {
+    public void loadXml(XmlLoader xmlLoader) throws IOException, JAXBException {
         boolean isXmlValid;
         isXmlValid = xmlLoader.checkXml();
         if (!isXmlValid) {
@@ -436,6 +436,19 @@ public class MagitManager {
 
         this.latestFolderReflection = currentMainFolderReflection;
     }
+
+    public void createCommitList(Commit commit, List<Commit> commitList){
+        List<String> previousCommitsSha1 = commit.getCommitHistory();
+        for (String previousCommitSha1 : previousCommitsSha1) {
+            String commitRepresentation = Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + previousCommitSha1),
+                    this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+            Commit previousCommit = new Commit(commitRepresentation.replace("\n", ""));
+            commitList.add(previousCommit);
+            createCommitList(previousCommit, commitList);
+        }
+    }
+
+
 
     protected void createEmptyRepository(String path) throws IOException {
         this.currentRepo = new Repository(path, null);
