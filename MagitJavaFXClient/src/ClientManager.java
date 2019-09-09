@@ -330,7 +330,7 @@ class ClientManager {
         final Model model = graph.getModel();
         graph.beginUpdate();
         for(ExtendedCommit extendedCommit: extendedCommitList.values()){
-            ICell c = new CommitNode(extendedCommit.getCommitDate(), extendedCommit.getCommitter(), extendedCommit.getCommitMassage(),extendedCommit.getBranchName());
+            ICell c = new CommitNode(extendedCommit.getCommitDateString(), extendedCommit.getCommitter(), extendedCommit.getCommitMassage(),extendedCommit.getBranchName());
             model.addCell(c);
             commitRep.put(extendedCommit.getCommitSha1(), c);
         }

@@ -192,7 +192,7 @@
          <center>
             <ScrollPane id="scrollpane-container" fx:id="scrollpaneContainer" BorderPane.alignment="CENTER">
               <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="200.0" />
+                <AnchorPane minHeight="0.0" minWidth="0.0"/>
               </content>
             </ScrollPane>
          </center>

@@ -10,11 +10,19 @@ import com.fxgraph.graph.Graph;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class CommitNode extends AbstractCell implements Comparable< CommitNode > {
     public String getTimestamp() {
         return timestamp;
+    }
+
+    public Date getTimestampDate() throws ParseException {
+        Date commitDate = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS").parse(this.timestamp);
+        return commitDate;
     }
 
     private String timestamp;
@@ -50,6 +58,7 @@ public class CommitNode extends AbstractCell implements Comparable< CommitNode >
             GridPane root = fxmlLoader.load(url.openStream());
 
             commitNodeController = fxmlLoader.getController();
+            commitNodeController.setCommitBranch(branchName);
             commitNodeController.setCommitMessage(message);
             commitNodeController.setCommitter(committer);
             commitNodeController.setCommitTimeStamp(timestamp);
@@ -83,7 +92,12 @@ public class CommitNode extends AbstractCell implements Comparable< CommitNode >
 
     @Override
     public int compareTo(CommitNode o) {
-        return this.getTimestamp().compareTo(o.getTimestamp());
+        try {
+            return getTimestampDate().compareTo(o.getTimestampDate());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
 
 }

@@ -33,5 +33,7 @@
       <Label fx:id="committerLabel" styleClass="committer-label" text="ccc" GridPane.columnIndex="3" GridPane.rowIndex="1" />
       <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
       <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+       <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+       <Label fx:id="branchLabel" maxWidth="1.7976931348623157E308" styleClass="message-label" text="bbb" GridPane.columnIndex="7" GridPane.rowIndex="1" />
    </children>
 </GridPane>

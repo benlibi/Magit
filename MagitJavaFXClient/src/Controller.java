@@ -172,6 +172,7 @@ public class Controller {
     @FXML private Label messageLabel;
     @FXML private Label committerLabel;
     @FXML private Circle CommitCircle;
+    @FXML private Label branchLabel;
 
     void setCommitTimeStamp(String timeStamp) {
         commitTimeStampLabel.setText(timeStamp);
@@ -186,6 +187,11 @@ public class Controller {
     public void setCommitMessage(String commitMessage) {
         messageLabel.setText(commitMessage);
         messageLabel.setTooltip(new Tooltip(commitMessage));
+    }
+
+    public void setCommitBranch(String branchName) {
+        branchLabel.setText(branchName);
+        branchLabel.setTooltip(new Tooltip(branchName));
     }
 
     public int getCircleRadius() {

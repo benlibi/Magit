@@ -6,6 +6,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -17,7 +18,12 @@ public class Commit implements Comparable<Commit>{
 
     private String commitSha1;
 
-    public String getCommitDate() {
+    public String getCommitDateString() {
+        return commitDate;
+    }
+
+    public Date getCommitDateDate() throws ParseException {
+        Date commitDate=new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss").parse(this.commitDate);
         return commitDate;
     }
 
@@ -132,7 +138,11 @@ public class Commit implements Comparable<Commit>{
 
     @Override
     public int compareTo(Commit o) {
-        return this.getCommitDate().compareTo(o.getCommitDate());
+        try {
+            return this.getCommitDateDate().compareTo(o.getCommitDateDate());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
     }
-
 }
