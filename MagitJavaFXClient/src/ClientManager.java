@@ -120,8 +120,7 @@ class ClientManager {
             alert.initModality(Modality.WINDOW_MODAL);
             alert.showAndWait();
 
-
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             handleException(e);
         }
     }
@@ -164,9 +163,37 @@ class ClientManager {
     }
 
     void checkoutBranch(String branchName) {
-        boolean forceCheckout = true;
+        boolean forceCheckout = false;
 
         try {
+            this.magitManager.checkoutBranch(branchName, forceCheckout);
+        } catch (IOException | RuntimeException e) {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle(e.getMessage());
+            alert.setContentText("force checkout?");
+            ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+            alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
+            alert.showAndWait().ifPresent(type -> {
+                if (type == ButtonType.OK) {
+                    try {
+                        this.magitManager.checkoutBranch(branchName, true);
+                    } catch (IOException | RuntimeException ex) {
+                        handleException(e);
+                    }
+
+                }
+            });
+
+        }
+    }
+
+    void resetBranch(String branchName, String commitSha1) {
+        boolean forceCheckout = false;
+
+        try {
+//            TODO: call reset branch
             this.magitManager.checkoutBranch(branchName, forceCheckout);
         } catch (IOException | RuntimeException e) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

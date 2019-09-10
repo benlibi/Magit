@@ -102,7 +102,7 @@ public class MagitManager {
 
     protected void checkoutBranch(String branchName, boolean forceCheckout) throws IOException, RuntimeException {
         Folder mainFolder = new Folder(this.currentRepo.get_path());
-        if (isChangesFound(mainFolder)) {
+        if (isChangesFound(mainFolder) && !forceCheckout) {
             throw new RuntimeException("Changes Detected!");
         }
 
@@ -302,6 +302,9 @@ public class MagitManager {
     }
 
     public Map<String, List<String>> showStatus() throws IOException {
+        if (this.latestFolderReflection == null) {
+            throw new NullPointerException("Please commit your changes first");
+        }
         List<String> wcFiles = new ArrayList<>();
         List<String> commitFiles = new ArrayList<>();
         List<String> blobsSha1 = new ArrayList<>();

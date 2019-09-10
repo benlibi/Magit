@@ -8,10 +8,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.layout.Background;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
@@ -20,7 +17,7 @@ import java.util.stream.Collectors;
 public class Controller {
 
 
-    public Graph tree = new Graph();
+    private Graph tree = new Graph();
 
     private ClientManager _clientManager = new ClientManager();
 
@@ -145,7 +142,7 @@ public class Controller {
     }
 
     public void resetBranch(ActionEvent actionEvent) {
-        _clientManager.resetBranch();
+//        _clientManager.resetBranch();
 
     }
 
@@ -184,22 +181,22 @@ public class Controller {
         committerLabel.setTooltip(new Tooltip(committerName));
     }
 
-    public void setCommitMessage(String commitMessage) {
+    void setCommitMessage(String commitMessage) {
         messageLabel.setText(commitMessage);
         messageLabel.setTooltip(new Tooltip(commitMessage));
     }
 
-    public void setCommitBranch(String branchName) {
+    void setCommitBranch(String branchName) {
         branchLabel.setText(branchName);
         branchLabel.setTooltip(new Tooltip(branchName));
     }
 
-    public int getCircleRadius() {
+    int getCircleRadius() {
         return (int) CommitCircle.getRadius();
     }
 
 
-    public void initGraph() {
+    private void initGraph() {
         tree = new Graph();
         tree.getUseNodeGestures().set(false);
         tree.getUseViewportGestures().set(false);
@@ -211,4 +208,56 @@ public class Controller {
 
     }
 
+
+    private void initBranchContextMenu(Label branchLabel) {
+
+        // create a menu
+        ContextMenu contextMenu = new ContextMenu();
+
+        // create menuitems
+        MenuItem menuItem1 = new MenuItem("Create New Branch");
+        MenuItem menuItem2 = new MenuItem("Reset Branch To Here");
+        MenuItem menuItem3 = new MenuItem("Merge Branch Onto Here");
+        MenuItem menuItem4 = new MenuItem("Delete Branch");
+
+        menuItem1.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                createBranch(event);
+            }
+        });
+
+        menuItem2.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                resetBranch(event);
+            }
+        });
+
+        menuItem3.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+//                TODO: call merge action
+            }
+        });
+
+        menuItem4.setOnAction(new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                deleteBranch(event);
+            }
+        });
+
+        // add menu items to menu
+        contextMenu.getItems().add(menuItem1);
+        contextMenu.getItems().add(menuItem2);
+        contextMenu.getItems().add(menuItem3);
+        contextMenu.getItems().add(menuItem4);
+
+        // create a tilepane
+        TilePane tilePane = new TilePane(branchLabel);
+
+        // setContextMenu to label
+        branchLabel.setContextMenu(contextMenu);
+    }
 }
