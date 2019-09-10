@@ -188,10 +188,9 @@ class ClientManager {
             });
 
         }
-//        });
     }
 
-    private void createEdges(Model model, Map<String,ICell> commitRep, Map<String,List<Commit>> commitMap){
+    private void createEdges(Model model, Map<String, ICell> commitRep, Map<String,List<Commit>> commitMap){
         for(String branchName: commitMap.keySet()){
             for(Commit commit: commitMap.get(branchName)){
                 for(String parentCommit: commit.getCommitHistory()){
@@ -202,23 +201,6 @@ class ClientManager {
         }
 
     }
-
-//    private Map<String,List<Commit>>createCommitParantMap(){
-//        Map<String, List<Commit>> commitParentMap = new HashMap<String,List<Commit>>();
-//        List<String> branchList = getAvailableBranches();
-//        for(String branchName: branchList){
-//            String branchCommitSha1 = magitManager.readBranchFile(branchName);
-//            String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
-//                    magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
-//            Commit commit = new Commit(commitRepresentation.replace("\n", ""));
-//            if(commit.getCommitHistory().size()==2){
-//                for(String commitRepresentation:commit.getCommitHistory())
-//                    magitManager.createCommitList1(commit, commitList);
-//            }
-//        }
-//
-//        return commitParentMap;
-//    }
 
     public Map<String,List<Commit>> createCommitMap(){
         Map<String,List<Commit>> commitMap = new HashMap<String,List<Commit>>();

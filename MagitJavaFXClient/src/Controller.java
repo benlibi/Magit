@@ -1,10 +1,7 @@
+import com.fxgraph.graph.Graph;
+import com.fxgraph.graph.PannableCanvas;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import com.fxgraph.edges.Edge;
-import com.fxgraph.graph.Graph;
-import com.fxgraph.graph.ICell;
-import com.fxgraph.graph.Model;
-import com.fxgraph.graph.PannableCanvas;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -13,10 +10,9 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-import javafx.scene.shape.Circle;
 import javafx.scene.layout.HBox;
+import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
 
 import java.util.stream.Collectors;
@@ -165,14 +161,18 @@ public class Controller {
     }
 
 
-
 ////////////////////////////CommitNodeController////////////////////////////////////////
 
-    @FXML private Label commitTimeStampLabel;
-    @FXML private Label messageLabel;
-    @FXML private Label committerLabel;
-    @FXML private Circle CommitCircle;
-    @FXML private Label branchLabel;
+    @FXML
+    private Label commitTimeStampLabel;
+    @FXML
+    private Label messageLabel;
+    @FXML
+    private Label committerLabel;
+    @FXML
+    private Circle CommitCircle;
+    @FXML
+    private Label branchLabel;
 
     void setCommitTimeStamp(String timeStamp) {
         commitTimeStampLabel.setText(timeStamp);
@@ -195,7 +195,7 @@ public class Controller {
     }
 
     public int getCircleRadius() {
-        return (int)CommitCircle.getRadius();
+        return (int) CommitCircle.getRadius();
     }
 
 
@@ -206,9 +206,7 @@ public class Controller {
         tree.beginUpdate();
         _clientManager.createGraph(tree);
 
-        PannableCanvas canvas = tree.getCanvas();
-//        canvas.setPrefWidth(100);
-//        canvas.setPrefHeight(100);
+        PannableCanvas canvas = tree.getCanvas();;
         scrollpaneContainer.setContent(canvas);
 
     }
