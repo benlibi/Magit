@@ -63,7 +63,6 @@ public class Controller {
 
         if (_clientManager.createRepository((Stage) ((Node) actionEvent.getSource()).getScene().getWindow())) {
             initRepo();
-            initGraph();
         }
     }
 
@@ -72,13 +71,13 @@ public class Controller {
         if (_clientManager.loadRepository((Stage) ((Node) actionEvent.getSource()).getScene().getWindow())) {
 
             initRepo();
-            initGraph();
         }
     }
 
     private void initRepo() {
 
         loadBranchesView();
+        initGraph();
     }
 
     private void loadBranchesView() {
@@ -113,7 +112,6 @@ public class Controller {
     public void loadRepositoryWithXML(ActionEvent actionEvent) {
         if (_clientManager.loadXMLRepository((Stage) ((Node) actionEvent.getSource()).getScene().getWindow())) {
             initRepo();
-            initGraph();
         }
     }
 
@@ -207,7 +205,6 @@ public class Controller {
         scrollpaneContainer.setContent(canvas);
 
     }
-
 
     private void initBranchContextMenu(Label branchLabel) {
 
