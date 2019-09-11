@@ -351,6 +351,7 @@ public class Controller {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Please Resolve The Following Conflict");
+         alert.setHeaderText(conflict.getFilePath() + "Found conflicts in this path, please resolve them and press OK");
         alert.getDialogPane().setContent(conflictPane);
 
         alert.setOnCloseRequest(e ->{
