@@ -1,3 +1,5 @@
+import Enums.ConflictSections;
+import Models.Conflict;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.PannableCanvas;
 import javafx.collections.FXCollections;
@@ -6,10 +8,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Pos;
+import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 import java.util.stream.Collectors;
@@ -201,7 +205,8 @@ public class Controller {
         tree.beginUpdate();
         _clientManager.createGraph(tree);
 
-        PannableCanvas canvas = tree.getCanvas();;
+        PannableCanvas canvas = tree.getCanvas();
+        ;
         scrollpaneContainer.setContent(canvas);
 
     }
@@ -256,5 +261,100 @@ public class Controller {
 
         // setContextMenu to label
         branchLabel.setContextMenu(contextMenu);
+    }
+
+    private void handleConflict(Conflict conflict) {
+
+        ScrollPane conflictPane = new ScrollPane();
+        conflictPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        conflictPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        conflictPane.setFitToHeight(true);
+        conflictPane.setFitToWidth(true);
+        conflictPane.setPrefWidth(2500);
+
+        GridPane gridpane = new GridPane();
+        ColumnConstraints col1 = new ColumnConstraints();
+        col1.setPercentWidth(25);
+        col1.setHgrow(Priority.ALWAYS);
+
+        ColumnConstraints col2 = new ColumnConstraints();
+        col2.setPercentWidth(25);
+        col2.setHgrow(Priority.ALWAYS);
+
+        ColumnConstraints col3 = new ColumnConstraints();
+        col3.setPercentWidth(25);
+        col3.setHgrow(Priority.ALWAYS);
+
+        ColumnConstraints col4 = new ColumnConstraints();
+        col4.setPercentWidth(25);
+        col4.setHgrow(Priority.ALWAYS);
+
+        RowConstraints row1 = new RowConstraints();
+        row1.setPercentHeight(10);
+        row1.setValignment(VPos.CENTER);
+        gridpane.getRowConstraints().add(0, row1);
+        RowConstraints row2 = new RowConstraints();
+        row2.setPercentHeight(90);
+        row2.setValignment(VPos.TOP);
+        gridpane.getRowConstraints().add(1, row2);
+
+        gridpane.getColumnConstraints().addAll(col1, col2, col3, col4);
+        gridpane.setPrefHeight(800);
+        gridpane.setPrefWidth(2500);
+        gridpane.setAlignment(Pos.TOP_CENTER);
+        gridpane.setGridLinesVisible(true);
+
+        ScrollPane blobPane = new ScrollPane();
+        blobPane.setFitToHeight(false);
+        blobPane.setFitToWidth(false);
+        blobPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        blobPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        blobPane.setContent(new Text(conflict.getRelatedBlobs().get(ConflictSections.YOUR_VERSION)));
+        gridpane.add(new Label(ConflictSections.YOUR_VERSION.name()), 0, 0);
+        gridpane.add(blobPane, 0, 1);
+
+        blobPane = new ScrollPane();
+        blobPane.setFitToHeight(false);
+        blobPane.setFitToWidth(false);
+        blobPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        blobPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        blobPane.setContent(new Text(conflict.getRelatedBlobs().get(ConflictSections.THEIR_VERSION)));
+        gridpane.add(new Label(ConflictSections.THEIR_VERSION.name()), 1, 0);
+        gridpane.add(blobPane, 1, 1);
+
+        blobPane = new ScrollPane();
+        blobPane.setFitToHeight(false);
+        blobPane.setFitToWidth(false);
+        blobPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        blobPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        blobPane.setContent(new Text(conflict.getRelatedBlobs().get(ConflictSections.ORIGIN)));
+        gridpane.add(new Label(ConflictSections.ORIGIN.name()), 2, 0);
+        gridpane.add(blobPane, 2, 1);
+
+
+        gridpane.add(new Label("Final"), 3, 0);
+        TextField blobFinalImage = new TextField();
+        blobFinalImage.setId(conflict.getFileSha1());
+        blobFinalImage.setPrefHeight(800);
+        gridpane.add(blobFinalImage, 3, 1);
+
+        conflictPane.setContent(gridpane);
+
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Please Resolve The Following Conflict");
+        alert.getDialogPane().setContent(conflictPane);
+
+        alert.showAndWait();
+
+
+        /*
+        Map<ConflictSections, String> map = new HashMap<>();
+        map.put(ConflictSections.ORIGIN,"bla1oiqheoiqwehqiowehoiqwheioqweoqwoeiqwoehqwiehqwoiehqwoeihqwoiehqwioehajsdnkasjdnomqwioheoqwuheoqiwehoqwuehoqwihejoqwiehoajsdnlaskdnqowehoqwiehoqwiehoqwiehoqwie");
+        map.put(ConflictSections.THEIR_VERSION, "bla2");
+        map.put(ConflictSections.YOUR_VERSION, "bla3");
+
+        Conflict conflict = new Conflict("ben/path", "123123", map);
+        handleConflict(conflict);
+        */
     }
 }
