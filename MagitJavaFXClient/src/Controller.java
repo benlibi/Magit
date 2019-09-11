@@ -16,6 +16,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.nio.file.FileSystemException;
 import java.util.stream.Collectors;
 
 public class Controller {
@@ -331,12 +332,20 @@ public class Controller {
         gridpane.add(new Label(ConflictSections.ORIGIN.name()), 2, 0);
         gridpane.add(blobPane, 2, 1);
 
-
-        gridpane.add(new Label("Final"), 3, 0);
+        blobPane = new ScrollPane();
+        blobPane.setFitToHeight(false);
+        blobPane.setFitToWidth(false);
+        blobPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
+        blobPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         TextField blobFinalImage = new TextField();
         blobFinalImage.setId(conflict.getFileSha1());
         blobFinalImage.setPrefHeight(800);
-        gridpane.add(blobFinalImage, 3, 1);
+        blobFinalImage.setPrefWidth(600);
+        blobFinalImage.setAlignment(Pos.TOP_LEFT);
+        blobFinalImage.setText(conflict.getRelatedBlobs().get(ConflictSections.YOUR_VERSION));
+        blobPane.setContent(blobFinalImage);
+        gridpane.add(new Label("Final"), 3, 0);
+        gridpane.add(blobPane, 3, 1);
 
         conflictPane.setContent(gridpane);
 
@@ -344,8 +353,15 @@ public class Controller {
         alert.setTitle("Please Resolve The Following Conflict");
         alert.getDialogPane().setContent(conflictPane);
 
+        alert.setOnCloseRequest(e ->{
+            if(blobFinalImage.getText().isEmpty()) {
+                _clientManager.handleException(new FileSystemException("You Must Insert at least 1 char"));
+                e.consume();
+            } else {
+//                TODO: call save conflict method
+            }
+        });
         alert.showAndWait();
-
 
         /*
         Map<ConflictSections, String> map = new HashMap<>();

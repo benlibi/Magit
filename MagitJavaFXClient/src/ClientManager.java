@@ -404,7 +404,7 @@ class ClientManager {
         });
     }
 
-    private void handleException(Exception e) {
+    public void handleException(Exception e) {
         Alert errorAlert = new Alert(Alert.AlertType.ERROR);
         errorAlert.setContentText(e.getMessage());
         errorAlert.show();
