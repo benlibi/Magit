@@ -23,6 +23,15 @@ public class Blob {
     private String lastModifyDate;
     private String parentDir;
 
+    public Blob(String name, String content, String owner, String lastModifyDate, String parentDir){
+        this.name = name;
+        this.content=content;
+        this.owner=owner;
+        this.lastModifyDate=lastModifyDate;
+        this.parentDir=parentDir;
+        this.blobSha1=DigestUtils.sha1Hex(content);
+    }
+
     public Blob(File file) {
         this.name = file.getName();
         this.parentDir = file.getParentFile().getName();

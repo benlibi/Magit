@@ -1,11 +1,12 @@
+import Enums.ConflictSections;
 import Models.*;
 import org.apache.commons.io.FileUtils;
+import puk.team.course.magit.ancestor.finder.AncestorFinder;
 
 import javax.xml.bind.JAXBException;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -47,6 +48,11 @@ public class MagitManager {
             throw new RuntimeException("Operation Not Available, Please Commit Your Changes First");
         }
     }
+
+    public String getHeadCommitOfBranch(String branchName){
+        return readBranchFile(branchName);
+    }
+
 
     private List<String> showCommit(Folder rootFolder) {
         List<String> commitDetails = new ArrayList<>();
@@ -362,6 +368,12 @@ public class MagitManager {
         }
     }
 
+
+    public boolean isChangesFound() {
+        Folder mainFolder = new Folder(this.currentRepo.get_path());
+        return this.currentCommit == null || !mainFolder.getFolderSha1().equals(this.currentCommit.getMainRepoSha1());
+    }
+
     private boolean isChangesFound(Folder mainFolder) {
 
         return this.currentCommit == null || !mainFolder.getFolderSha1().equals(this.currentCommit.getMainRepoSha1());
@@ -453,6 +465,7 @@ public class MagitManager {
 
 
 
+
     protected void createEmptyRepository(String path) throws IOException {
         this.currentRepo = new Repository(path, null);
         this.currentRepo.createBlankRepository();
@@ -475,5 +488,107 @@ public class MagitManager {
 
     public Branch getCurrentBranch() {
         return currentBranch;
+    }
+
+    private Commit getCommitRep(String commitSh1){
+        String commitRepresentation = Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + commitSh1),
+                this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+        return new Commit(commitRepresentation.replace("\n", ""));
+    }
+
+    private String getSha1Content(String folderSha1){
+        return Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + folderSha1),
+                this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+    }
+
+    public String getAncestor(String currentCommitSha1, String mergedSha1){
+        AncestorFinder ancestorFinder = new AncestorFinder(this::getCommitRep);
+
+        // find ancestor
+        return ancestorFinder.traceAncestor(currentCommitSha1, mergedSha1);
+    }
+
+    private void createFolder(Map<String,Blob> commitFilesMap, String path, String folderSha1){
+        String folderContent = getSha1Content(folderSha1);
+        for(String line: folderContent.split("\n")){
+            String[] entry = line.split(",");
+            if(entry.length>2) {
+                if (entry[2].equals("file")) {
+                    String blobContent = getSha1Content(entry[1]);
+                    String blobName = entry[0];
+                    String blobOwner = entry[3];
+                    String blobLastModifyDate = entry[5];
+                    Blob blob = new Blob(blobName, blobContent, blobOwner, blobLastModifyDate, path);
+                    commitFilesMap.put(path + "/" + blobName, blob);
+                } else {
+                    createFolder(commitFilesMap, path + "/" + entry[0], entry[1]);
+                }
+            }
+        }
+    }
+
+    public Map<String,Blob> getCommitFilesMap(String commitSha1){
+        Map<String,Blob> commitFilesMap = new HashMap<>();
+        Commit commit = getCommitRep(commitSha1);
+        createFolder(commitFilesMap, this.currentRepo.get_path(), commit.getMainRepoSha1());
+        return commitFilesMap;
+    }
+
+    public Map<String,Blob> getCommitDiffsMap(Map<String,Blob> sonCommit, Map<String,Blob> ancestorCommit){
+        Map<String,Blob> diffFilesMap = new HashMap<>();
+        for(String blobPath: sonCommit.keySet()){
+            if(ancestorCommit.keySet().contains(blobPath)){
+                if(!sonCommit.get(blobPath).getBlobSha1().equals(ancestorCommit.get(blobPath).getBlobSha1())){
+                    diffFilesMap.put(blobPath,sonCommit.get(blobPath));
+                }
+            }else{
+                diffFilesMap.put(blobPath,sonCommit.get(blobPath));
+            }
+        }
+        for(String blobPath: ancestorCommit.keySet()){
+            if(!sonCommit.keySet().contains(blobPath)) {
+                diffFilesMap.put(blobPath, null);
+            }
+        }
+        return diffFilesMap;
+    }
+
+    public void createFile(String filePath, String content){
+        File blob = new File(filePath);
+        Path path = Paths.get(blob.getParent());
+        try {
+            Files.createDirectories(path);
+            BufferedWriter output = new BufferedWriter(new FileWriter(blob));
+            output.write(content);
+            output.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteFile(String path) throws IOException {
+        File fileToDelete = new File(path);
+        Files.deleteIfExists(fileToDelete.toPath());
+    }
+
+    public List<Conflict> getConflictListAndCreateFiles(Map<String,Blob> ourDiff,Map<String,Blob> theirDiff, Map<String,Blob> ancestorFiles){
+        List<Conflict> conflictList = new ArrayList<>();
+        for(String blobPath : theirDiff.keySet() ){
+            if(ourDiff.keySet().contains(blobPath)){
+                Map<ConflictSections, String> relatedBlobs = new HashMap<>();
+                String originContent = (!ancestorFiles.containsKey(blobPath) || ancestorFiles.get(blobPath) == null) ? "" : ancestorFiles.get(blobPath).getContent();
+                String ourContent = (ourDiff.get(blobPath) == null) ? "" : ourDiff.get(blobPath).getContent();
+                String theirContent = (theirDiff.get(blobPath) == null) ? "" : theirDiff.get(blobPath).getContent();
+                relatedBlobs.put(ConflictSections.ORIGIN, originContent);
+                relatedBlobs.put(ConflictSections.YOUR_VERSION, ourContent);
+                relatedBlobs.put(ConflictSections.THEIR_VERSION, theirContent);
+                Conflict conflict = new Conflict(blobPath, relatedBlobs);
+                conflictList.add(conflict);
+            }else{
+                Blob blob = theirDiff.get(blobPath);
+                createFile(blobPath, blob.getContent());
+            }
+        }
+        return conflictList;
     }
 }

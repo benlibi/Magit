@@ -1,4 +1,5 @@
 import Models.Commit;
+import Models.Conflict;
 import Models.ExtendedCommit;
 import Models.XmlLoader;
 import com.fxgraph.edges.Edge;
@@ -9,12 +10,14 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.*;
+import javafx.scene.effect.Light;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import puk.team.course.magit.ancestor.finder.AncestorFinder;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -328,6 +331,38 @@ class ClientManager {
         }
     }
 
+    private void conflictInformation(List<Conflict> conflicts){
+        StringBuilder finalConflict = new StringBuilder("Please handle the following conflicts:\n");
+        for(Conflict conflict: conflicts){
+            finalConflict.append(conflict.getFilePath());
+            finalConflict.append("\n");
+        }
+        infoMessage(finalConflict.toString(), "Conflict Alert");
+    }
+
+    public List<Conflict> merge(String theirBranch) throws IOException {
+        if(!magitManager.isChangesFound()){
+            String currentHeadCommit = magitManager.getHeadCommitOfBranch(magitManager.getCurrentBranch().getName());
+            String theirHeadCommit = magitManager.getHeadCommitOfBranch(theirBranch);
+            String ancestorCommit = magitManager.getAncestor(currentHeadCommit, theirHeadCommit);
+            List<Conflict> conflicts = magitManager.getConflictListAndCreateFiles(magitManager.getCommitDiffsMap(magitManager.getCommitFilesMap(currentHeadCommit), magitManager.getCommitFilesMap(ancestorCommit)),
+                    magitManager.getCommitDiffsMap(magitManager.getCommitFilesMap(theirHeadCommit), magitManager.getCommitFilesMap(ancestorCommit)),
+                    magitManager.getCommitFilesMap(ancestorCommit));
+            conflictInformation(conflicts);
+            return conflicts;
+        }else{
+            throw new IOException("found uncommited changes please commit them first");
+        }
+    }
+
+    public void saveFile(String content, String path){
+        magitManager.createFile(path,content);
+    }
+
+    public void deleteFile(String path) throws IOException {
+        magitManager.deleteFile(path);
+    }
+
     public void createGraph(Graph graph){
         Map<String,List<Commit>> commitMap = createCommitMap();
         Map<String, ExtendedCommit> extendedCommitList= populateCommitChildrens(commitMap.keySet());
@@ -512,4 +547,6 @@ class ClientManager {
         alert.setResizable(true);
         alert.showAndWait();
     }
+
+
 }

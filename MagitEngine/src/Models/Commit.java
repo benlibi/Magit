@@ -2,6 +2,8 @@ package Models;
 
 import generated.MagitSingleCommit;
 import org.apache.commons.codec.digest.DigestUtils;
+import puk.team.course.magit.ancestor.finder.AncestorFinder;
+import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,7 +16,7 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-public class Commit implements Comparable<Commit>{
+public class Commit implements Comparable<Commit>, CommitRepresentative{
 
     private String commitSha1;
 
@@ -145,4 +147,30 @@ public class Commit implements Comparable<Commit>{
         }
         return 0;
     }
+
+    @Override
+    public String getSha1() {
+        return getCommitSha1();
+    }
+
+    @Override
+    public String getFirstPrecedingSha1() {
+        if(commitHistory.size()>0){
+            return commitHistory.get(0);
+        }
+        else{
+            return "";
+        }
+    }
+
+    @Override
+    public String getSecondPrecedingSha1() {
+        if(commitHistory.size()==2){
+            return commitHistory.get(1);
+        }
+        else{
+            return "";
+        }
+    }
+
 }
