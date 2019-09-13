@@ -16,6 +16,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.nio.file.FileSystemException;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -102,6 +103,8 @@ public class Controller {
                                     onBranchClick(event);
                                 }
                             });
+
+                            initBranchContextMenu(branchRepresentation);
 
                             return branchRepresentation;
                         })
@@ -213,39 +216,34 @@ public class Controller {
 
     }
 
-    private void initBranchContextMenu(Label branchLabel) {
+    private void initBranchContextMenu(Button branch) {
 
         // create a menu
         ContextMenu contextMenu = new ContextMenu();
 
         // create menuitems
-        MenuItem menuItem1 = new MenuItem("Create New Branch");
-        MenuItem menuItem2 = new MenuItem("Reset Branch To Here");
-        MenuItem menuItem3 = new MenuItem("Merge Branch Onto Here");
-        MenuItem menuItem4 = new MenuItem("Delete Branch");
+        MenuItem menuItem1 = new MenuItem("Merge Current Branch Onto Here");
+        menuItem1.setUserData(branch.getId());
+        MenuItem menuItem2 = new MenuItem("Delete Branch");
+        menuItem2.setUserData(branch.getId());
 
         menuItem1.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                createBranch(event);
+                MenuItem item = (MenuItem) event.getSource();
+                try {
+                    String branchName = item.getUserData().toString().replaceAll("\\(", "").replaceAll("\\)", "").replaceAll(" HEAD", "");
+                    List<Conflict> conflicts = _clientManager.merge(branchName);
+                    if (conflicts.size() > 0) {
+                        conflicts.forEach(conflict -> handleConflict(conflict));
+                    }
+                } catch (IOException e) {
+                    _clientManager.handleException(e);
+                }
             }
         });
 
         menuItem2.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                resetBranch(event);
-            }
-        });
-
-        menuItem3.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-//                TODO: call merge action
-            }
-        });
-
-        menuItem4.setOnAction(new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
                 deleteBranch(event);
@@ -255,14 +253,12 @@ public class Controller {
         // add menu items to menu
         contextMenu.getItems().add(menuItem1);
         contextMenu.getItems().add(menuItem2);
-        contextMenu.getItems().add(menuItem3);
-        contextMenu.getItems().add(menuItem4);
 
         // create a tilepane
-        TilePane tilePane = new TilePane(branchLabel);
+        TilePane tilePane = new TilePane(branch);
 
         // setContextMenu to label
-        branchLabel.setContextMenu(contextMenu);
+        branch.setContextMenu(contextMenu);
     }
 
     private void handleConflict(Conflict conflict) {
