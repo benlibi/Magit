@@ -305,33 +305,60 @@ public class Controller {
         gridpane.setAlignment(Pos.TOP_CENTER);
         gridpane.setGridLinesVisible(true);
 
+
+//      YOUR VERSION
+//      ----------------------------
         ScrollPane blobPane = new ScrollPane();
         blobPane.setFitToHeight(false);
         blobPane.setFitToWidth(false);
         blobPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         blobPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         blobPane.setContent(new Text(conflict.getRelatedBlobs().get(ConflictSections.YOUR_VERSION)));
+
+        if (conflict.getRelatedBlobs().get(ConflictSections.YOUR_VERSION).isEmpty()) {
+            blobPane.setContent(new Text("File Was Removed..."));
+            blobPane.setStyle("-fx-background: rgb(255, 143, 143);");
+        }
+
         gridpane.add(new Label(ConflictSections.YOUR_VERSION.name()), 0, 0);
         gridpane.add(blobPane, 0, 1);
 
+//      THEIR VERSION
+//      ----------------------------
         blobPane = new ScrollPane();
         blobPane.setFitToHeight(false);
         blobPane.setFitToWidth(false);
         blobPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         blobPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         blobPane.setContent(new Text(conflict.getRelatedBlobs().get(ConflictSections.THEIR_VERSION)));
+
+        if (conflict.getRelatedBlobs().get(ConflictSections.THEIR_VERSION).isEmpty()) {
+            blobPane.setContent(new Text("File Was Removed..."));
+            blobPane.setStyle("-fx-background: rgb(255, 143, 143);");
+        }
+
         gridpane.add(new Label(ConflictSections.THEIR_VERSION.name()), 1, 0);
         gridpane.add(blobPane, 1, 1);
 
+//      ORIGIN
+//      ----------------------------
         blobPane = new ScrollPane();
         blobPane.setFitToHeight(false);
         blobPane.setFitToWidth(false);
         blobPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         blobPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         blobPane.setContent(new Text(conflict.getRelatedBlobs().get(ConflictSections.ORIGIN)));
+
+        if (conflict.getRelatedBlobs().get(ConflictSections.ORIGIN).isEmpty()) {
+            blobPane.setContent(new Text("File Was Removed..."));
+            blobPane.setStyle("-fx-background: rgb(255, 143, 143);");
+        }
+
         gridpane.add(new Label(ConflictSections.ORIGIN.name()), 2, 0);
         gridpane.add(blobPane, 2, 1);
 
+//      FINAL VERSION
+//      ----------------------------
         blobPane = new ScrollPane();
         blobPane.setFitToHeight(false);
         blobPane.setFitToWidth(false);
@@ -351,18 +378,31 @@ public class Controller {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Please Resolve The Following Conflict");
-         alert.setHeaderText(conflict.getFilePath() + "Found conflicts in this path, please resolve them and press OK");
+        alert.setHeaderText(conflict.getFilePath() + "Found conflicts in this path, please resolve them and press OK");
         alert.getDialogPane().setContent(conflictPane);
 
-        alert.setOnCloseRequest(e ->{
-            if(blobFinalImage.getText().isEmpty()) {
-                _clientManager.handleException(new FileSystemException("You Must Insert at least 1 char"));
-                e.consume();
-            } else {
+        alert.setOnCloseRequest(e -> {
+            if (blobFinalImage.getText().isEmpty()) {
+
+                Alert emptyVersionAlert = new Alert(Alert.AlertType.CONFIRMATION);
+                emptyVersionAlert.setTitle("Resolve Conflict");
+                emptyVersionAlert.setContentText("You didn't enter any content for this file, do you want to remove it ?");
+                ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+                ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                emptyVersionAlert.getButtonTypes().setAll(okButton, noButton);
+                emptyVersionAlert.showAndWait().ifPresent(type -> {
+                    if (type == okButton) {
+//                        TODO: delete file
+                    } else if (type == noButton) {
+                        _clientManager.handleException(new FileSystemException("You Must Insert at least 1 char"));
+                        e.consume();
+                    }
+                });
 //                TODO: call save conflict method
             }
         });
         alert.showAndWait();
+
 
         /*
         Map<ConflictSections, String> map = new HashMap<>();

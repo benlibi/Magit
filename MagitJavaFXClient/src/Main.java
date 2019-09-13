@@ -12,6 +12,9 @@ public class Main extends Application {
 
         Parent root = FXMLLoader.load(getClass().getResource("magitFxClient.fxml"));
         Scene scene = new Scene(root, 800, 750);
+        scene.getStylesheets().add("styles.css");
+
+
 
         primaryStage.setTitle("M.a.g.i.t");
         primaryStage.setScene(scene);
