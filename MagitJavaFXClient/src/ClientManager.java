@@ -239,12 +239,14 @@ class ClientManager {
             branchName =branchName.replace(" (HEAD)", "");
             List<Commit> commitList = new ArrayList<>();
             String branchCommitSha1 = magitManager.readBranchFile(branchName);
+            if(!branchCommitSha1.equals("")) {
             String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
                     magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
-            Commit commit = new Commit(commitRepresentation.replace("\n", ""));
-            commitList.add(commit);
-            magitManager.createCommitList(commit, commitList);
-            commitMap.put(branchName, commitList);
+                Commit commit = new Commit(commitRepresentation.replace("\n", ""));
+                commitList.add(commit);
+                magitManager.createCommitList(commit, commitList);
+                commitMap.put(branchName, commitList);
+            }
         }
         return commitMap;
     }
@@ -367,18 +369,20 @@ class ClientManager {
         Map<String,List<Commit>> commitMap = createCommitMap();
         Map<String, ExtendedCommit> extendedCommitList= populateCommitChildrens(commitMap.keySet());
         ExtendedCommit rootCommit = getRootCommit(extendedCommitList);
-        populateMasterBranchName(rootCommit);
-        populateAllBranchesCommits(extendedCommitList, commitMap.keySet());
-        populateleftovers(extendedCommitList);
-        Map<String,ICell> commitRep = new HashMap<>();
-        final Model model = graph.getModel();
-        graph.beginUpdate();
-        for(ExtendedCommit extendedCommit: extendedCommitList.values()){
-            ICell c = new CommitNode(extendedCommit.getCommitDateString(), extendedCommit.getCommitter(), extendedCommit.getCommitMassage(),extendedCommit.getBranchName());
-            model.addCell(c);
-            commitRep.put(extendedCommit.getCommitSha1(), c);
+        if(rootCommit!=null) {
+            populateMasterBranchName(rootCommit);
+            populateAllBranchesCommits(extendedCommitList, commitMap.keySet());
+            populateleftovers(extendedCommitList);
+            Map<String, ICell> commitRep = new HashMap<>();
+            final Model model = graph.getModel();
+            graph.beginUpdate();
+            for (ExtendedCommit extendedCommit : extendedCommitList.values()) {
+                ICell c = new CommitNode(extendedCommit.getCommitDateString(), extendedCommit.getCommitter(), extendedCommit.getCommitMassage(), extendedCommit.getBranchName());
+                model.addCell(c);
+                commitRep.put(extendedCommit.getCommitSha1(), c);
+            }
+            createEdges(model, commitRep, commitMap);
         }
-        createEdges(model,commitRep, commitMap);
         graph.endUpdate();
         List<String> branches = new ArrayList<>(commitMap.keySet());
         graph.layout(new CommitTreeLayout(branches));
