@@ -338,7 +338,7 @@ public class Controller {
         blobPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         blobPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.ALWAYS);
         TextField blobFinalImage = new TextField();
-        blobFinalImage.setId(conflict.getFileSha1());
+//        blobFinalImage.setId(conflict.getFileSha1());
         blobFinalImage.setPrefHeight(800);
         blobFinalImage.setPrefWidth(600);
         blobFinalImage.setAlignment(Pos.TOP_LEFT);
