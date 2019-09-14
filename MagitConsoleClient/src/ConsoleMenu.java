@@ -52,7 +52,7 @@ public class ConsoleMenu {
                         if (magitManager.currentRepo != null) {
                             String commitMsg = ConsoleMenu.displayMsgAndReturnInput("Please Enter Commit Msg");
 
-                            magitManager.commit(commitMsg);
+                            magitManager.commit(commitMsg, null);
                         } else {
                             System.out.println("\nOperation Not Available, Please Create Repo Or Load One\n");
                         }

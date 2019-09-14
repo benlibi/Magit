@@ -107,14 +107,13 @@ public class MagitManager {
     }
 
     protected void checkoutBranch(String branchName, boolean forceCheckout) throws IOException, RuntimeException {
-        Folder mainFolder = new Folder(this.currentRepo.get_path());
-        if (isChangesFound(mainFolder) && !forceCheckout) {
+        if (isChangesFound() && !forceCheckout) {
             throw new RuntimeException("Changes Detected!");
         }
 
         if (forceCheckout) {
             checkoutRevision(branchName);
-            mainFolder = new Folder(this.currentRepo.get_path());
+            Folder mainFolder = new Folder(this.currentRepo.get_path());
             this.currentRepo.set_mainProjectSha1(mainFolder.getFolderSha1());
             this.currentRepo.setHead(branchName);
             String commitSha1 = readBranchFile(branchName);
@@ -134,7 +133,7 @@ public class MagitManager {
 
     private void checkoutBranchToMaster() throws IOException, RuntimeException {
         Folder mainFolder = new Folder(this.currentRepo.get_path());
-        if (!isChangesFound(mainFolder)) {
+        if (!isChangesFound()) {
             deleteWorkingDir();
             String[] mainFolderContent = unzipMainFolderFiles(readBranchFile("master"));
             createRepoTree(mainFolderContent);
@@ -285,20 +284,25 @@ public class MagitManager {
         return folder;
     }
 
-    public void commit(String commitMsg) throws IOException {
+    public void commit(String commitMsg, String commitSha1) throws IOException {
         Folder currentMainFolderReflection = new Folder(this.currentRepo.get_path());
         File[] objectFiles = new File(this.currentRepo.OBJECTS_DIR_PATH).listFiles();
         List<String> sha1List = createSha1List(objectFiles);
-        if (!isChangesFound(currentMainFolderReflection)) {
+        if (!isChangesFound()) {
             throw new IOException("No Changes Detected !");
         } else {
 //            Folder rootFolder = createRepo(sha1List, new File(this.currentRepo.get_path()), latestFolderReflection);
             Folder rootFolder = createRepo(sha1List, new File(this.currentRepo.get_path()), currentMainFolderReflection);
             rootFolder.createFolderRepresentation(this.currentRepo.OBJECTS_DIR_PATH);
             if (currentCommit == null) {
-                currentCommit = new Commit(commitMsg, rootFolder.getFolderSha1(), null);
+                currentCommit = new Commit(commitMsg, rootFolder.getFolderSha1());
             } else {
-                currentCommit = new Commit(commitMsg, rootFolder.getFolderSha1(), currentCommit.getCommitSha1());
+                List<String> commitHistory = new ArrayList<>();
+                commitHistory.add(currentCommit.getCommitSha1());
+                if(commitSha1!=null){
+                    commitHistory.add(commitSha1);
+                }
+                currentCommit = new Commit(commitMsg, rootFolder.getFolderSha1(), commitHistory);
             }
             currentCommit.createCommitRepresentation(this.currentRepo.OBJECTS_DIR_PATH);
             latestFolderReflection = rootFolder;
@@ -369,29 +373,34 @@ public class MagitManager {
     }
 
 
-    public boolean isChangesFound() {
-        Folder mainFolder = new Folder(this.currentRepo.get_path());
-        return this.currentCommit == null || !mainFolder.getFolderSha1().equals(this.currentCommit.getMainRepoSha1());
+
+//    public boolean isChangesFound() {
+//        Folder mainFolder = new Folder(this.currentRepo.get_path());
+//        return this.currentCommit == null || !mainFolder.getFolderSha1().equals(this.currentCommit.getMainRepoSha1());
+//    }
+
+
+    public boolean isChangesFound(){
+        return !getChangesDetected().isEmpty();
     }
 
     private boolean isChangesFound(Folder mainFolder) {
-
         return this.currentCommit == null || !mainFolder.getFolderSha1().equals(this.currentCommit.getMainRepoSha1());
     }
 
-    private void handleCommit(Folder mainFolder, String commitMsg) throws IOException {
-        this.currentRepo.set_mainProjectSha1(mainFolder.getFolderSha1());
-
-//        String commitMsg = ConsoleMenu.displayMsgAndReturnInput("Please Enter Commit Msg");
-        this.currentCommit = new Commit(commitMsg, this.currentRepo.get_mainProjectSha1(), currentCommit.getCommitSha1());
-        this.currentCommit.createCommitRepresentation(this.currentRepo.OBJECTS_DIR_PATH);
-        this.currentBranch.setBranchFile(this.currentBranch.getName(),
-                this.currentCommit.getCommitSha1(), this.currentRepo.BRANCHES_DIR_PATH);
-
-        this.currentRepo.setRootFolder(mainFolder);
-        this.latestFolderReflection = mainFolder;
-        this.currentRepo.set_mainProjectSha1(this.latestFolderReflection.getFolderSha1());
-    }
+//    private void handleCommit(Folder mainFolder, String commitMsg) throws IOException {
+//        this.currentRepo.set_mainProjectSha1(mainFolder.getFolderSha1());
+//
+////        String commitMsg = ConsoleMenu.displayMsgAndReturnInput("Please Enter Commit Msg");
+//        this.currentCommit = new Commit(commitMsg, this.currentRepo.get_mainProjectSha1(), currentCommit.getCommitSha1());
+//        this.currentCommit.createCommitRepresentation(this.currentRepo.OBJECTS_DIR_PATH);
+//        this.currentBranch.setBranchFile(this.currentBranch.getName(),
+//                this.currentCommit.getCommitSha1(), this.currentRepo.BRANCHES_DIR_PATH);
+//
+//        this.currentRepo.setRootFolder(mainFolder);
+//        this.latestFolderReflection = mainFolder;
+//        this.currentRepo.set_mainProjectSha1(this.latestFolderReflection.getFolderSha1());
+//    }
 
     public boolean branchExists(String branchName) {
         File[] branchFiles = new File(this.currentRepo.BRANCHES_DIR_PATH).listFiles();
@@ -442,7 +451,7 @@ public class MagitManager {
         this.currentRepo.setRootFolder(currentMainFolderReflection);
         this.currentRepo.set_mainProjectSha1(currentMainFolderReflection.getFolderSha1());
 
-        this.currentCommit = new Commit(commitMessage, currentMainFolderReflection.getFolderSha1(), "");
+        this.currentCommit = new Commit(commitMessage, currentMainFolderReflection.getFolderSha1());
         this.currentCommit.createCommitRepresentation(this.currentRepo.OBJECTS_DIR_PATH);
 
         this.currentBranch.setpCommit(this.currentCommit);
@@ -463,7 +472,47 @@ public class MagitManager {
         }
     }
 
+    private void createFileMap(Map<String,Blob> wcFileMap, File path){
+        File[] files = path.listFiles();
+        if(files != null && path.isDirectory()) {
+            for (File file : files) {
+                if(file.isFile()){
+                    Blob blob = new Blob(file);
+                    wcFileMap.put(file.getPath(),blob);
+                }else if(file.isDirectory() && !file.getName().contains(".")){
+                    createFileMap(wcFileMap, file);
+                }
+            }
+        }
+    }
 
+    private Map<String,Blob> getWcFilesMap(){
+        Map<String, Blob> wcFileMap = new HashMap<>();
+        File mainRepo = new File(currentRepo.get_path());
+        createFileMap(wcFileMap, mainRepo);
+        return wcFileMap;
+    }
+
+    private List<String> getChangesDetected(){
+        List<String> changeList = new ArrayList<>();
+        Map<String,Blob> wcFilesMap = getWcFilesMap();
+        Map<String,Blob> commitFilesMap = getCommitFilesMap(currentCommit.getCommitSha1());
+        for(String wcFile : wcFilesMap.keySet()){
+            if(commitFilesMap.keySet().contains(wcFile)){
+                if(!wcFilesMap.get(wcFile).getBlobSha1().equals(commitFilesMap.get(wcFile).getBlobSha1())){
+                    changeList.add(wcFile);
+                }
+            }else{
+                changeList.add(wcFile);
+            }
+        }
+        for(String commitFile : commitFilesMap.keySet()) {
+            if (!commitFilesMap.keySet().contains(commitFile)) {
+                changeList.add(commitFile);
+            }
+        }
+        return changeList;
+    }
 
 
     protected void createEmptyRepository(String path) throws IOException {
@@ -498,7 +547,7 @@ public class MagitManager {
 
     private String getSha1Content(String folderSha1){
         return Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + folderSha1),
-                this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+                this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1")).trim();
     }
 
     public String getAncestor(String currentCommitSha1, String mergedSha1){
@@ -517,7 +566,7 @@ public class MagitManager {
                     String blobContent = getSha1Content(entry[1]);
                     String blobName = entry[0];
                     String blobOwner = entry[3];
-                    String blobLastModifyDate = entry[5];
+                    String blobLastModifyDate = entry[4];
                     Blob blob = new Blob(blobName, blobContent, blobOwner, blobLastModifyDate, path);
                     commitFilesMap.put(path + "/" + blobName, blob);
                 } else {

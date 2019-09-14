@@ -25,7 +25,7 @@ public class Commit implements Comparable<Commit>, CommitRepresentative{
     }
 
     public Date getCommitDateDate() throws ParseException {
-        Date commitDate=new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss").parse(this.commitDate);
+        Date commitDate=new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS").parse(this.commitDate);
         return commitDate;
     }
 
@@ -57,13 +57,13 @@ public class Commit implements Comparable<Commit>, CommitRepresentative{
         if (commitAttr.length >= 5) {
             commitHistory.add(commitAttr[4]);
             this.previousCommit = "";
-        } else if (commitAttr.length >= 6) {
+        } if (commitAttr.length >= 6) {
             commitHistory.add(commitAttr[5]);
         }
         this.commitSha1 = DigestUtils.sha1Hex(this.toString());
     }
 
-    Commit(MagitSingleCommit commit, String mainProjectSha1, List<String> commitHistoryList) {
+    public Commit(MagitSingleCommit commit, String mainProjectSha1, List<String> commitHistoryList) {
         this.commitMassage = commit.getMessage();
         this.committer = commit.getAuthor();
         this.commitDate = commit.getDateOfCreation();
@@ -72,16 +72,27 @@ public class Commit implements Comparable<Commit>, CommitRepresentative{
         this.commitSha1 = DigestUtils.sha1Hex(this.toString());
     }
 
-    public Commit(String commitMassage, String mainProjectSha1, String previouseCommit) {
+    public Commit(String commitMassage, String mainProjectSha1) {
 
         Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("dd.mm.yyyy-hh:mm:ss:sss");
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS");
 
         this.commitDate = formatter.format(date);
         this.mainRepoSha1 = mainProjectSha1;
         this.commitMassage = commitMassage;
         this.commitSha1 = DigestUtils.sha1Hex(this.toString());
-        this.commitHistory.add(previouseCommit);
+    }
+
+    public Commit(String commitMassage, String mainProjectSha1, List<String> commitHistoryList) {
+
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS");
+
+        this.commitDate = formatter.format(date);
+        this.mainRepoSha1 = mainProjectSha1;
+        this.commitMassage = commitMassage;
+        this.commitSha1 = DigestUtils.sha1Hex(this.toString());
+        this.commitHistory = commitHistoryList;
     }
 
     @Override
@@ -116,6 +127,10 @@ public class Commit implements Comparable<Commit>, CommitRepresentative{
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void addToCommitHistory(String precommitSha1){
+        commitHistory.add(precommitSha1);
     }
 
     public String getPreviousCommit() {

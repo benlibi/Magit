@@ -130,6 +130,7 @@ public class Controller {
 
     public void commit(ActionEvent actionEvent) {
         _clientManager.commit();
+        initRepo();
     }
 
     public void showCommit(ActionEvent actionEvent) {
@@ -211,7 +212,7 @@ public class Controller {
         _clientManager.createGraph(tree);
 
         PannableCanvas canvas = tree.getCanvas();
-        ;
+
         scrollpaneContainer.setContent(canvas);
 
     }
@@ -232,10 +233,16 @@ public class Controller {
             public void handle(ActionEvent event) {
                 MenuItem item = (MenuItem) event.getSource();
                 try {
-                    String branchName = item.getUserData().toString().replaceAll("\\(", "").replaceAll("\\)", "").replaceAll(" HEAD", "");
-                    List<Conflict> conflicts = _clientManager.merge(branchName);
-                    if (conflicts.size() > 0) {
-                        conflicts.forEach(conflict -> handleConflict(conflict));
+                    if(!item.getUserData().toString().contains("HEAD")) {
+                        String branchName = item.getUserData().toString().replaceAll("\\(", "").replaceAll("\\)", "").replaceAll(" HEAD", "");
+                        List<Conflict> conflicts = _clientManager.merge(branchName);
+                        if (conflicts.size() > 0) {
+                            conflicts.forEach(conflict -> handleConflict(conflict));
+                        }
+                        _clientManager.commit(branchName);
+                        initRepo();
+                    }else{
+                        throw new IOException("cant merge HEAD branch into HEAD branch");
                     }
                 } catch (IOException e) {
                     _clientManager.handleException(e);
@@ -389,13 +396,17 @@ public class Controller {
                 emptyVersionAlert.getButtonTypes().setAll(okButton, noButton);
                 emptyVersionAlert.showAndWait().ifPresent(type -> {
                     if (type == okButton) {
-//                        TODO: delete file
+                        try {
+                            _clientManager.deleteFile(conflict.getFilePath());
+                        } catch (IOException ex) {
+                            _clientManager.handleException(ex);
+                        }
                     } else if (type == noButton) {
                         _clientManager.handleException(new FileSystemException("You Must Insert at least 1 char"));
                         e.consume();
                     }
                 });
-//                TODO: call save conflict method
+                _clientManager.saveFile(blobFinalImage.getText(), conflict.getFilePath());
             }
         });
         alert.showAndWait();

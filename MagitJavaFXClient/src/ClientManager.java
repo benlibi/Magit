@@ -350,7 +350,9 @@ class ClientManager {
             List<Conflict> conflicts = magitManager.getConflictListAndCreateFiles(magitManager.getCommitDiffsMap(magitManager.getCommitFilesMap(currentHeadCommit), magitManager.getCommitFilesMap(ancestorCommit)),
                     magitManager.getCommitDiffsMap(magitManager.getCommitFilesMap(theirHeadCommit), magitManager.getCommitFilesMap(ancestorCommit)),
                     magitManager.getCommitFilesMap(ancestorCommit));
-            conflictInformation(conflicts);
+            if(!conflicts.isEmpty()) {
+                conflictInformation(conflicts);
+            }
             return conflicts;
         }else{
             throw new IOException("found uncommited changes please commit them first");
@@ -432,11 +434,20 @@ class ClientManager {
         alert.showAndWait();
     }
 
+    void commit(String branchName){
+        String s = "Merge " + branchName + " into " + magitManager.getCurrentBranch().getName();
+        try {
+            magitManager.commit(s, magitManager.readBranchFile(branchName));
+        } catch (IOException | RuntimeException e) {
+            handleException(e);
+        }
+    }
+
     void commit() {
         Optional<String> commitMsg = showDialogMsg("Please add Commit Message", "Commit Your Changes");
         commitMsg.ifPresent(s -> {
             try {
-                magitManager.commit(s);
+                magitManager.commit(s,null);
             } catch (IOException | RuntimeException e) {
                 handleException(e);
             }
