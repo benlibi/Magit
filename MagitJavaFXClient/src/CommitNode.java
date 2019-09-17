@@ -28,6 +28,8 @@ public class CommitNode extends AbstractCell implements Comparable< CommitNode >
     private String timestamp;
     private String committer;
     private String message;
+    public String sha1;
+    private String rootPath;
 
     public String getBranchName() {
         return branchName;
@@ -40,11 +42,13 @@ public class CommitNode extends AbstractCell implements Comparable< CommitNode >
     private String branchName;
     private Controller commitNodeController;
 
-    public CommitNode(String timestamp, String committer, String message, String branchName) {
+    public CommitNode(String sha1, String timestamp, String committer, String message, String branchName, String rootRepoPath) {
         this.timestamp = timestamp;
         this.committer = committer;
         this.message = message;
         this.branchName = branchName;
+        this.sha1=sha1;
+        this.rootPath=rootRepoPath;
     }
 
     @Override
@@ -62,6 +66,8 @@ public class CommitNode extends AbstractCell implements Comparable< CommitNode >
             commitNodeController.setCommitMessage(message);
             commitNodeController.setCommitter(committer);
             commitNodeController.setCommitTimeStamp(timestamp);
+            commitNodeController.setCircleId(sha1,rootPath);
+
 
             return root;
         } catch (IOException e) {

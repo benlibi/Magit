@@ -11,6 +11,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
@@ -197,6 +198,11 @@ public class Controller {
     void setCommitBranch(String branchName) {
         branchLabel.setText(branchName);
         branchLabel.setTooltip(new Tooltip(branchName));
+    }
+
+    void setCircleId(String sha1, String rootPath){
+        CommitCircle.setId(sha1+ ";" + rootPath);
+
     }
 
     int getCircleRadius() {
@@ -421,5 +427,13 @@ public class Controller {
         Conflict conflict = new Conflict("ben/path", "123123", map);
         handleConflict(conflict);
         */
+    }
+
+
+    public void commitStatus(MouseEvent mouseEvent) {
+        String pressedCommit = mouseEvent.getPickResult().getIntersectedNode().getId();
+        String coomitSha1 = pressedCommit.split(";")[0];
+        String rootrepo = pressedCommit.split(";")[1];
+        _clientManager.getFather(coomitSha1,rootrepo);
     }
 }

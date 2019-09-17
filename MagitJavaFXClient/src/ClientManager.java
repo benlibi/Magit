@@ -307,7 +307,7 @@ class ClientManager {
         if(commit.getCommitHistory().size()!=0){
             for(String parentCommit: commit.getCommitHistory()){
                 ExtendedCommit parentExtendedCommit = extendedCommitList.get(parentCommit);
-                if(parentExtendedCommit.getBranchName()!=null){
+                if(parentExtendedCommit.getBranchName()==null){
                     parentExtendedCommit.setBranchName(branchName);
                     populateBranchConmmit(extendedCommitList, parentExtendedCommit, branchName);
                 }
@@ -379,7 +379,7 @@ class ClientManager {
             final Model model = graph.getModel();
             graph.beginUpdate();
             for (ExtendedCommit extendedCommit : extendedCommitList.values()) {
-                ICell c = new CommitNode(extendedCommit.getCommitDateString(), extendedCommit.getCommitter(), extendedCommit.getCommitMassage(), extendedCommit.getBranchName());
+                ICell c = new CommitNode(extendedCommit.getCommitSha1(), extendedCommit.getCommitDateString(), extendedCommit.getCommitter(), extendedCommit.getCommitMassage(), extendedCommit.getBranchName(), magitManager.currentRepo.get_path());
                 model.addCell(c);
                 commitRep.put(extendedCommit.getCommitSha1(), c);
             }
@@ -564,4 +564,18 @@ class ClientManager {
     }
 
 
+    void getFather(String commitSha1,String rootrepo){
+        Folder rootFolder = new Folder(rootrepo);
+        Repository currentRepo = new Repository(rootrepo, rootFolder);
+        magitManager.setCurrentRepo(currentRepo);
+        Commit commit = magitManager.getCommitRep(commitSha1);
+        if(commit.getCommitHistory().size()==1){
+            String changesString = magitManager.getStatusSring(commitSha1, commit.getCommitHistory().get(0));
+            infoMessage(changesString,"Changes");
+        }else if(commit.getCommitHistory().size()==0){
+            infoMessage("Root Commit No Changes","Changes");
+        }else{
+            infoMessage("Merge commit cant determine ancestor","Changes");
+        }
+    }
 }

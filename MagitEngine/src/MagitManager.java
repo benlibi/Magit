@@ -107,8 +107,10 @@ public class MagitManager {
     }
 
     protected void checkoutBranch(String branchName, boolean forceCheckout) throws IOException, RuntimeException {
-        if (isChangesFound() && !forceCheckout) {
+        if (isChangesFound()) {
             throw new RuntimeException("Changes Detected!");
+        }else{
+            forceCheckout=true;
         }
 
         if (forceCheckout) {
@@ -539,7 +541,7 @@ public class MagitManager {
         return currentBranch;
     }
 
-    private Commit getCommitRep(String commitSh1){
+    public Commit getCommitRep(String commitSh1){
         String commitRepresentation = Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + commitSh1),
                 this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
         return new Commit(commitRepresentation.replace("\n", ""));
@@ -582,6 +584,19 @@ public class MagitManager {
         createFolder(commitFilesMap, this.currentRepo.get_path(), commit.getMainRepoSha1());
         return commitFilesMap;
     }
+
+
+    public Map<String,Blob> getNewFilesMap(Map<String,Blob> sonCommit, Map<String,Blob> ancestorCommit){
+        Map<String,Blob> diffFilesMap = new HashMap<>();
+        for(String blobPath: sonCommit.keySet()){
+            if(!ancestorCommit.keySet().contains(blobPath)){
+                diffFilesMap.put(blobPath, sonCommit.get(blobPath));
+            }
+        }
+        return diffFilesMap;
+    }
+
+
 
     public Map<String,Blob> getCommitDiffsMap(Map<String,Blob> sonCommit, Map<String,Blob> ancestorCommit){
         Map<String,Blob> diffFilesMap = new HashMap<>();
@@ -639,5 +654,26 @@ public class MagitManager {
             }
         }
         return conflictList;
+    }
+
+    public String getStatusSring(String firstCommitSha1, String secondCommitSha1){
+        Map<String,Blob> firstCommitFiles =  getCommitFilesMap(firstCommitSha1);
+        Map<String,Blob> secondCommitFiles =  getCommitFilesMap(secondCommitSha1);
+        Map<String,Blob> changesMap = getCommitDiffsMap(firstCommitFiles, secondCommitFiles);
+        Map<String,Blob> newFilesMap = getNewFilesMap(firstCommitFiles, secondCommitFiles);
+        StringBuilder newFiles = new StringBuilder("New Files:\n");
+        StringBuilder deletedFiles = new StringBuilder("Deleted Files:\n");
+        StringBuilder updatedFiles = new StringBuilder("Updated Files:\n");
+        for(String filePath: newFilesMap.keySet()){
+            newFiles.append(filePath+"\n");
+        }
+        for(String filePath: changesMap.keySet()){
+            if(changesMap.get(filePath) == null){
+                deletedFiles.append(filePath+"\n");
+            }else if(!newFilesMap.keySet().contains(filePath)){
+                updatedFiles.append(filePath+"\n");
+            }
+        }
+        return newFiles.append(deletedFiles.append(updatedFiles)).toString();
     }
 }
