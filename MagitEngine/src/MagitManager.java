@@ -112,24 +112,20 @@ public class MagitManager {
     }
 
     protected void checkoutBranch(String branchName, boolean forceCheckout) throws IOException, RuntimeException {
-        if (isChangesFound()) {
-            throw new RuntimeException("Changes Detected!");
-        } else {
-            forceCheckout = true;
+        if (isChangesFound() && !forceCheckout) {
+            throw new NotActiveException("Changes Detected!");
         }
 
-        if (forceCheckout) {
-            checkoutRevision(branchName);
-            Folder mainFolder = new Folder(this.currentRepo.get_path());
-            this.currentRepo.set_mainProjectSha1(mainFolder.getFolderSha1());
-            this.currentRepo.setHead(branchName);
-            String commitSha1 = readBranchFile(branchName);
-            String commitRepresentation = Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + commitSha1),
-                    this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
-            this.currentCommit = new Commit(commitRepresentation.replace("\n", ""));
-            this.currentBranch = new Branch(branchName, this.currentCommit);
-            this.latestFolderReflection = mainFolder;
-        }
+        checkoutRevision(branchName);
+        Folder mainFolder = new Folder(this.currentRepo.get_path());
+        this.currentRepo.set_mainProjectSha1(mainFolder.getFolderSha1());
+        this.currentRepo.setHead(branchName);
+        String commitSha1 = readBranchFile(branchName);
+        String commitRepresentation = Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + commitSha1),
+                this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+        this.currentCommit = new Commit(commitRepresentation.replace("\n", ""));
+        this.currentBranch = new Branch(branchName, this.currentCommit);
+        this.latestFolderReflection = mainFolder;
     }
 
     private void checkoutRevision(String branchName) {
@@ -719,24 +715,13 @@ public class MagitManager {
 
     }
 
-    protected void resetBranch(String branchSha1, boolean forceCheckout) throws IOException, RuntimeException {
-        if (isChangesFound() || !forceCheckout) {
-            throw new RuntimeException("Changes Detected!");
+    protected void resetBranch(String commitSha1, boolean forceCheckout) throws RuntimeException, IOException {
+        if (isChangesFound() && !forceCheckout) {
+            throw new NotActiveException("Changes Detected!");
         }
 
-
-        deleteWorkingDir();
-        String[] mainFolderContent = unzipMainFolderFiles(branchSha1);
-        createRepoTree(mainFolderContent);
-
-        Folder mainFolder = new Folder(this.currentRepo.get_path());
-        this.currentRepo.set_mainProjectSha1(mainFolder.getFolderSha1());
-        this.currentRepo.setHead(branchSha1);
-        String commitSha1 = readBranchFile(branchSha1);
-        String commitRepresentation = Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + commitSha1),
-                this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
-        this.currentCommit = new Commit(commitRepresentation.replace("\n", ""));
-        this.currentBranch = new Branch(branchSha1, this.currentCommit);
-        this.latestFolderReflection = mainFolder;
+        this.currentBranch.setBranchFile(this.currentBranch.getName(),
+                commitSha1, this.currentRepo.BRANCHES_DIR_PATH);
+        this.checkoutBranch(this.currentBranch.getName(), true);
     }
 }

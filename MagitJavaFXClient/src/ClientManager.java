@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
+import java.io.NotActiveException;
 import java.util.*;
 
 class ClientManager {
@@ -164,7 +165,7 @@ class ClientManager {
 
         try {
             this.magitManager.resetBranch(branchName, false);
-        } catch (IOException | RuntimeException e) {
+        } catch (NotActiveException e) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle(e.getMessage());
             alert.setContentText("force checkout?");
@@ -182,15 +183,16 @@ class ClientManager {
 
                 }
             });
-
+        } catch (IOException e) {
+            handleException(e);
         }
     }
 
-    void resetBranch(String branchSha1) {
+    void resetBranch(String commitSha1) {
 
         try {
-            this.magitManager.resetBranch(branchSha1, false);
-        } catch (IOException | RuntimeException e) {
+            this.magitManager.resetBranch(commitSha1, false);
+        } catch (NotActiveException e) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle(e.getMessage());
             alert.setContentText("force checkout?");
@@ -201,13 +203,15 @@ class ClientManager {
             alert.showAndWait().ifPresent(type -> {
                 if (type == okButton) {
                     try {
-                        this.magitManager.resetBranch(branchSha1, true);
+                        this.magitManager.resetBranch(commitSha1, true);
                     } catch (IOException | RuntimeException ex) {
                         handleException(e);
                     }
 
                 }
             });
+        } catch (IOException e) {
+            handleException(e);
         }
     }
 
