@@ -202,22 +202,22 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <Button id="pull" fx:id="createRepositoryBtn1" alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#pull" prefHeight="50.0" prefWidth="200.0" text="Pull" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS">
+                        <Button id="pull-btn" fx:id="pullBtn" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#pull" prefHeight="50.0" prefWidth="200.0" text="Pull" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS">
                            <font>
                               <Font name="Georgia Bold" size="18.0" />
                            </font>
                         </Button>
-                        <Button id="push" fx:id="createRepositoryBtn11" alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#push" prefHeight="50.0" prefWidth="200.0" text="Push" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1">
+                        <Button id="push-btn" fx:id="pushBtn" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#push" prefHeight="50.0" prefWidth="200.0" text="Push" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1">
                            <font>
                               <Font name="Georgia Bold" size="18.0" />
                            </font>
                         </Button>
-                        <Button id="fetch" fx:id="createRepositoryBtn12" alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#fetch" prefHeight="50.0" prefWidth="200.0" text="Fetch" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2">
+                        <Button id="fetch-btn" fx:id="fetchBtn" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#fetch" prefHeight="50.0" prefWidth="200.0" text="Fetch" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="2">
                            <font>
                               <Font name="Georgia Bold" size="18.0" />
                            </font>
                         </Button>
-                        <Button id="clone" fx:id="createRepositoryBtn13" alignment="CENTER" contentDisplay="CENTER" defaultButton="true" mnemonicParsing="false" onAction="#clone" prefHeight="50.0" prefWidth="200.0" text="Clone" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="3">
+                        <Button id="clone-btn" fx:id="cloneBtn" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#clone" prefHeight="50.0" prefWidth="200.0" text="Clone" textAlignment="JUSTIFY" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="3">
                            <font>
                               <Font name="Georgia Bold" size="18.0" />
                            </font>

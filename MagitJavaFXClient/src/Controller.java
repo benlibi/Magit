@@ -29,6 +29,14 @@ public class Controller {
     private ClientManager _clientManager = new ClientManager();
 
     @FXML
+    public Button pullBtn;
+    @FXML
+    public Button pushBtn;
+    @FXML
+    public Button fetchBtn;
+    @FXML
+    public Button cloneBtn;
+    @FXML
     public Text repoStatusText;
     @FXML
     public BorderPane BorderLayoutPane;
@@ -436,6 +444,18 @@ public class Controller {
         Conflict conflict = new Conflict("ben/path", "123123", map);
         handleConflict(conflict);
         */
+    }
+
+    public void pull(ActionEvent actionEvent) {
+    }
+
+    public void push(ActionEvent actionEvent) {
+    }
+
+    public void fetch(ActionEvent actionEvent) {
+    }
+
+    public void clone(ActionEvent actionEvent) {
     }
 
 
