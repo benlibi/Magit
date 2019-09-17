@@ -194,6 +194,7 @@ class ClientManager {
         commitSha1.ifPresent(s -> {
             try {
                 this.magitManager.resetBranch(s, false);
+                infoMessage("Reset was done", "Success");
             } catch (NotActiveException e) {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle(e.getMessage());
