@@ -15,6 +15,7 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+
 import java.io.IOException;
 import java.nio.file.FileSystemException;
 import java.util.List;
@@ -241,15 +242,16 @@ public class Controller {
             public void handle(ActionEvent event) {
                 MenuItem item = (MenuItem) event.getSource();
                 try {
-                    if(!item.getUserData().toString().contains("HEAD")) {
-                        String branchName = item.getUserData().toString().replaceAll("\\(", "").replaceAll("\\)", "").replaceAll(" HEAD", "");
+                    if (!item.getUserData().toString().contains("HEAD")) {
+                        String branchName = item.getUserData().toString().replaceAll("\\(", "").replaceAll("\\)", "").replaceAll(" HEAD",
+                                "");
                         List<Conflict> conflicts = _clientManager.merge(branchName);
                         if (conflicts.size() > 0) {
                             conflicts.forEach(conflict -> handleConflict(conflict));
                         }
                         _clientManager.commit(branchName);
                         initRepo();
-                    }else{
+                    } else {
                         throw new IOException("cant merge HEAD branch into HEAD branch");
                     }
                 } catch (IOException e) {
@@ -432,14 +434,18 @@ public class Controller {
     }
 
     public void pull(ActionEvent actionEvent) {
+        _clientManager.pull();
     }
 
     public void push(ActionEvent actionEvent) {
+        _clientManager.push();
     }
 
     public void fetch(ActionEvent actionEvent) {
+        _clientManager.fetch();
     }
 
     public void clone(ActionEvent actionEvent) {
+        _clientManager.gitClone();
     }
 }
