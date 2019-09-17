@@ -20,7 +20,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.nio.file.FileSystemException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Controller {
@@ -85,8 +87,15 @@ public class Controller {
 
     private void initRepo() {
 
-        loadBranchesView();
-        initGraph();
+        Map<ConflictSections, String> map = new HashMap<>();
+        map.put(ConflictSections.ORIGIN,"bla1oiqheoiqwehqiowehoiqwheioqweoqwoeiqwoehqwiehqwoiehqwoeihqwoiehqwioehajsdnkasjdnomqwioheoqwuheoqiwehoqwuehoqwihejoqwiehoajsdnlaskdnqowehoqwiehoqwiehoqwiehoqwie");
+        map.put(ConflictSections.THEIR_VERSION, "bla2");
+        map.put(ConflictSections.YOUR_VERSION, "bla3");
+
+        Conflict conflict = new Conflict("ben/path", map);
+        handleConflict(conflict);
+//        loadBranchesView();
+//        initGraph();
     }
 
     private void loadBranchesView() {
@@ -289,7 +298,7 @@ public class Controller {
         conflictPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         conflictPane.setFitToHeight(true);
         conflictPane.setFitToWidth(true);
-        conflictPane.setPrefWidth(2500);
+        conflictPane.setPrefWidth(1200);
 
         GridPane gridpane = new GridPane();
         ColumnConstraints col1 = new ColumnConstraints();
@@ -319,7 +328,7 @@ public class Controller {
 
         gridpane.getColumnConstraints().addAll(col1, col2, col3, col4);
         gridpane.setPrefHeight(800);
-        gridpane.setPrefWidth(2500);
+        gridpane.setPrefWidth(1200);
         gridpane.setAlignment(Pos.TOP_CENTER);
         gridpane.setGridLinesVisible(true);
 
