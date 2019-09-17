@@ -7,14 +7,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.HPos;
 import javafx.scene.control.*;
-import javafx.scene.effect.Light;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import puk.team.course.magit.ancestor.finder.AncestorFinder;
 
 import javax.xml.bind.JAXBException;
 import java.io.File;
@@ -216,10 +214,10 @@ class ClientManager {
         }
     }
 
-    private void createEdges(Model model, Map<String, ICell> commitRep, Map<String,List<Commit>> commitMap){
-        for(String branchName: commitMap.keySet()){
-            for(Commit commit: commitMap.get(branchName)){
-                for(String parentCommit: commit.getCommitHistory()){
+    private void createEdges(Model model, Map<String, ICell> commitRep, Map<String, List<Commit>> commitMap) {
+        for (String branchName : commitMap.keySet()) {
+            for (Commit commit : commitMap.get(branchName)) {
+                for (String parentCommit : commit.getCommitHistory()) {
                     final Edge edge = new Edge(commitRep.get(commit.getCommitSha1()), commitRep.get(parentCommit));
                     model.addEdge(edge);
                 }
@@ -227,16 +225,17 @@ class ClientManager {
         }
     }
 
-    public Map<String,List<Commit>> createCommitMap(){
-        Map<String,List<Commit>> commitMap = new HashMap<String,List<Commit>>();
+    public Map<String, List<Commit>> createCommitMap() {
+        Map<String, List<Commit>> commitMap = new HashMap<String, List<Commit>>();
         List<String> branchList = getAvailableBranches();
-        for (String branchName: branchList){
-            branchName =branchName.replace(" (HEAD)", "");
+        for (String branchName : branchList) {
+            branchName = branchName.replace(" (HEAD)", "");
             List<Commit> commitList = new ArrayList<>();
             String branchCommitSha1 = magitManager.readBranchFile(branchName);
-            if(!branchCommitSha1.equals("")) {
-            String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
-                    magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+            if (!branchCommitSha1.equals("")) {
+                String commitRepresentation = Utils.getContentFromZip(
+                        magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
+                        magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
                 Commit commit = new Commit(commitRepresentation.replace("\n", ""));
                 commitList.add(commit);
                 magitManager.createCommitList(commit, commitList);
@@ -246,16 +245,16 @@ class ClientManager {
         return commitMap;
     }
 
-    private void populateCommitChildrensForBranch(ExtendedCommit commit, Map<String, ExtendedCommit> extendedCommitList){
+    private void populateCommitChildrensForBranch(ExtendedCommit commit, Map<String, ExtendedCommit> extendedCommitList) {
         List<String> commitChildSha1 = commit.getCommitHistory();
-        for(String commitSha1: commitChildSha1){
+        for (String commitSha1 : commitChildSha1) {
             ExtendedCommit childcommit;
-            if(!extendedCommitList.keySet().contains(commitSha1)) {
+            if (!extendedCommitList.keySet().contains(commitSha1)) {
                 String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + commitSha1),
                         magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
                 childcommit = new ExtendedCommit(commitRepresentation.replace("\n", ""));
                 extendedCommitList.put(childcommit.getCommitSha1(), childcommit);
-            }else{
+            } else {
                 childcommit = extendedCommitList.get(commitSha1);
             }
             childcommit.addToCommitListChildList(commit);
@@ -264,10 +263,9 @@ class ClientManager {
     }
 
 
-
-    private Map<String, ExtendedCommit> populateCommitChildrens(Set<String> branchSet){
+    private Map<String, ExtendedCommit> populateCommitChildrens(Set<String> branchSet) {
         Map<String, ExtendedCommit> extendedCommitList = new HashMap<>();
-        for(String branchName: branchSet){
+        for (String branchName : branchSet) {
             String branchCommitSha1 = magitManager.readBranchFile(branchName);
             String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
                     magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
@@ -279,9 +277,9 @@ class ClientManager {
         return extendedCommitList;
     }
 
-    private ExtendedCommit getRootCommit(Map<String, ExtendedCommit> extendedCommitList){
-        for(ExtendedCommit commit: extendedCommitList.values()){
-            if(commit.getCommitHistory().size()==0){
+    private ExtendedCommit getRootCommit(Map<String, ExtendedCommit> extendedCommitList) {
+        for (ExtendedCommit commit : extendedCommitList.values()) {
+            if (commit.getCommitHistory().size() == 0) {
                 commit.setBranchName("master");
                 return commit;
             }
@@ -289,17 +287,17 @@ class ClientManager {
         return null;
     }
 
-    private void populateMasterBranchName(ExtendedCommit commit){
-        if(commit.getCommitChildes().size()!=0){
+    private void populateMasterBranchName(ExtendedCommit commit) {
+        if (commit.getCommitChildes().size() != 0) {
             ExtendedCommit childCommit = commit.getOlderCommit();
             childCommit.setBranchName(commit.getBranchName());
             populateMasterBranchName(childCommit);
         }
     }
 
-    private void populateBranchConmmit(Map<String, ExtendedCommit> extendedCommitList ,ExtendedCommit commit, String branchName){
-        if(commit.getCommitHistory().size()!=0){
-            for(String parentCommit: commit.getCommitHistory()){
+    private void populateBranchConmmit(Map<String, ExtendedCommit> extendedCommitList, ExtendedCommit commit, String branchName) {
+        if (commit.getCommitHistory().size() != 0) {
+            for (String parentCommit : commit.getCommitHistory()) {
                 ExtendedCommit parentExtendedCommit = extendedCommitList.get(parentCommit);
                 if(parentExtendedCommit.getBranchName()==null){
                     parentExtendedCommit.setBranchName(branchName);
@@ -310,8 +308,8 @@ class ClientManager {
 
     }
 
-    private void populateAllBranchesCommits(Map<String, ExtendedCommit> extendedCommitList, Set<String> branchSet){
-        for(String branchName: branchSet){
+    private void populateAllBranchesCommits(Map<String, ExtendedCommit> extendedCommitList, Set<String> branchSet) {
+        for (String branchName : branchSet) {
             String branchCommitSha1 = magitManager.readBranchFile(branchName);
             ExtendedCommit headCommit = extendedCommitList.get(branchCommitSha1);
             headCommit.setBranchName(branchName);
@@ -319,17 +317,17 @@ class ClientManager {
         }
     }
 
-    private void populateleftovers(Map<String, ExtendedCommit> extendedCommitList){
-        for(ExtendedCommit commit: extendedCommitList.values()){
-            if(commit.getBranchName()==null){
+    private void populateleftovers(Map<String, ExtendedCommit> extendedCommitList) {
+        for (ExtendedCommit commit : extendedCommitList.values()) {
+            if (commit.getBranchName() == null) {
                 commit.setBranchName(commit.getOlderCommit().getBranchName());
             }
         }
     }
 
-    private void conflictInformation(List<Conflict> conflicts){
+    private void conflictInformation(List<Conflict> conflicts) {
         StringBuilder finalConflict = new StringBuilder("Please handle the following conflicts:\n");
-        for(Conflict conflict: conflicts){
+        for (Conflict conflict : conflicts) {
             finalConflict.append(conflict.getFilePath());
             finalConflict.append("\n");
         }
@@ -337,35 +335,38 @@ class ClientManager {
     }
 
     public List<Conflict> merge(String theirBranch) throws IOException {
-        if(!magitManager.isChangesFound()){
+        if (!magitManager.isChangesFound()) {
             String currentHeadCommit = magitManager.getHeadCommitOfBranch(magitManager.getCurrentBranch().getName());
             String theirHeadCommit = magitManager.getHeadCommitOfBranch(theirBranch);
             String ancestorCommit = magitManager.getAncestor(currentHeadCommit, theirHeadCommit);
-            List<Conflict> conflicts = magitManager.getConflictListAndCreateFiles(magitManager.getCommitDiffsMap(magitManager.getCommitFilesMap(currentHeadCommit), magitManager.getCommitFilesMap(ancestorCommit)),
-                    magitManager.getCommitDiffsMap(magitManager.getCommitFilesMap(theirHeadCommit), magitManager.getCommitFilesMap(ancestorCommit)),
+            List<Conflict> conflicts = magitManager.getConflictListAndCreateFiles(
+                    magitManager.getCommitDiffsMap(magitManager.getCommitFilesMap(currentHeadCommit),
+                            magitManager.getCommitFilesMap(ancestorCommit)),
+                    magitManager.getCommitDiffsMap(magitManager.getCommitFilesMap(theirHeadCommit),
+                            magitManager.getCommitFilesMap(ancestorCommit)),
                     magitManager.getCommitFilesMap(ancestorCommit));
-            if(!conflicts.isEmpty()) {
+            if (!conflicts.isEmpty()) {
                 conflictInformation(conflicts);
             }
             return conflicts;
-        }else{
+        } else {
             throw new IOException("found uncommited changes please commit them first");
         }
     }
 
-    public void saveFile(String content, String path){
-        magitManager.createFile(path,content);
+    public void saveFile(String content, String path) {
+        magitManager.createFile(path, content);
     }
 
     public void deleteFile(String path) throws IOException {
         magitManager.deleteFile(path);
     }
 
-    public void createGraph(Graph graph){
-        Map<String,List<Commit>> commitMap = createCommitMap();
-        Map<String, ExtendedCommit> extendedCommitList= populateCommitChildrens(commitMap.keySet());
+    public void createGraph(Graph graph) {
+        Map<String, List<Commit>> commitMap = createCommitMap();
+        Map<String, ExtendedCommit> extendedCommitList = populateCommitChildrens(commitMap.keySet());
         ExtendedCommit rootCommit = getRootCommit(extendedCommitList);
-        if(rootCommit!=null) {
+        if (rootCommit != null) {
             populateMasterBranchName(rootCommit);
             populateAllBranchesCommits(extendedCommitList, commitMap.keySet());
             populateleftovers(extendedCommitList);
@@ -388,6 +389,7 @@ class ClientManager {
     }
 
     void resetBranch() {
+//        magitManager.
     }
 
     void showCommit(Map<String, List<Blob>> folderMap, String commitSha1) {
@@ -427,7 +429,7 @@ class ClientManager {
         alert.showAndWait();
     }
 
-    void commit(String branchName){
+    void commit(String branchName) {
         String s = "Merge " + branchName + " into " + magitManager.getCurrentBranch().getName();
         try {
             magitManager.commit(s, magitManager.readBranchFile(branchName), true);
@@ -580,4 +582,7 @@ class ClientManager {
     }
 
 
+    String getRepoStatus() {
+        return "Repo Name: " + this.magitManager.currentRepo.getName() + " Repo Path: " + this.magitManager.currentRepo.get_path();
+    }
 }

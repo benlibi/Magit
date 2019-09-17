@@ -17,21 +17,19 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-
 import java.io.IOException;
 import java.nio.file.FileSystemException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Controller {
-
 
     private Graph tree = new Graph();
 
     private ClientManager _clientManager = new ClientManager();
 
+    @FXML
+    public Text repoStatusText;
     @FXML
     public BorderPane BorderLayoutPane;
     @FXML
@@ -86,16 +84,9 @@ public class Controller {
     }
 
     private void initRepo() {
-
-        Map<ConflictSections, String> map = new HashMap<>();
-        map.put(ConflictSections.ORIGIN,"bla1oiqheoiqwehqiowehoiqwheioqweoqwoeiqwoehqwiehqwoiehqwoeihqwoiehqwioehajsdnkasjdnomqwioheoqwuheoqiwehoqwuehoqwihejoqwiehoajsdnlaskdnqowehoqwiehoqwiehoqwiehoqwie");
-        map.put(ConflictSections.THEIR_VERSION, "bla2");
-        map.put(ConflictSections.YOUR_VERSION, "bla3");
-
-        Conflict conflict = new Conflict("ben/path", map);
-        handleConflict(conflict);
-//        loadBranchesView();
-//        initGraph();
+        loadBranchesView();
+        initGraph();
+        repoStatusText.setText(_clientManager.getRepoStatus());
     }
 
     private void loadBranchesView() {
@@ -161,7 +152,7 @@ public class Controller {
     }
 
     public void resetBranch(ActionEvent actionEvent) {
-//        _clientManager.resetBranch();
+        _clientManager.resetBranch();
 
     }
 
