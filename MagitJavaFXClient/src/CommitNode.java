@@ -62,7 +62,8 @@ public class CommitNode extends AbstractCell implements Comparable< CommitNode >
             GridPane root = fxmlLoader.load(url.openStream());
 
             commitNodeController = fxmlLoader.getController();
-            commitNodeController.setCommitBranch(branchName);
+            commitNodeController.setCommitSha1(sha1);
+            commitNodeController.setBranchName(branchName);
             commitNodeController.setCommitMessage(message);
             commitNodeController.setCommitter(committer);
             commitNodeController.setCommitTimeStamp(timestamp);

@@ -179,6 +179,8 @@ public class Controller {
     private Circle CommitCircle;
     @FXML
     private Label branchLabel;
+    @FXML
+    public Label sha1Label;
 
     void setCommitTimeStamp(String timeStamp) {
         commitTimeStampLabel.setText(timeStamp);
@@ -195,7 +197,12 @@ public class Controller {
         messageLabel.setTooltip(new Tooltip(commitMessage));
     }
 
-    void setCommitBranch(String branchName) {
+    void setCommitSha1(String sha1) {
+        sha1Label.setText(sha1);
+        sha1Label.setTooltip(new Tooltip(sha1));
+    }
+
+    void setBranchName(String branchName) {
         branchLabel.setText(branchName);
         branchLabel.setTooltip(new Tooltip(branchName));
     }

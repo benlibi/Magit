@@ -1,7 +1,4 @@
-import Models.Commit;
-import Models.Conflict;
-import Models.ExtendedCommit;
-import Models.XmlLoader;
+import Models.*;
 import com.fxgraph.edges.Edge;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.ICell;

@@ -17,6 +17,11 @@ public class MagitManager {
     private User currentUser = new User();
     private Branch currentBranch;
     protected Commit currentCommit;
+
+    public void setCurrentRepo(Repository currentRepo) {
+        this.currentRepo = currentRepo;
+    }
+
     protected Repository currentRepo;
     private Folder latestFolderReflection;
 
@@ -635,7 +640,7 @@ public class MagitManager {
         Files.deleteIfExists(fileToDelete.toPath());
     }
 
-    public List<Conflict> getConflictListAndCreateFiles(Map<String,Blob> ourDiff,Map<String,Blob> theirDiff, Map<String,Blob> ancestorFiles){
+    public List<Conflict> getConflictListAndCreateFiles(Map<String,Blob> ourDiff,Map<String,Blob> theirDiff, Map<String,Blob> ancestorFiles) throws IOException {
         List<Conflict> conflictList = new ArrayList<>();
         for(String blobPath : theirDiff.keySet() ){
             if(ourDiff.keySet().contains(blobPath)){
@@ -650,7 +655,11 @@ public class MagitManager {
                 conflictList.add(conflict);
             }else{
                 Blob blob = theirDiff.get(blobPath);
-                createFile(blobPath, blob.getContent());
+                if(blob!=null) {
+                    createFile(blobPath, blob.getContent());
+                }else{
+                    deleteFile(blobPath);
+                }
             }
         }
         return conflictList;

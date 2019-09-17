@@ -31,11 +31,13 @@
          </GridPane.margin>
       </Circle>
       <Label fx:id="commitTimeStampLabel" alignment="CENTER" maxWidth="1.7976931348623157E308" styleClass="timestamp-label" text="02.07.2019-22:36:57" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="NEVER" GridPane.rowIndex="1" />
-      <Label fx:id="messageLabel" maxWidth="1.7976931348623157E308" styleClass="message-label" text="bbb" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-      <Label fx:id="committerLabel" styleClass="committer-label" text="ccc" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+      <Label fx:id="messageLabel" maxWidth="1.7976931348623157E308" styleClass="message-label" text="bbb" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+       <Label fx:id="sha1Label" styleClass="committer-label" text="ccc" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+      <Label fx:id="committerLabel" styleClass="committer-label" text="ccc" GridPane.columnIndex="5" GridPane.rowIndex="1" />
       <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
       <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="4" GridPane.rowIndex="1" />
        <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="6" GridPane.rowIndex="1" />
-       <Label fx:id="branchLabel" maxWidth="1.7976931348623157E308" styleClass="message-label" text="bbb" GridPane.columnIndex="7" GridPane.rowIndex="1" />
+       <Separator maxHeight="20.0" minHeight="20.0" orientation="VERTICAL" prefHeight="20.0" GridPane.columnIndex="8" GridPane.rowIndex="1" />
+       <Label fx:id="branchLabel" maxWidth="1.7976931348623157E308" styleClass="message-label" text="bbb" GridPane.columnIndex="9" GridPane.rowIndex="1" />
    </children>
 </GridPane>
