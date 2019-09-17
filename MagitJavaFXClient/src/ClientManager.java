@@ -585,4 +585,36 @@ class ClientManager {
     String getRepoStatus() {
         return "Repo Name: " + this.magitManager.currentRepo.getName() + " Repo Path: " + this.magitManager.currentRepo.get_path();
     }
+
+    void pull() {
+        try {
+
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
+    void push() {
+        try {
+
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
+    void fetch() {
+        try {
+
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
+    void gitClone() {
+        try {
+
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
 }
