@@ -159,7 +159,7 @@ public class Controller {
     }
 
     public void resetBranch(ActionEvent actionEvent) {
-        _clientManager.resetBranch("7d2270cd34f7c20c0aecb6a7ad9db9727a3a571f");
+        _clientManager.resetBranch();
     }
 
     public void changeUserBtn(ActionEvent actionEvent) {

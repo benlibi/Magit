@@ -164,7 +164,7 @@ class ClientManager {
     void checkoutBranch(String branchName) {
 
         try {
-            this.magitManager.resetBranch(branchName, false);
+            this.magitManager.checkoutBranch(branchName, false);
         } catch (NotActiveException e) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle(e.getMessage());
@@ -188,31 +188,34 @@ class ClientManager {
         }
     }
 
-    void resetBranch(String commitSha1) {
+    void resetBranch() {
+        Optional<String> commitSha1 = showDialogMsg("Please Pick a Commit Sha1", "Reset HEAD to commit");
 
-        try {
-            this.magitManager.resetBranch(commitSha1, false);
-        } catch (NotActiveException e) {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle(e.getMessage());
-            alert.setContentText("force checkout?");
-            ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
-            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-            alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
-            alert.showAndWait().ifPresent(type -> {
-                if (type == okButton) {
-                    try {
-                        this.magitManager.resetBranch(commitSha1, true);
-                    } catch (IOException | RuntimeException ex) {
-                        handleException(e);
+        commitSha1.ifPresent(s -> {
+            try {
+                this.magitManager.resetBranch(s, false);
+            } catch (NotActiveException e) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle(e.getMessage());
+                alert.setContentText("force checkout?");
+                ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+                ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+                alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
+                alert.showAndWait().ifPresent(type -> {
+                    if (type == okButton) {
+                        try {
+                            this.magitManager.resetBranch(s, true);
+                        } catch (IOException | RuntimeException ex) {
+                            handleException(e);
+                        }
+
                     }
-
-                }
-            });
-        } catch (IOException e) {
-            handleException(e);
-        }
+                });
+            } catch (IOException e) {
+                handleException(e);
+            }
+        });
     }
 
     private void createEdges(Model model, Map<String, ICell> commitRep, Map<String, List<Commit>> commitMap) {
