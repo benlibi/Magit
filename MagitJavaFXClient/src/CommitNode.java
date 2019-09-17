@@ -2,8 +2,13 @@ import com.fxgraph.cells.AbstractCell;
 import com.fxgraph.graph.ICell;
 import com.fxgraph.graph.IEdge;
 import javafx.beans.binding.DoubleBinding;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Region;
 import com.fxgraph.graph.Graph;
@@ -69,6 +74,38 @@ public class CommitNode extends AbstractCell implements Comparable< CommitNode >
             commitNodeController.setCommitTimeStamp(timestamp);
             commitNodeController.setCircleId(sha1,rootPath);
 
+
+            // Create ContextMenu
+            ContextMenu contextMenu = new ContextMenu();
+
+            MenuItem item1 = new MenuItem("Get Commit WC");
+            item1.setOnAction(new EventHandler<ActionEvent>() {
+
+                @Override
+                public void handle(ActionEvent event) {
+                    commitNodeController.showCommitStatus(sha1,rootPath);
+                }
+            });
+            MenuItem item2 = new MenuItem("Get Commit Changes");
+            item2.setOnAction(new EventHandler<ActionEvent>() {
+
+                @Override
+                public void handle(ActionEvent event) {
+                    commitNodeController.showCommitChanges(sha1,rootPath);
+                }
+            });
+
+            // Add MenuItem to ContextMenu
+            contextMenu.getItems().addAll(item1, item2);
+
+            root.setOnContextMenuRequested(new EventHandler<ContextMenuEvent>() {
+
+                @Override
+                public void handle(ContextMenuEvent event) {
+
+                    contextMenu.show(root, event.getScreenX(), event.getScreenY());
+                }
+            });
 
             return root;
         } catch (IOException e) {

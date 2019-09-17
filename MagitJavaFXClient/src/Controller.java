@@ -11,6 +11,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.ContextMenuEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
@@ -135,7 +136,7 @@ public class Controller {
     }
 
     public void showCommit(ActionEvent actionEvent) {
-        _clientManager.showCommit();
+        initRepo();
     }
 
     public void createBranch(ActionEvent actionEvent) {
@@ -419,6 +420,7 @@ public class Controller {
                         e.consume();
                     }
                 });
+            }else{
                 _clientManager.saveFile(blobFinalImage.getText(), conflict.getFilePath());
             }
         });
@@ -437,10 +439,12 @@ public class Controller {
     }
 
 
-    public void commitStatus(MouseEvent mouseEvent) {
-        String pressedCommit = mouseEvent.getPickResult().getIntersectedNode().getId();
-        String coomitSha1 = pressedCommit.split(";")[0];
-        String rootrepo = pressedCommit.split(";")[1];
-        _clientManager.getFather(coomitSha1,rootrepo);
+    public void showCommitChanges(String coomitSha1, String  rootrepo) {
+        _clientManager.showChanges(coomitSha1,rootrepo);
     }
+
+    public void showCommitStatus(String coomitSha1, String  rootrepo) {
+        _clientManager.showStatus(coomitSha1,rootrepo);
+    }
+
 }

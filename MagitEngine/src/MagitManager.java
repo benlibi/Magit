@@ -291,14 +291,12 @@ public class MagitManager {
         return folder;
     }
 
-    public void commit(String commitMsg, String commitSha1) throws IOException {
+    public void commit(String commitMsg, String commitSha1, boolean forceCommit) throws IOException {
         Folder currentMainFolderReflection = new Folder(this.currentRepo.get_path());
         File[] objectFiles = new File(this.currentRepo.OBJECTS_DIR_PATH).listFiles();
         List<String> sha1List = createSha1List(objectFiles);
-        if (!isChangesFound()) {
-            throw new IOException("No Changes Detected !");
-        } else {
-//            Folder rootFolder = createRepo(sha1List, new File(this.currentRepo.get_path()), latestFolderReflection);
+        if (isChangesFound() || forceCommit) {
+            //            Folder rootFolder = createRepo(sha1List, new File(this.currentRepo.get_path()), latestFolderReflection);
             Folder rootFolder = createRepo(sha1List, new File(this.currentRepo.get_path()), currentMainFolderReflection);
             rootFolder.createFolderRepresentation(this.currentRepo.OBJECTS_DIR_PATH);
             if (currentCommit == null) {
@@ -315,6 +313,9 @@ public class MagitManager {
             latestFolderReflection = rootFolder;
             this.currentBranch.setBranchFile(this.currentBranch.getName(),
                     this.currentCommit.getCommitSha1(), this.currentRepo.BRANCHES_DIR_PATH);
+
+        } else {
+            throw new IOException("No Changes Detected !");
         }
     }
 
@@ -584,7 +585,20 @@ public class MagitManager {
     }
 
     public Map<String,Blob> getCommitFilesMap(String commitSha1){
-        Map<String,Blob> commitFilesMap = new HashMap<>();
+        Map<String,Blob> commitFilesMap = new TreeMap<>(
+                new Comparator<String>() {
+                    @Override
+                    public int compare(String s1, String s2) {
+                        if (s1.length() > s2.length()) {
+                            return 1;
+                        } else if (s1.length() < s2.length()) {
+                            return -1;
+                        } else {
+                            return s1.compareTo(s2);
+                        }
+                    }
+                }
+        );
         Commit commit = getCommitRep(commitSha1);
         createFolder(commitFilesMap, this.currentRepo.get_path(), commit.getMainRepoSha1());
         return commitFilesMap;
@@ -665,7 +679,7 @@ public class MagitManager {
         return conflictList;
     }
 
-    public String getStatusSring(String firstCommitSha1, String secondCommitSha1){
+    public String getChangesSring(String firstCommitSha1, String secondCommitSha1){
         Map<String,Blob> firstCommitFiles =  getCommitFilesMap(firstCommitSha1);
         Map<String,Blob> secondCommitFiles =  getCommitFilesMap(secondCommitSha1);
         Map<String,Blob> changesMap = getCommitDiffsMap(firstCommitFiles, secondCommitFiles);
@@ -684,5 +698,24 @@ public class MagitManager {
             }
         }
         return newFiles.append(deletedFiles.append(updatedFiles)).toString();
+    }
+
+    private Map<String, List<Blob>> createFolderMap( Map<String, Blob> CommitFiles){
+        Map<String, List<Blob>> folderMap = new HashMap<>();
+        for(Blob blob: CommitFiles.values()){
+            String parentDir = blob.getParentDir();
+            if(!folderMap.keySet().contains(parentDir)){
+                List<Blob> blobList = new ArrayList<>();
+                folderMap.put(parentDir,blobList);
+            }
+            folderMap.get(parentDir).add(blob);
+        }
+        return folderMap;
+    }
+
+    public Map<String, List<Blob>> getStatusMap(String CommitSha1) {
+        Map<String, Blob> CommitFiles = getCommitFilesMap(CommitSha1);
+        return createFolderMap(CommitFiles);
+
     }
 }

@@ -213,7 +213,6 @@ class ClientManager {
 
                 }
             });
-
         }
     }
 
@@ -226,7 +225,6 @@ class ClientManager {
                 }
             }
         }
-
     }
 
     public Map<String,List<Commit>> createCommitMap(){
@@ -279,7 +277,6 @@ class ClientManager {
             populateCommitChildrensForBranch(commit, extendedCommitList);
         }
         return extendedCommitList;
-
     }
 
     private ExtendedCommit getRootCommit(Map<String, ExtendedCommit> extendedCommitList){
@@ -393,31 +390,30 @@ class ClientManager {
     void resetBranch() {
     }
 
-    void showCommit() {
-        List<String> commitDetails;
-        try {
-            commitDetails = magitManager.showCommit();
-        } catch (RuntimeException e) {
-            handleException(e);
-            return;
-        }
+    void showCommit(Map<String, List<Blob>> folderMap, String commitSha1) {
 
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setHeaderText("Current Commit");
+        alert.setHeaderText("Commit " + commitSha1 + ":");
 
         GridPane grid = new GridPane();
-
-        for (int i = 1; i < commitDetails.size(); i++) {
-            Hyperlink tmpLabel = new Hyperlink(commitDetails.get(i));
-            tmpLabel.setOnAction(new EventHandler<ActionEvent>() {
-                @Override
-                public void handle(ActionEvent event) {
-                    onFileClick(event);
-                }
-            });
-            grid.addRow(i, tmpLabel);
+        int i = 1;
+        for(String folder: folderMap.keySet()){
+            Label folderLabel = new Label(folder  + ":");
+            grid.addRow(i, folderLabel);
+            i +=1;
+            for (Blob blob: folderMap.get(folder)) {
+                Hyperlink tmpLabel = new Hyperlink(blob.getName());
+                tmpLabel.setId(blob.getContent());
+                tmpLabel.setOnAction(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent event) {
+                        onFileClick(event);
+                    }
+                });
+                grid.addRow(i, tmpLabel);
+                i +=1;
+            }
         }
-
         grid.setHgap(30);
         ColumnConstraints right = new ColumnConstraints();
         right.setHalignment(HPos.RIGHT);
@@ -434,7 +430,7 @@ class ClientManager {
     void commit(String branchName){
         String s = "Merge " + branchName + " into " + magitManager.getCurrentBranch().getName();
         try {
-            magitManager.commit(s, magitManager.readBranchFile(branchName));
+            magitManager.commit(s, magitManager.readBranchFile(branchName), true);
         } catch (IOException | RuntimeException e) {
             handleException(e);
         }
@@ -444,7 +440,7 @@ class ClientManager {
         Optional<String> commitMsg = showDialogMsg("Please add Commit Message", "Commit Your Changes");
         commitMsg.ifPresent(s -> {
             try {
-                magitManager.commit(s,null);
+                magitManager.commit(s,null, false);
             } catch (IOException | RuntimeException e) {
                 handleException(e);
             }
@@ -544,11 +540,10 @@ class ClientManager {
 
     private void onFileClick(ActionEvent actionEvent) {
         Hyperlink file = (Hyperlink) actionEvent.getSource();
-        String[] fileAttr = file.getText().split(",");
-        String fileContent = magitManager.getFileContent(fileAttr[1]);
+        String fileContent = file.getId();
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(fileAttr[0]);
-        alert.setHeaderText(fileAttr[0]);
+        alert.setTitle(file.getText());
+        alert.setHeaderText(file.getText());
 
         GridPane grid = new GridPane();
         Label fileLabel = new Label(fileContent);
@@ -561,13 +556,13 @@ class ClientManager {
     }
 
 
-    void getFather(String commitSha1,String rootrepo){
+    void showChanges(String commitSha1,String rootrepo){
         Folder rootFolder = new Folder(rootrepo);
         Repository currentRepo = new Repository(rootrepo, rootFolder);
         magitManager.setCurrentRepo(currentRepo);
         Commit commit = magitManager.getCommitRep(commitSha1);
         if(commit.getCommitHistory().size()==1){
-            String changesString = magitManager.getStatusSring(commitSha1, commit.getCommitHistory().get(0));
+            String changesString = magitManager.getChangesSring(commitSha1, commit.getCommitHistory().get(0));
             infoMessage(changesString,"Changes");
         }else if(commit.getCommitHistory().size()==0){
             infoMessage("Root Commit No Changes","Changes");
@@ -575,4 +570,14 @@ class ClientManager {
             infoMessage("Merge commit cant determine ancestor","Changes");
         }
     }
+
+    void showStatus(String commitSha1,String rootrepo){
+        Folder rootFolder = new Folder(rootrepo);
+        Repository currentRepo = new Repository(rootrepo, rootFolder);
+        magitManager.setCurrentRepo(currentRepo);
+        Map<String, List<Blob>> statusFolderMap  = magitManager.getStatusMap(commitSha1);
+        showCommit(statusFolderMap, commitSha1);
+    }
+
+
 }

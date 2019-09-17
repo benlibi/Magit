@@ -23,6 +23,7 @@ public class Blob {
     private String lastModifyDate;
     private String parentDir;
 
+
     public Blob(String name, String content, String owner, String lastModifyDate, String parentDir){
         this.name = name;
         this.content=content;
@@ -110,7 +111,7 @@ public class Blob {
         return blobSha1;
     }
 
-    String getParentDir() {
+    public String getParentDir() {
         return parentDir;
     }
 
