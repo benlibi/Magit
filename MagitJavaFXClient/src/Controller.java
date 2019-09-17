@@ -11,8 +11,6 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.input.ContextMenuEvent;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
@@ -161,8 +159,7 @@ public class Controller {
     }
 
     public void resetBranch(ActionEvent actionEvent) {
-        _clientManager.resetBranch();
-
+        _clientManager.resetBranch("123");
     }
 
     public void changeUserBtn(ActionEvent actionEvent) {

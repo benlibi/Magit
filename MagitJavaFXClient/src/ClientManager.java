@@ -161,10 +161,9 @@ class ClientManager {
     }
 
     void checkoutBranch(String branchName) {
-        boolean forceCheckout = false;
 
         try {
-            this.magitManager.checkoutBranch(branchName, forceCheckout);
+            this.magitManager.resetBranch(branchName, false);
         } catch (IOException | RuntimeException e) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle(e.getMessage());
@@ -174,7 +173,7 @@ class ClientManager {
             ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
             alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
             alert.showAndWait().ifPresent(type -> {
-                if (type == ButtonType.OK) {
+                if (type == okButton) {
                     try {
                         this.magitManager.checkoutBranch(branchName, true);
                     } catch (IOException | RuntimeException ex) {
@@ -187,12 +186,10 @@ class ClientManager {
         }
     }
 
-    void resetBranch(String branchName, String commitSha1) {
-        boolean forceCheckout = false;
+    void resetBranch(String branchSha1) {
 
         try {
-//            TODO: call reset branch
-            this.magitManager.checkoutBranch(branchName, forceCheckout);
+            this.magitManager.resetBranch(branchSha1, false);
         } catch (IOException | RuntimeException e) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle(e.getMessage());
@@ -202,9 +199,9 @@ class ClientManager {
             ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
             alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
             alert.showAndWait().ifPresent(type -> {
-                if (type == ButtonType.OK) {
+                if (type == okButton) {
                     try {
-                        this.magitManager.checkoutBranch(branchName, true);
+                        this.magitManager.resetBranch(branchSha1, true);
                     } catch (IOException | RuntimeException ex) {
                         handleException(e);
                     }
@@ -299,7 +296,7 @@ class ClientManager {
         if (commit.getCommitHistory().size() != 0) {
             for (String parentCommit : commit.getCommitHistory()) {
                 ExtendedCommit parentExtendedCommit = extendedCommitList.get(parentCommit);
-                if(parentExtendedCommit.getBranchName()==null){
+                if (parentExtendedCommit.getBranchName() == null) {
                     parentExtendedCommit.setBranchName(branchName);
                     populateBranchConmmit(extendedCommitList, parentExtendedCommit, branchName);
                 }
@@ -374,7 +371,9 @@ class ClientManager {
             final Model model = graph.getModel();
             graph.beginUpdate();
             for (ExtendedCommit extendedCommit : extendedCommitList.values()) {
-                ICell c = new CommitNode(extendedCommit.getCommitSha1(), extendedCommit.getCommitDateString(), extendedCommit.getCommitter(), extendedCommit.getCommitMassage(), extendedCommit.getBranchName(), magitManager.currentRepo.get_path());
+                ICell c = new CommitNode(extendedCommit.getCommitSha1(), extendedCommit.getCommitDateString(),
+                        extendedCommit.getCommitter(), extendedCommit.getCommitMassage(), extendedCommit.getBranchName(),
+                        magitManager.currentRepo.get_path());
                 model.addCell(c);
                 commitRep.put(extendedCommit.getCommitSha1(), c);
             }
@@ -388,9 +387,9 @@ class ClientManager {
     void showCurrentBranch() {
     }
 
-    void resetBranch() {
+//    void resetBranch() {
 //        magitManager.
-    }
+//    }
 
     void showCommit(Map<String, List<Blob>> folderMap, String commitSha1) {
 
@@ -399,11 +398,11 @@ class ClientManager {
 
         GridPane grid = new GridPane();
         int i = 1;
-        for(String folder: folderMap.keySet()){
-            Label folderLabel = new Label(folder  + ":");
+        for (String folder : folderMap.keySet()) {
+            Label folderLabel = new Label(folder + ":");
             grid.addRow(i, folderLabel);
-            i +=1;
-            for (Blob blob: folderMap.get(folder)) {
+            i += 1;
+            for (Blob blob : folderMap.get(folder)) {
                 Hyperlink tmpLabel = new Hyperlink(blob.getName());
                 tmpLabel.setId(blob.getContent());
                 tmpLabel.setOnAction(new EventHandler<ActionEvent>() {
@@ -413,7 +412,7 @@ class ClientManager {
                     }
                 });
                 grid.addRow(i, tmpLabel);
-                i +=1;
+                i += 1;
             }
         }
         grid.setHgap(30);
@@ -442,7 +441,7 @@ class ClientManager {
         Optional<String> commitMsg = showDialogMsg("Please add Commit Message", "Commit Your Changes");
         commitMsg.ifPresent(s -> {
             try {
-                magitManager.commit(s,null, false);
+                magitManager.commit(s, null, false);
             } catch (IOException | RuntimeException e) {
                 handleException(e);
             }
@@ -558,26 +557,26 @@ class ClientManager {
     }
 
 
-    void showChanges(String commitSha1,String rootrepo){
+    void showChanges(String commitSha1, String rootrepo) {
         Folder rootFolder = new Folder(rootrepo);
         Repository currentRepo = new Repository(rootrepo, rootFolder);
         magitManager.setCurrentRepo(currentRepo);
         Commit commit = magitManager.getCommitRep(commitSha1);
-        if(commit.getCommitHistory().size()==1){
+        if (commit.getCommitHistory().size() == 1) {
             String changesString = magitManager.getChangesSring(commitSha1, commit.getCommitHistory().get(0));
-            infoMessage(changesString,"Changes");
-        }else if(commit.getCommitHistory().size()==0){
-            infoMessage("Root Commit No Changes","Changes");
-        }else{
-            infoMessage("Merge commit cant determine ancestor","Changes");
+            infoMessage(changesString, "Changes");
+        } else if (commit.getCommitHistory().size() == 0) {
+            infoMessage("Root Commit No Changes", "Changes");
+        } else {
+            infoMessage("Merge commit cant determine ancestor", "Changes");
         }
     }
 
-    void showStatus(String commitSha1,String rootrepo){
+    void showStatus(String commitSha1, String rootrepo) {
         Folder rootFolder = new Folder(rootrepo);
         Repository currentRepo = new Repository(rootrepo, rootFolder);
         magitManager.setCurrentRepo(currentRepo);
-        Map<String, List<Blob>> statusFolderMap  = magitManager.getStatusMap(commitSha1);
+        Map<String, List<Blob>> statusFolderMap = magitManager.getStatusMap(commitSha1);
         showCommit(statusFolderMap, commitSha1);
     }
 
