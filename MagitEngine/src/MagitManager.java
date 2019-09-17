@@ -640,4 +640,29 @@ public class MagitManager {
         }
         return conflictList;
     }
+
+//    protected void resetBranch(String branchSha1, boolean forceCheckout) throws IOException, RuntimeException {
+//        if (isChangesFound() && !forceCheckout) {
+//            throw new RuntimeException("Changes Detected!");
+//        }
+//
+//        if (forceCheckout) {
+//
+////            checkoutRevision(this.currentBranch.getName());
+//
+//            deleteWorkingDir();
+//            String[] mainFolderContent = unzipMainFolderFiles(readBranchFile(branchName));
+//            createRepoTree(mainFolderContent);
+//
+//            Folder mainFolder = new Folder(this.currentRepo.get_path());
+//            this.currentRepo.set_mainProjectSha1(mainFolder.getFolderSha1());
+//            this.currentRepo.setHead(branchName);
+//            String commitSha1 = readBranchFile(branchName);
+//            String commitRepresentation = Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + commitSha1),
+//                    this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
+//            this.currentCommit = new Commit(commitRepresentation.replace("\n", ""));
+//            this.currentBranch = new Branch(branchName, this.currentCommit);
+//            this.latestFolderReflection = mainFolder;
+//        }
+//    }
 }

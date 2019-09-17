@@ -18,6 +18,7 @@ public class Repository {
     private String _mainProjectSha1;
     private Folder rootFolder;
     private String HEAD_PATH;
+    private String name = "";
     public String MAGIT_DIR_PATH;
     public String OBJECTS_DIR_PATH;
     public String BRANCHES_DIR_PATH;
@@ -81,6 +82,14 @@ public class Repository {
 
     public Folder getRootFolder() {
         return rootFolder;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
 
