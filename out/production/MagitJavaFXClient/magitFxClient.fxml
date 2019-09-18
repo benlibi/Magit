@@ -65,7 +65,11 @@
          <left>
             <HBox id="left-hbox" fx:id="leftHbox" prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                <children>
-                  <ScrollPane id="branches-view-pane" fx:id="branchesViewPane" prefHeight="200.0" prefWidth="203.0" />
+                  <ScrollPane id="branches-view-pane" fx:id="branchesViewPane" prefHeight="100.0" prefWidth="200.0">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </ScrollPane>
                </children>
             </HBox>
          </left>

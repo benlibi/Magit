@@ -23,10 +23,13 @@ import java.util.stream.Collectors;
 
 public class Controller {
 
+
     private Graph tree = new Graph();
 
     private ClientManager _clientManager = new ClientManager();
 
+    @FXML
+    public ScrollPane remoteBranchesViewPane;
     @FXML
     public Button pullBtn;
     @FXML
@@ -92,8 +95,40 @@ public class Controller {
 
     private void initRepo() {
         loadBranchesView();
+        loadRemoteBranchView();
         initGraph();
         repoStatusText.setText(_clientManager.getRepoStatus());
+    }
+
+    private void loadRemoteBranchView() {
+        ListView<Button> list = new ListView<Button>();
+        ObservableList<Button> items = FXCollections.observableArrayList(
+                _clientManager.getAvailableRemoteBranches().stream()
+                        .map(branch -> {
+                            Button branchRepresentation = new Button(branch);
+                            branchRepresentation.setPrefWidth(200);
+                            branchRepresentation.setAlignment(Pos.CENTER_LEFT);
+                            branchRepresentation.setBackground(Background.EMPTY);
+                            branchRepresentation.setId(branch);
+                            branchRepresentation.setOnAction(new EventHandler<ActionEvent>() {
+                                @Override
+                                public void handle(ActionEvent event) {
+                                    onRemoteBranchClick(event);
+                                }
+                            });
+
+                            initBranchContextMenu(branchRepresentation);
+
+                            return branchRepresentation;
+                        })
+                        .collect(Collectors.toList())
+        );
+
+        list.setItems(items.sorted());
+        branchesViewPane.setContent(list);
+        branchesViewPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        branchesViewPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
     }
 
     private void loadBranchesView() {
@@ -120,7 +155,7 @@ public class Controller {
                         .collect(Collectors.toList())
         );
 
-        list.setItems(items);
+        list.setItems(items.sorted());
         branchesViewPane.setContent(list);
         branchesViewPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         branchesViewPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -171,6 +206,13 @@ public class Controller {
         _clientManager.checkoutBranch(branchBtn.getId());
 
         loadBranchesView();
+    }
+
+    private void onRemoteBranchClick(ActionEvent actionEvent) {
+        Button branchBtn = (Button) actionEvent.getSource();
+        _clientManager.checkoutRemoteBranch(branchBtn.getId());
+
+        loadRemoteBranchView();
     }
 
 
