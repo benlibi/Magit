@@ -96,7 +96,7 @@ class ClientManager {
 
 
     void createBranch() {
-        if(!magitManager.isRemote()) {
+        if (!magitManager.isRemote()) {
             Optional<String> branchName = showDialogMsg("Please enter branch name", "Create Branch");
             branchName.ifPresent(s -> {
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
@@ -120,13 +120,13 @@ class ClientManager {
                     }
                 });
             });
-        }else{
-                handleError("No Repo Found Or working on remote");
+        } else {
+            handleError("No Repo Found Or working on remote");
         }
     }
 
     void deleteBranch() {
-        if(!magitManager.isRemote()) {
+        if (!magitManager.isRemote()) {
             Optional<String> branchName = showDialogMsg("Please enter branch name", "Delete Branch");
             branchName.ifPresent(s -> {
                 try {
@@ -135,7 +135,7 @@ class ClientManager {
                     handleException(e);
                 }
             });
-        }else{
+        } else {
             handleError("No Repo Found Or working on remote");
         }
     }
@@ -143,9 +143,9 @@ class ClientManager {
     void checkoutBranch(String branchName) {
 
         try {
-            if(!magitManager.currentRepo.isRemote) {
+            if (!magitManager.currentRepo.isRemote) {
                 this.magitManager.checkoutBranch(branchName, false);
-            }else{
+            } else {
                 handleError("Operation not permitted: Working On Remote Repo");
             }
         } catch (NotActiveException e) {
@@ -201,7 +201,7 @@ class ClientManager {
     }
 
     void resetBranch() {
-        if(!magitManager.isRemote()) {
+        if (!magitManager.isRemote()) {
             Optional<String> commitSha1 = showDialogMsg("Please Pick a Commit Sha1", "Reset HEAD to commit");
 
             commitSha1.ifPresent(s -> {
@@ -230,9 +230,9 @@ class ClientManager {
                     handleException(e);
                 }
             });
-        }else{
-                handleError("No Repo Found Or working on remote");
-            }
+        } else {
+            handleError("No Repo Found Or working on remote");
+        }
     }
 
     private void createEdges(Model model, Map<String, ICell> commitRep, Map<String, List<Commit>> commitMap) {
@@ -249,9 +249,9 @@ class ClientManager {
     public Map<String, List<Commit>> createCommitMap() {
         Map<String, List<Commit>> commitMap = new HashMap<String, List<Commit>>();
         List<String> branchList;
-        if(!magitManager.currentRepo.isRemote) {
+        if (!magitManager.currentRepo.isRemote) {
             branchList = getAvailableBranches();
-        }else{
+        } else {
             branchList = getAvailableRemoteBranches();
         }
         for (String branchName : branchList) {
@@ -259,9 +259,9 @@ class ClientManager {
             branchName = branchName.replace(" (remote)", "");
             List<Commit> commitList = new ArrayList<>();
             String branchCommitSha1;
-            if(!magitManager.currentRepo.isRemote) {
+            if (!magitManager.currentRepo.isRemote) {
                 branchCommitSha1 = magitManager.readBranchFile(branchName);
-            }else{
+            } else {
                 branchCommitSha1 = magitManager.readRemoteBranchFile(branchName);
             }
             if (!branchCommitSha1.equals("")) {
@@ -299,9 +299,9 @@ class ClientManager {
         Map<String, ExtendedCommit> extendedCommitList = new HashMap<>();
         for (String branchName : branchSet) {
             String branchCommitSha1;
-            if(!magitManager.currentRepo.isRemote) {
+            if (!magitManager.currentRepo.isRemote) {
                 branchCommitSha1 = magitManager.readBranchFile(branchName);
-            }else{
+            } else {
                 branchCommitSha1 = magitManager.readRemoteBranchFile(branchName);
             }
             String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
@@ -348,9 +348,9 @@ class ClientManager {
     private void populateAllBranchesCommits(Map<String, ExtendedCommit> extendedCommitList, Set<String> branchSet) {
         for (String branchName : branchSet) {
             String branchCommitSha1;
-            if(!magitManager.currentRepo.isRemote) {
+            if (!magitManager.currentRepo.isRemote) {
                 branchCommitSha1 = magitManager.readBranchFile(branchName);
-            }else{
+            } else {
                 branchCommitSha1 = magitManager.readRemoteBranchFile(branchName);
             }
             ExtendedCommit headCommit = extendedCommitList.get(branchCommitSha1);
@@ -403,7 +403,6 @@ class ClientManager {
     public void deleteFile(String path) throws IOException {
         magitManager.deleteFile(path);
     }
-
 
 
     public void createGraph(Graph graph) {
@@ -488,9 +487,9 @@ class ClientManager {
         Optional<String> commitMsg = showDialogMsg("Please add Commit Message", "Commit Your Changes");
         commitMsg.ifPresent(s -> {
             try {
-                if(!magitManager.isRemote()) {
+                if (!magitManager.isRemote()) {
                     magitManager.commit(s, null, false);
-                }else{
+                } else {
                     throw new IOException("No Repo Found Or working on remote");
                 }
             } catch (IOException | RuntimeException e) {
@@ -535,7 +534,7 @@ class ClientManager {
         String repoPath = xmlLoader.get_path();
         File directory = new File(repoPath);
         String remotePath = xmlLoader.getRemote_path();
-        if(checkRemotePath(remotePath)) {
+        if (checkRemotePath(remotePath)) {
             if (!directory.exists()) {
                 if (!directory.mkdir()) {
                     throw new IOException(repoPath + " Faild to be created");
@@ -556,11 +555,11 @@ class ClientManager {
                             this.magitManager.loadXml(xmlLoader);
                         }
                     }
-                }else{
+                } else {
                     this.magitManager.loadXml(xmlLoader);
                 }
             }
-        }else{
+        } else {
             throw new IOException("remote path " + remotePath + " Not exist on not including .magit folder inside\nAborting xml loading");
         }
     }
@@ -659,14 +658,15 @@ class ClientManager {
 
 
     String getRepoStatus() {
-        return "Current User: " + this.magitManager.getCurrentUser() + " Repo Name: " + this.magitManager.currentRepo.getName() + " Repo Path: " + this.magitManager.currentRepo.get_path() + "\n" + this.magitManager.currentRepo.getRemoteString();
+        return "Current User: " + this.magitManager.getCurrentUser() + " Repo Name: " + this.magitManager.currentRepo.getName() +
+                " Repo Path: " + this.magitManager.currentRepo.get_path() + "\n" + this.magitManager.currentRepo.getRemoteString();
     }
 
     void pull() {
         try {
-            if(!magitManager.isRemote()) {
+            if (!magitManager.isRemote()) {
 
-            }else{
+            } else {
                 throw new IOException("No Repo Found Or working on remote");
             }
         } catch (Exception e) {
@@ -676,9 +676,9 @@ class ClientManager {
 
     void push() {
         try {
-            if(!magitManager.isRemote()) {
+            if (!magitManager.isRemote()) {
 
-            }else{
+            } else {
                 throw new IOException("No Repo Found Or working on remote");
             }
         } catch (Exception e) {
@@ -688,9 +688,9 @@ class ClientManager {
 
     void fetch() {
         try {
-            if(!magitManager.isRemote()) {
+            if (!magitManager.isRemote()) {
 
-            }else{
+            } else {
                 throw new IOException("No Repo Found Or working on remote");
             }
         } catch (Exception e) {
@@ -700,9 +700,9 @@ class ClientManager {
 
     void gitClone(Stage stage) {
         try {
-            if(magitManager.getCurrentRepo()!=null) {
+            if (magitManager.getCurrentRepo() != null) {
                 Optional<String> path = this.getRepoDirPath(stage);
-                if(path.isPresent()) {
+                if (path.isPresent()) {
                     Optional<String> repo_name = showDialogMsg("Please give your new repo name", "Repo Name");
                     repo_name.ifPresent(s -> {
                         try {
@@ -712,7 +712,7 @@ class ClientManager {
                         }
                     });
                 }
-            }else{
+            } else {
                 throw new IOException("No Repo Found");
             }
         } catch (Exception e) {

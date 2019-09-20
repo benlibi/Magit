@@ -2,7 +2,6 @@ import Enums.ConflictSections;
 import Models.Conflict;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.PannableCanvas;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -251,8 +250,8 @@ public class Controller {
         branchLabel.setTooltip(new Tooltip(branchName));
     }
 
-    void setCircleId(String sha1, String rootPath){
-        CommitCircle.setId(sha1+ ";" + rootPath);
+    void setCircleId(String sha1, String rootPath) {
+        CommitCircle.setId(sha1 + ";" + rootPath);
 
     }
 
@@ -464,7 +463,7 @@ public class Controller {
                         e.consume();
                     }
                 });
-            }else{
+            } else {
                 _clientManager.saveFile(blobFinalImage.getText(), conflict.getFilePath());
             }
         });
@@ -500,12 +499,14 @@ public class Controller {
     }
 
 
-    public void showCommitChanges(String coomitSha1, String  rootrepo) {
-        _clientManager.showChanges(coomitSha1,rootrepo);
+    void showCommitChanges(String coomitSha1, String rootrepo) {
+        _clientManager.showChanges(coomitSha1, rootrepo);
     }
 
-    public void showCommitStatus(String coomitSha1, String  rootrepo) {
-        _clientManager.showStatus(coomitSha1,rootrepo);
+    void showCommitStatus(String coomitSha1, String rootrepo) {
+        _clientManager.showStatus(coomitSha1, rootrepo);
     }
 
+    public void showWc(ActionEvent actionEvent) {
+    }
 }
