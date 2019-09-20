@@ -187,7 +187,7 @@
                         <Font name="Gurmukhi MT" size="16.0" />
                      </font>
                   </Text>
-                  <Button id="show-wc" fx:id="showWcBtn" defaultButton="true" mnemonicParsing="false" onAction="#showWc" prefHeight="50.0" prefWidth="200.0" text="Show WC" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
+                  <Button id="show-wc" fx:id="showWcBtn" defaultButton="true" mnemonicParsing="false" onAction="#showWC" prefHeight="50.0" prefWidth="200.0" text="Show WC" textAlignment="CENTER" textOverrun="LEADING_ELLIPSIS" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="4" GridPane.valignment="CENTER">
                      <font>
                         <Font name="Georgia Bold" size="18.0" />
                      </font>

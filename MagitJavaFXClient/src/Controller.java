@@ -507,6 +507,7 @@ public class Controller {
         _clientManager.showStatus(coomitSha1, rootrepo);
     }
 
-    public void showWc(ActionEvent actionEvent) {
+    public void showWC(ActionEvent actionEvent) {
+        _clientManager.showWC();
     }
 }
