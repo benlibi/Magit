@@ -21,6 +21,8 @@ import java.nio.file.FileSystemException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static javafx.collections.FXCollections.observableArrayList;
+
 public class Controller {
 
 
@@ -102,7 +104,7 @@ public class Controller {
 
     private void loadRemoteBranchView() {
         ListView<Button> list = new ListView<Button>();
-        ObservableList<Button> items = FXCollections.observableArrayList(
+        ObservableList<Button> items = observableArrayList(
                 _clientManager.getAvailableRemoteBranches().stream()
                         .map(branch -> {
                             Button branchRepresentation = new Button(branch);
@@ -125,15 +127,15 @@ public class Controller {
         );
 
         list.setItems(items.sorted());
-        branchesViewPane.setContent(list);
-        branchesViewPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        branchesViewPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        remoteBranchesViewPane.setContent(list);
+        remoteBranchesViewPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        remoteBranchesViewPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
 
     }
 
     private void loadBranchesView() {
         ListView<Button> list = new ListView<Button>();
-        ObservableList<Button> items = FXCollections.observableArrayList(
+        ObservableList<Button> items = observableArrayList(
                 _clientManager.getAvailableBranches().stream()
                         .map(branch -> {
                             Button branchRepresentation = new Button(branch);
@@ -168,29 +170,22 @@ public class Controller {
         }
     }
 
-    public void showWC(ActionEvent actionEvent) {
-        _clientManager.showWC();
-    }
 
     public void commit(ActionEvent actionEvent) {
         _clientManager.commit();
         initRepo();
     }
 
-    public void showCommit(ActionEvent actionEvent) {
-        initRepo();
-    }
 
     public void createBranch(ActionEvent actionEvent) {
         _clientManager.createBranch();
 
-        loadBranchesView();
+        initRepo();
     }
 
     public void deleteBranch(ActionEvent actionEvent) {
         _clientManager.deleteBranch();
-
-        loadBranchesView();
+        initRepo();
     }
 
     public void resetBranch(ActionEvent actionEvent) {
@@ -500,7 +495,8 @@ public class Controller {
     }
 
     public void clone(ActionEvent actionEvent) {
-        _clientManager.gitClone();
+        _clientManager.gitClone((Stage) ((Node) actionEvent.getSource()).getScene().getWindow());
+        initRepo();
     }
 
 

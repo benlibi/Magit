@@ -1,3 +1,5 @@
+import org.apache.commons.io.FileUtils;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -83,6 +85,26 @@ class Utils {
 
     }
 
+    public static void createRepoFile(String path, String name,String remotePath, String remoteName) throws IOException {
+        File file = new File(path, "remote");
+        if (file.createNewFile()){
+            String s;
+            if(remotePath.equals("")){
+                s = name;
+            }else{
+                s = name + "," + remotePath + "," + remoteName;
+            }
+            BufferedWriter output = new BufferedWriter(new FileWriter(file));
+            output.write(s);
+            output.close();
+        }
+    }
+
+    public static void createDir(String path){
+        File file = new File(path);
+        file.mkdir();
+    }
+
     private static void createUserFile(String path, String fileName, String blobContent) {
         try {
             File file = new File(path, fileName);
@@ -94,5 +116,28 @@ class Utils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void copyFolderContent(String source, String destination) throws IOException {
+        File srcDir = new File(source);
+        File destDir = new File(destination);
+        FileUtils.copyDirectory(srcDir, destDir);
+    }
+
+    public static void moveFile(String sourceFile, String destination) throws IOException {
+        File srcFile = new File(sourceFile);
+        File destDir = new File(destination);
+        FileUtils.moveFile(srcFile,destDir);
+    }
+
+    public static void copyFile(String sourceFile, String destination) throws IOException {
+        File srcFile = new File(sourceFile);
+        File destDir = new File(destination);
+        FileUtils.copyFile(srcFile,destDir);
+    }
+
+    public static boolean isRemoteExist(String branchName, String remotePath){
+        File file = new File(remotePath + "/"  + branchName);
+        return file.exists();
     }
 }

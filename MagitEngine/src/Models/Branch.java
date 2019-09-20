@@ -17,15 +17,44 @@ public class Branch {
 
     private String name;
     private Commit pCommit;
+    private boolean isRemote=false;
+    private String trackingAfter="";
+    private boolean tracking=false;
+
+    private String fullRemoteName = "";
+
 
     Branch(MagitSingleBranch branch, Commit pointedCommit) {
-        name = branch.getName();
+
         pCommit = pointedCommit;
+        isRemote = branch.isIsRemote();
+        trackingAfter = branch.getTrackingAfter();
+        tracking=branch.isTracking();
+        fullRemoteName = branch.getName();
+        name = !isRemote? branch.getName(): branch.getName().split("\\\\")[1];
     }
 
     public Branch(String name, Commit pCommit) {
         this.name = name;
         this.pCommit = pCommit;
+    }
+
+    public Branch(String name, Commit pCommit, String remoteName, boolean tracking) {
+        this.name = name;
+        this.pCommit = pCommit;
+        if(tracking){
+            isRemote = false;
+            this.tracking=true;
+            trackingAfter = remoteName + "\\" + name;
+        }
+    }
+
+    public String getFullRemoteName() {
+        if(fullRemoteName.equals("")) {
+            return name;
+        }else{
+            return fullRemoteName;
+        }
     }
 
     public static String getBranchCommitPointer(String filePath) {
@@ -35,7 +64,7 @@ public class Branch {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return contentBuilder.toString().trim();
+        return contentBuilder.toString().trim().split(",")[0];
     }
 
     public void createBranchFile(String branchFilePath) throws IOException {
@@ -43,7 +72,7 @@ public class Branch {
         if (file.createNewFile()) {
             if (pCommit != null) {
                 BufferedWriter output = new BufferedWriter(new FileWriter(file));
-                output.write(pCommit.getCommitSha1());
+                output.write(pCommit.getCommitSha1() + "," + trackingAfter);
                 output.close();
             }
         }

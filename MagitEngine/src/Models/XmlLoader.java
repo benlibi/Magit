@@ -28,13 +28,28 @@ public class XmlLoader {
     private Map<String, MagitSingleBranch> branchesMap = new HashMap<String, MagitSingleBranch>();
 
     private String xmlPropriety = "";
-
+    private String remote_path="";
+    private String remote_name="";
     private String _path;
+
+
+
+    private String name;
     private String MAGIT_DIR_PATH;
     private String OBJECTS_DIR_PATH;
     private String BRANCHES_DIR_PATH;
+    private String REMOTE_BRANCHES_DIR_PATH = "";
     private String HEAD_PATH;
 
+    public String getName() {
+        return name;
+    }
+    public String getRemote_name() {
+        return remote_name;
+    }
+    public String getRemote_path() {
+        return remote_path;
+    }
     public Folder getCurrentRootFolder() {
         return currentRootFolder;
     }
@@ -56,6 +71,9 @@ public class XmlLoader {
     public String get_path() {
         return _path;
     }
+    public String getMAGIT_DIR_PATH() {
+        return MAGIT_DIR_PATH;
+    }
 
     public XmlLoader(String path) throws JAXBException {
         File file = new File(path);
@@ -66,36 +84,47 @@ public class XmlLoader {
         branches = repository.getMagitBranches();
         folders = repository.getMagitFolders();
         commits = repository.getMagitCommits();
-
+        name=repository.getName();
         this._path = repository.getLocation();
         MAGIT_DIR_PATH = this._path.concat("/.magit");
         OBJECTS_DIR_PATH = MAGIT_DIR_PATH.concat("/Objects");
         BRANCHES_DIR_PATH = MAGIT_DIR_PATH.concat("/Branches");
         HEAD_PATH = BRANCHES_DIR_PATH.concat("/HEAD");
+        if(repository.getMagitRemoteReference().getLocation()!=null){
+            remote_path = repository.getMagitRemoteReference().getLocation();
+            remote_name = repository.getMagitRemoteReference().getName();
+            REMOTE_BRANCHES_DIR_PATH = MAGIT_DIR_PATH.concat("/" + remote_name);
+        }
     }
 
     public void createRepoRep() throws IOException {
         for (MagitSingleBranch magitBranch : branchesMap.values()) {
-            MagitSingleCommit magitCommit = commitsMap.get(magitBranch.getPointedCommit().getId());
-            MagitSingleFolder magitRootFolder = foldersMap.get(magitCommit.getRootFolder().getId());
-            Folder rootFolder = createRepoTree(magitRootFolder, _path);
-            List<String> previouseCommitSha1 = getPreviouseCommitSha1List(magitCommit, magitBranch);
-            Commit pCommit = new Commit(magitCommit, rootFolder.getFolderSha1(), previouseCommitSha1);
-            pCommit.createCommitRepresentation(OBJECTS_DIR_PATH);
-            Branch branch = new Branch(magitBranch, pCommit);
-            branch.createBranchFile(BRANCHES_DIR_PATH);
-            branch.setpCommit(pCommit);
-            if (branch.getName().equals(branches.getHead())) {
-                headBranch = branch;
-                currentCommit = pCommit;
-                currentRootFolder = rootFolder;
+                MagitSingleCommit magitCommit = commitsMap.get(magitBranch.getPointedCommit().getId());
+                MagitSingleFolder magitRootFolder = foldersMap.get(magitCommit.getRootFolder().getId());
+                Folder rootFolder = createRepoTree(magitRootFolder, _path);
+                List<String> previouseCommitSha1 = getPreviouseCommitSha1List(magitCommit, magitBranch);
+                Commit pCommit = new Commit(magitCommit, rootFolder.getFolderSha1(), previouseCommitSha1);
+            if(!magitBranch.getName().contains("\\")){
+                pCommit.createCommitRepresentation(OBJECTS_DIR_PATH);
+                Branch branch = new Branch(magitBranch, pCommit);
+                branch.createBranchFile(BRANCHES_DIR_PATH);
+                branch.setpCommit(pCommit);
+                if (branch.getName().equals(branches.getHead())) {
+                    headBranch = branch;
+                    currentCommit = pCommit;
+                    currentRootFolder = rootFolder;
+                }
+            }else{
+                Branch branch = new Branch(magitBranch, pCommit);
+                branch.createBranchFile(REMOTE_BRANCHES_DIR_PATH);
+                branch.setpCommit(pCommit);
             }
         }
     }
 
     private List<String> getPreviouseCommitSha1List(MagitSingleCommit rootCommit, MagitSingleBranch magitBranch) {
         List<String> previouseCommitSha1List = new ArrayList<String>();
-        if (rootCommit.getPrecedingCommits().getPrecedingCommit() != null ||
+        if (rootCommit.getPrecedingCommits() !=null  && rootCommit.getPrecedingCommits().getPrecedingCommit() != null &&
                 rootCommit.getPrecedingCommits().getPrecedingCommit().size() != 0) {
             List<PrecedingCommits.PrecedingCommit> precedingCommitList = rootCommit.getPrecedingCommits().getPrecedingCommit();
             for (PrecedingCommits.PrecedingCommit precedingCommit : precedingCommitList) {
@@ -110,9 +139,8 @@ public class XmlLoader {
         MagitSingleFolder magitRootFolder = foldersMap.get(rootCommit.getRootFolder().getId());
         Folder rootFolder = createRepoTree(magitRootFolder, _path);
         List<String> previouseCommitSha1List = new ArrayList<String>();
-        if (rootCommit.getPrecedingCommits().getPrecedingCommit() == null ||
+        if (rootCommit.getPrecedingCommits() == null || rootCommit.getPrecedingCommits().getPrecedingCommit() == null ||
                 rootCommit.getPrecedingCommits().getPrecedingCommit().size() == 0) {
-            int PrecedingCommitSize = rootCommit.getPrecedingCommits().getPrecedingCommit().size();
             Commit pCommit = new Commit(rootCommit, rootFolder.getFolderSha1(), previouseCommitSha1List);
             pCommit.createCommitRepresentation(OBJECTS_DIR_PATH);
             return pCommit.getCommitSha1();
@@ -169,43 +197,45 @@ public class XmlLoader {
     }
 
     private boolean checkBranchPropriety() {
-        boolean isOk = true;
         for (Map.Entry<String, MagitSingleBranch> branch : branchesMap.entrySet()) {
             String branchName = branch.getKey();
             MagitSingleBranch branchRep = branch.getValue();
             if (!commitsMap.keySet().contains(branchRep.getPointedCommit().getId())) {
-                String errMsg = "for branch: " + branchName + "cannot find pointed commit " + branchRep.getPointedCommit().getId();
-                System.err.println(errMsg);
-                xmlPropriety = errMsg;
+                xmlPropriety = "for branch: " + branchName + "cannot find pointed commit " + branchRep.getPointedCommit().getId();
                 return false;
+            }
+            if(branch.getValue().isTracking()){
+                String tracked_branch = branch.getValue().getTrackingAfter();
+                if(branchesMap.keySet().contains(tracked_branch)){
+                    if(!branchesMap.get(tracked_branch).isIsRemote()){
+                        xmlPropriety = "tracked branch: " + tracked_branch + "not remote";
+                        return false;
+                    }
+                }else{
+                    xmlPropriety = "for branch: " + branchName + "cannot find remoteBranch " + tracked_branch;
+                    return false;
+                }
             }
         }
         if (!branchesMap.keySet().contains(branches.getHead())) {
-            String errMsg = "cannot find HEAD branch " + branches.getHead();
-            System.err.println(errMsg);
-            xmlPropriety = errMsg;
+            xmlPropriety = "cannot find HEAD branch " + branches.getHead();
             return false;
         }
         return true;
     }
 
     private boolean checkCommitPropriety() {
-        boolean isOk = true;
+
         for (Map.Entry<String, MagitSingleCommit> commit : commitsMap.entrySet()) {
             MagitSingleCommit commitRep = commit.getValue();
             String commitId = commit.getKey();
             String commitRootFolderId = commitRep.getRootFolder().getId();
             if (!foldersMap.keySet().contains(commitRootFolderId)) {
-                String errMsg = "for commit ID: " + commitId + "cannot find root dir with id" + commitRootFolderId;
-                System.err.println(errMsg);
-                xmlPropriety = errMsg;
+                xmlPropriety = "for commit ID: " + commitId + "cannot find root dir with id" + commitRootFolderId;
                 return false;
-
             }
             if (!foldersMap.get(commitRootFolderId).isIsRoot()) {
-                String errMsg = "for commit ID: " + commitId + "the commit not pointing to root dir " + commitRootFolderId;
-                System.err.println(errMsg);
-                xmlPropriety = errMsg;
+                xmlPropriety = "for commit ID: " + commitId + "the commit not pointing to root dir " + commitRootFolderId;
                 return false;
             }
         }
@@ -213,16 +243,13 @@ public class XmlLoader {
     }
 
     private boolean createObjectsMap() {
-        boolean isOk = true;
         List<MagitSingleFolder> folders = this.folders.getMagitSingleFolder();
         for (MagitSingleFolder folder : folders) {
             String folderId = folder.getId();
             if (!foldersMap.keySet().contains(folderId)) {
                 foldersMap.put(folderId, folder);
             } else {
-                String errMsg = "Duplicated folder id " + folderId;
-                System.err.println(errMsg);
-                xmlPropriety = errMsg;
+                xmlPropriety = "Duplicated folder id " + folderId;
                 return false;
             }
         }
@@ -232,9 +259,7 @@ public class XmlLoader {
             if (!commitsMap.keySet().contains(commitId)) {
                 commitsMap.put(commitId, commit);
             } else {
-                String errMsg = "Duplicated commit id " + commitId;
-                System.err.println(errMsg);
-                xmlPropriety = errMsg;
+                xmlPropriety = "Duplicated commit id " + commitId;
                 return false;
             }
         }
@@ -244,9 +269,7 @@ public class XmlLoader {
             if (!blobsMap.keySet().contains(blobId)) {
                 blobsMap.put(blobId, blob);
             } else {
-                String errMsg = "Duplicated blob id " + blobId;
-                System.err.println(errMsg);
-                xmlPropriety = errMsg;
+                xmlPropriety = "Duplicated blob id " + blobId;
                 return false;
             }
         }
@@ -256,9 +279,7 @@ public class XmlLoader {
             if (!branchesMap.keySet().contains(branchName)) {
                 branchesMap.put(branchName, branch);
             } else {
-                String errMsg = "Duplicated branch name " + branchName;
-                System.err.println(errMsg);
-                xmlPropriety = errMsg;
+                xmlPropriety = "Duplicated branch name " + branchName;
                 return false;
             }
         }
@@ -266,7 +287,6 @@ public class XmlLoader {
     }
 
     private boolean checkFolderPropriety() {
-        boolean isOk = true;
         for (Map.Entry<String, MagitSingleFolder> folder : foldersMap.entrySet()) {
             String folderId = folder.getKey();
             MagitSingleFolder folderRep = folder.getValue();
@@ -276,28 +296,20 @@ public class XmlLoader {
                 String itemId = item.getId();
                 if (itemType.equals("folder")) {
                     if (!foldersMap.keySet().contains(itemId)) {
-                        String errMsg = "folder id " + itemId + " could not be found";
-                        System.err.println(errMsg);
-                        xmlPropriety = errMsg;
+                        xmlPropriety = "folder id " + itemId + " could not be found";
                         return false;
                     }
                     if (itemId.equals(folderId)) {
-                        String errMsg = "folder " + folderRep.getName() + " pointing to itself";
-                        System.err.println(errMsg);
-                        xmlPropriety = errMsg;
+                        xmlPropriety = "folder " + folderRep.getName() + " pointing to itself";
                         return false;
                     }
                 } else if (itemType.equals("blob")) {
                     if (!blobsMap.keySet().contains(itemId)) {
-                        String errMsg = "blob id " + itemId + " could not be found";
-                        System.err.println(errMsg);
-                        xmlPropriety = errMsg;
+                        xmlPropriety = "blob id " + itemId + " could not be found";
                         return false;
                     }
                 } else {
-                    String errMsg = "item type is not a folder or a blob: " + itemType;
-                    System.err.println(errMsg);
-                    xmlPropriety = errMsg;
+                    xmlPropriety = "item type is not a folder or a blob: " + itemType;
                     return false;
                 }
             }

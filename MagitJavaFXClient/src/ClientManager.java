@@ -28,11 +28,19 @@ class ClientManager {
         try {
             Optional<String> path = this.getRepoDirPath(stage);
             if (path.isPresent()) {
-                magitManager.createEmptyRepository(path.get());
+                Optional<String> repo_name = showDialogMsg("Please give your new repo name", "Repo Name");
+                repo_name.ifPresent(s -> {
+                    try {
+                        magitManager.createEmptyRepository(path.get(), repo_name.get());
+                    } catch (IOException e) {
+                        handleException(e);
+                    }
+                });
+
                 return true;
             }
             return false;
-        } catch (IOException | RuntimeException e) {
+        } catch (RuntimeException e) {
             handleException(e);
             return false;
         }
@@ -43,7 +51,7 @@ class ClientManager {
         return magitManager.getAvailableBranches();
     }
 
-    ArrayList<String> getAvailableRemoteBranches() {
+    public ArrayList<String> getAvailableRemoteBranches() {
 
         return magitManager.getRemoteAvailableBranches();
     }
@@ -71,15 +79,13 @@ class ClientManager {
 
             if (repoPath.isPresent()) {
                 XmlLoader xmlLoader = new XmlLoader(repoPath.get());
-                checkXmlRepoPath(xmlLoader.get_path());
-                this.magitManager.loadXml(xmlLoader);
+                checkXmlRepoPathAndLoad(xmlLoader);
                 infoMessage("Repo was loaded Successfully", "Success");
                 return true;
             }
         } catch (IOException | JAXBException e) {
             handleException(e);
         }
-        infoMessage("Path not exist", "Blat");
         return false;
     }
 
@@ -88,88 +94,60 @@ class ClientManager {
         userName.ifPresent(s -> this.magitManager.setCurrentUser(s));
     }
 
-    void showWC() {
-        try {
-            Map<String, List<String>> statusMap = magitManager.showStatus();
 
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setHeaderText("WC");
-
-            GridPane grid = new GridPane();
-
-            int i = 0;
-            for (String status : statusMap.keySet()) {
-                if (statusMap.get(status).size() != 0) {
-
-                    grid.addRow(i, new Label(status));
-                    i++;
-                    for (String changedFile : statusMap.get(status)) {
-                        grid.addRow(i, new Label(changedFile));
-                        i++;
+    void createBranch() {
+        if(!magitManager.isRemote()) {
+            Optional<String> branchName = showDialogMsg("Please enter branch name", "Create Branch");
+            branchName.ifPresent(s -> {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Checkout Your New Branch ?");
+                alert.setContentText("Would You Like To Checkout ?");
+                ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+                ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+                ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
+                alert.showAndWait().ifPresent(type -> {
+                    boolean checkout = false;
+                    if (type == okButton) {
+                        checkout = true;
+                    } else if (type == cancelButton) {
+                        return;
                     }
-                } else {
-                    grid.addRow(i, new Label(status));
-                }
-                i++;
-            }
-            grid.setHgap(30);
-            ColumnConstraints right = new ColumnConstraints();
-            right.setHalignment(HPos.RIGHT);
-            grid.getColumnConstraints().setAll(new ColumnConstraints(), right);
-
-            ScrollPane sp = new ScrollPane(grid);
-            alert.getDialogPane().setExpandableContent(sp);
-            alert.getDialogPane().setExpanded(true);
-            alert.setResizable(true);
-            alert.initModality(Modality.WINDOW_MODAL);
-            alert.showAndWait();
-
-        } catch (IOException | NullPointerException e) {
-            handleException(e);
+                    try {
+                        this.magitManager.createBranch(s, checkout);
+                    } catch (IOException | RuntimeException e) {
+                        handleException(e);
+                    }
+                });
+            });
+        }else{
+                handleError("No Repo Found Or working on remote");
         }
     }
 
-    void createBranch() {
-        Optional<String> branchName = showDialogMsg("Please enter branch name", "Create Branch");
-        branchName.ifPresent(s -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Checkout Your New Branch ?");
-            alert.setContentText("Would You Like To Checkout ?");
-            ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-            ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
-            ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-            alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
-            alert.showAndWait().ifPresent(type -> {
-                boolean checkout = false;
-                if (type == okButton) {
-                    checkout = true;
-                } else if (type == cancelButton) {
-                    return;
-                }
+    void deleteBranch() {
+        if(!magitManager.isRemote()) {
+            Optional<String> branchName = showDialogMsg("Please enter branch name", "Delete Branch");
+            branchName.ifPresent(s -> {
                 try {
-                    this.magitManager.createBranch(s, checkout);
+                    this.magitManager.deleteBranch(s);
                 } catch (IOException | RuntimeException e) {
                     handleException(e);
                 }
             });
-        });
-    }
-
-    void deleteBranch() {
-        Optional<String> branchName = showDialogMsg("Please enter branch name", "Delete Branch");
-        branchName.ifPresent(s -> {
-            try {
-                this.magitManager.deleteBranch(s);
-            } catch (IOException | RuntimeException e) {
-                handleException(e);
-            }
-        });
+        }else{
+            handleError("No Repo Found Or working on remote");
+        }
     }
 
     void checkoutBranch(String branchName) {
 
         try {
-            this.magitManager.checkoutBranch(branchName, false);
+            if(!magitManager.currentRepo.isRemote) {
+                this.magitManager.checkoutBranch(branchName, false);
+            }else{
+                handleError("Operation not permitted: Working On Remote Repo");
+            }
         } catch (NotActiveException e) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle(e.getMessage());
@@ -196,7 +174,9 @@ class ClientManager {
     void checkoutRemoteBranch(String branchName) {
 
         try {
-            this.magitManager.createRTB(branchName, false);
+            //this.magitManager.createRTB(branchName, false);
+            this.magitManager.checkoutBranch(branchName, false);
+
         } catch (NotActiveException e) {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
             alert.setTitle(e.getMessage());
@@ -209,46 +189,50 @@ class ClientManager {
                 if (type == okButton) {
                     try {
                         this.magitManager.createRTB(branchName, true);
-                    } catch (IOException | RuntimeException ex) {
+                    } catch (RuntimeException ex) {
                         handleException(e);
                     }
 
                 }
             });
         } catch (IOException e) {
-            handleException(e);
+            e.printStackTrace();
         }
     }
 
     void resetBranch() {
-        Optional<String> commitSha1 = showDialogMsg("Please Pick a Commit Sha1", "Reset HEAD to commit");
+        if(!magitManager.isRemote()) {
+            Optional<String> commitSha1 = showDialogMsg("Please Pick a Commit Sha1", "Reset HEAD to commit");
 
-        commitSha1.ifPresent(s -> {
-            try {
-                this.magitManager.resetBranch(s, false);
-                infoMessage("Reset was done", "Success");
-            } catch (NotActiveException e) {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle(e.getMessage());
-                alert.setContentText("force checkout?");
-                ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
-                ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
-                ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
-                alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
-                alert.showAndWait().ifPresent(type -> {
-                    if (type == okButton) {
-                        try {
-                            this.magitManager.resetBranch(s, true);
-                        } catch (IOException | RuntimeException ex) {
-                            handleException(e);
+            commitSha1.ifPresent(s -> {
+                try {
+                    this.magitManager.resetBranch(s, false);
+                    infoMessage("Reset was done", "Success");
+                } catch (NotActiveException e) {
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle(e.getMessage());
+                    alert.setContentText("force checkout?");
+                    ButtonType okButton = new ButtonType("Yes", ButtonBar.ButtonData.YES);
+                    ButtonType noButton = new ButtonType("No", ButtonBar.ButtonData.NO);
+                    ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+                    alert.getButtonTypes().setAll(okButton, noButton, cancelButton);
+                    alert.showAndWait().ifPresent(type -> {
+                        if (type == okButton) {
+                            try {
+                                this.magitManager.resetBranch(s, true);
+                            } catch (IOException | RuntimeException ex) {
+                                handleException(e);
+                            }
+
                         }
-
-                    }
-                });
-            } catch (IOException e) {
-                handleException(e);
+                    });
+                } catch (IOException e) {
+                    handleException(e);
+                }
+            });
+        }else{
+                handleError("No Repo Found Or working on remote");
             }
-        });
     }
 
     private void createEdges(Model model, Map<String, ICell> commitRep, Map<String, List<Commit>> commitMap) {
@@ -264,11 +248,22 @@ class ClientManager {
 
     public Map<String, List<Commit>> createCommitMap() {
         Map<String, List<Commit>> commitMap = new HashMap<String, List<Commit>>();
-        List<String> branchList = getAvailableBranches();
+        List<String> branchList;
+        if(!magitManager.currentRepo.isRemote) {
+            branchList = getAvailableBranches();
+        }else{
+            branchList = getAvailableRemoteBranches();
+        }
         for (String branchName : branchList) {
             branchName = branchName.replace(" (HEAD)", "");
+            branchName = branchName.replace(" (remote)", "");
             List<Commit> commitList = new ArrayList<>();
-            String branchCommitSha1 = magitManager.readBranchFile(branchName);
+            String branchCommitSha1;
+            if(!magitManager.currentRepo.isRemote) {
+                branchCommitSha1 = magitManager.readBranchFile(branchName);
+            }else{
+                branchCommitSha1 = magitManager.readRemoteBranchFile(branchName);
+            }
             if (!branchCommitSha1.equals("")) {
                 String commitRepresentation = Utils.getContentFromZip(
                         magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
@@ -303,7 +298,12 @@ class ClientManager {
     private Map<String, ExtendedCommit> populateCommitChildrens(Set<String> branchSet) {
         Map<String, ExtendedCommit> extendedCommitList = new HashMap<>();
         for (String branchName : branchSet) {
-            String branchCommitSha1 = magitManager.readBranchFile(branchName);
+            String branchCommitSha1;
+            if(!magitManager.currentRepo.isRemote) {
+                branchCommitSha1 = magitManager.readBranchFile(branchName);
+            }else{
+                branchCommitSha1 = magitManager.readRemoteBranchFile(branchName);
+            }
             String commitRepresentation = Utils.getContentFromZip(magitManager.currentRepo.OBJECTS_DIR_PATH.concat("/" + branchCommitSha1),
                     magitManager.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
             ExtendedCommit commit = new ExtendedCommit(commitRepresentation.replace("\n", ""));
@@ -347,7 +347,12 @@ class ClientManager {
 
     private void populateAllBranchesCommits(Map<String, ExtendedCommit> extendedCommitList, Set<String> branchSet) {
         for (String branchName : branchSet) {
-            String branchCommitSha1 = magitManager.readBranchFile(branchName);
+            String branchCommitSha1;
+            if(!magitManager.currentRepo.isRemote) {
+                branchCommitSha1 = magitManager.readBranchFile(branchName);
+            }else{
+                branchCommitSha1 = magitManager.readRemoteBranchFile(branchName);
+            }
             ExtendedCommit headCommit = extendedCommitList.get(branchCommitSha1);
             headCommit.setBranchName(branchName);
             populateBranchConmmit(extendedCommitList, headCommit, branchName);
@@ -398,6 +403,8 @@ class ClientManager {
     public void deleteFile(String path) throws IOException {
         magitManager.deleteFile(path);
     }
+
+
 
     public void createGraph(Graph graph) {
         Map<String, List<Commit>> commitMap = createCommitMap();
@@ -481,7 +488,11 @@ class ClientManager {
         Optional<String> commitMsg = showDialogMsg("Please add Commit Message", "Commit Your Changes");
         commitMsg.ifPresent(s -> {
             try {
-                magitManager.commit(s, null, false);
+                if(!magitManager.isRemote()) {
+                    magitManager.commit(s, null, false);
+                }else{
+                    throw new IOException("No Repo Found Or working on remote");
+                }
             } catch (IOException | RuntimeException e) {
                 handleException(e);
             }
@@ -494,6 +505,12 @@ class ClientManager {
         errorAlert.show();
     }
 
+    public void handleError(String s) {
+        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+        errorAlert.setContentText(s);
+        errorAlert.show();
+    }
+
     private Optional<String> showDialogMsg(String textInputDialog, String headerText) {
         TextInputDialog td = new TextInputDialog(textInputDialog);
         td.setHeaderText(headerText);
@@ -501,28 +518,50 @@ class ClientManager {
         return td.showAndWait();
     }
 
-
-    private void checkXmlRepoPath(String repoPath) throws IOException {
-        File directory = new File(repoPath);
-        if (!directory.exists()) {
-            if (!directory.mkdir()) {
-                throw new IOException(repoPath + " Faild to be created");
-            }
-        } else {
-            String[] repoFiles = directory.list();
+    private boolean checkRemotePath(String path) {
+        if (path.equals("")) {
+            return true;
+        }
+        File remote_directory = new File(path);
+        if (remote_directory.exists() && remote_directory.isDirectory()) {
+            String[] repoFiles = remote_directory.list();
             List<String> repoFilesList = new ArrayList<>(Arrays.asList(repoFiles));
-            if (repoFilesList.size() != 0) {
-                if (!repoFilesList.contains(".magit")) {
-                    throw new IOException(repoPath + " Not empy\nAborting repo creation");
-                } else {
-                    String userInput = xmlAnswer();
-                    if (userInput.equals("l")) {
-                        this.magitManager.loadRepository(repoPath);
+            return repoFilesList.contains(".magit");
+        }
+        return false;
+    }
+
+    private void checkXmlRepoPathAndLoad(XmlLoader xmlLoader) throws IOException, JAXBException {
+        String repoPath = xmlLoader.get_path();
+        File directory = new File(repoPath);
+        String remotePath = xmlLoader.getRemote_path();
+        if(checkRemotePath(remotePath)) {
+            if (!directory.exists()) {
+                if (!directory.mkdir()) {
+                    throw new IOException(repoPath + " Faild to be created");
+                }
+                this.magitManager.loadXml(xmlLoader);
+            } else {
+                String[] repoFiles = directory.list();
+                List<String> repoFilesList = new ArrayList<>(Arrays.asList(repoFiles));
+                if (repoFilesList.size() != 0) {
+                    if (!repoFilesList.contains(".magit")) {
+                        throw new IOException(repoPath + " Not empy\nAborting repo creation");
                     } else {
-                        this.magitManager.deleteRepo(repoPath);
+                        String userInput = xmlAnswer();
+                        if (userInput.equals("l")) {
+                            this.magitManager.loadRepository(repoPath);
+                        } else {
+                            this.magitManager.deleteRepo(repoPath);
+                            this.magitManager.loadXml(xmlLoader);
+                        }
                     }
+                }else{
+                    this.magitManager.loadXml(xmlLoader);
                 }
             }
+        }else{
+            throw new IOException("remote path " + remotePath + " Not exist on not including .magit folder inside\nAborting xml loading");
         }
     }
 
@@ -598,8 +637,7 @@ class ClientManager {
 
 
     void showChanges(String commitSha1, String rootrepo) {
-        Folder rootFolder = new Folder(rootrepo);
-        Repository currentRepo = new Repository(rootrepo, rootFolder);
+        Repository currentRepo = new Repository(rootrepo);
         magitManager.setCurrentRepo(currentRepo);
         Commit commit = magitManager.getCommitRep(commitSha1);
         if (commit.getCommitHistory().size() == 1) {
@@ -613,8 +651,7 @@ class ClientManager {
     }
 
     void showStatus(String commitSha1, String rootrepo) {
-        Folder rootFolder = new Folder(rootrepo);
-        Repository currentRepo = new Repository(rootrepo, rootFolder);
+        Repository currentRepo = new Repository(rootrepo);
         magitManager.setCurrentRepo(currentRepo);
         Map<String, List<Blob>> statusFolderMap = magitManager.getStatusMap(commitSha1);
         showCommit(statusFolderMap, commitSha1);
@@ -622,12 +659,16 @@ class ClientManager {
 
 
     String getRepoStatus() {
-        return "Repo Name: " + this.magitManager.currentRepo.getName() + " Repo Path: " + this.magitManager.currentRepo.get_path();
+        return "Current User: " + this.magitManager.getCurrentUser() + " Repo Name: " + this.magitManager.currentRepo.getName() + " Repo Path: " + this.magitManager.currentRepo.get_path() + "\n" + this.magitManager.currentRepo.getRemoteString();
     }
 
     void pull() {
         try {
+            if(!magitManager.isRemote()) {
 
+            }else{
+                throw new IOException("No Repo Found Or working on remote");
+            }
         } catch (Exception e) {
             handleException(e);
         }
@@ -635,7 +676,11 @@ class ClientManager {
 
     void push() {
         try {
+            if(!magitManager.isRemote()) {
 
+            }else{
+                throw new IOException("No Repo Found Or working on remote");
+            }
         } catch (Exception e) {
             handleException(e);
         }
@@ -643,15 +688,33 @@ class ClientManager {
 
     void fetch() {
         try {
+            if(!magitManager.isRemote()) {
 
+            }else{
+                throw new IOException("No Repo Found Or working on remote");
+            }
         } catch (Exception e) {
             handleException(e);
         }
     }
 
-    void gitClone() {
+    void gitClone(Stage stage) {
         try {
-
+            if(magitManager.getCurrentRepo()!=null) {
+                Optional<String> path = this.getRepoDirPath(stage);
+                if(path.isPresent()) {
+                    Optional<String> repo_name = showDialogMsg("Please give your new repo name", "Repo Name");
+                    repo_name.ifPresent(s -> {
+                        try {
+                            magitManager.clone(s, path.get());
+                        } catch (IOException e) {
+                            handleException(e);
+                        }
+                    });
+                }
+            }else{
+                throw new IOException("No Repo Found");
+            }
         } catch (Exception e) {
             handleException(e);
         }

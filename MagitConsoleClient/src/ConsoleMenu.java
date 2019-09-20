@@ -44,7 +44,7 @@ public class ConsoleMenu {
                     //Create Empty Repository
                     case 1:
                         String path = ConsoleMenu.readPath();
-                        magitManager.createEmptyRepository(path);
+                        //magitManager.createEmptyRepository(path);
 
                         break;
                     //Create New Commit
