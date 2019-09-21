@@ -48,12 +48,12 @@ class ClientManager {
 
     ArrayList<String> getAvailableBranches() {
 
-        return magitManager.getAvailableBranches();
+        return magitManager.getAvailableBranches(true);
     }
 
     public ArrayList<String> getAvailableRemoteBranches() {
 
-        return magitManager.getRemoteAvailableBranches();
+        return magitManager.getRemoteAvailableBranches(" (remote)");
     }
 
     boolean loadRepository(Stage stage) {
@@ -143,7 +143,7 @@ class ClientManager {
     void checkoutBranch(String branchName) {
 
         try {
-            if (!magitManager.currentRepo.isRemote) {
+            if(magitManager.currentRepo.isRemote) {
                 this.magitManager.checkoutBranch(branchName, false);
             } else {
                 handleError("Operation not permitted: Working On Remote Repo");
@@ -172,9 +172,13 @@ class ClientManager {
     }
 
     void checkoutRemoteBranch(String branchName) {
-
+        if(magitManager.rtbExist(branchName)){
+            handleError("RTB already exist");
+            return;
+        }
         try {
             //this.magitManager.createRTB(branchName, false);
+            magitManager.copyRBtoRTB(branchName);
             this.magitManager.checkoutBranch(branchName, false);
 
         } catch (NotActiveException e) {
@@ -188,9 +192,9 @@ class ClientManager {
             alert.showAndWait().ifPresent(type -> {
                 if (type == okButton) {
                     try {
-                        this.magitManager.createRTB(branchName, true);
-                    } catch (RuntimeException ex) {
-                        handleException(e);
+                        this.magitManager.checkoutBranch(branchName, true);
+                    } catch (RuntimeException | IOException ex) {
+                        handleException(ex);
                     }
 
                 }
@@ -656,6 +660,7 @@ class ClientManager {
         showCommit(statusFolderMap, commitSha1);
     }
 
+    //public void showCurrentStatus()
 
     String getRepoStatus() {
         return "Current User: " + this.magitManager.getCurrentUser() + " Repo Name: " + this.magitManager.currentRepo.getName() +
@@ -664,9 +669,17 @@ class ClientManager {
 
     void pull() {
         try {
-            if (!magitManager.isRemote()) {
-
-            } else {
+            if(!magitManager.isRemote()) {
+                if(!magitManager.isChangesFound()) {
+                    if(!magitManager.isRemoteBehind()) {
+                        magitManager.pull();
+                    }else{
+                        throw new IOException("Please push your commits before your pull");
+                    }
+                }else{
+                    throw new IOException("Found uncommited Files, pleas commit them first");
+                }
+            }else{
                 throw new IOException("No Repo Found Or working on remote");
             }
         } catch (Exception e) {
@@ -676,9 +689,13 @@ class ClientManager {
 
     void push() {
         try {
-            if (!magitManager.isRemote()) {
-
-            } else {
+            if(!magitManager.isRemote()) {
+                    if(!magitManager.isLocalBehind()){
+                        magitManager.push();
+                    }else{
+                        throw new IOException("Your remote is behind please pull first");
+                    }
+            }else{
                 throw new IOException("No Repo Found Or working on remote");
             }
         } catch (Exception e) {
@@ -688,9 +705,9 @@ class ClientManager {
 
     void fetch() {
         try {
-            if (!magitManager.isRemote()) {
-
-            } else {
+            if(!magitManager.isRemote()) {
+                magitManager.fetch();
+            }else{
                 throw new IOException("No Repo Found Or working on remote");
             }
         } catch (Exception e) {
@@ -722,7 +739,7 @@ class ClientManager {
 
     void showWC() {
         try {
-            Map<String, List<String>> statusMap = magitManager.showStatus();
+            Map<String, List<String>> statusMap = magitManager.getWcChanges();
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setHeaderText("WC");
@@ -756,7 +773,7 @@ class ClientManager {
             alert.initModality(Modality.WINDOW_MODAL);
             alert.showAndWait();
 
-        } catch (IOException | NullPointerException e) {
+        } catch (NullPointerException e) {
             handleException(e);
         }
     }

@@ -80,7 +80,7 @@ public class ConsoleMenu {
                         boolean forceCheckout = false;
                         if (magitManager.currentRepo != null) {
                             String branchName = displayMsgAndReturnInput("Enter Branch Name");
-                            ArrayList<String> availableBranches = (ArrayList<String>) magitManager.getAvailableBranches().stream()
+                            ArrayList<String> availableBranches = (ArrayList<String>) magitManager.getAvailableBranches(true).stream()
                                     .map(name -> name.replace(" (HEAD)", ""))
                                     .collect(Collectors.toList());
 
@@ -156,7 +156,7 @@ public class ConsoleMenu {
                         if (magitManager.currentRepo != null) {
 
                             displayMsg("Available Branches -");
-                            ArrayList<String> availableBranches = magitManager.getAvailableBranches();
+                            ArrayList<String> availableBranches = magitManager.getAvailableBranches(true);
                             availableBranches.forEach(name -> displayMsg("- " + name));
                         } else {
                             System.out.println("\nOperation Not Available, Please Create Repo Or Load One\n");
@@ -171,7 +171,7 @@ public class ConsoleMenu {
 
                             if (magitManager.getCurrentBranch().getName().equals(name)) {
                                 displayMsg("You Can't Remove The HEAD Branch!\nPlease Checkout To Another Branch First");
-                            } else if (!magitManager.getAvailableBranches().contains(name)) {
+                            } else if (!magitManager.getAvailableBranches(true).contains(name)) {
                                 displayMsg("You Can't Delete Branch That Not Exist");
                             } else {
 

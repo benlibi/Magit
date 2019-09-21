@@ -2,8 +2,7 @@ import org.apache.commons.io.FileUtils;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.*;
 import java.util.Arrays;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -131,9 +130,10 @@ class Utils {
     }
 
     public static void copyFile(String sourceFile, String destination) throws IOException {
-        File srcFile = new File(sourceFile);
-        File destDir = new File(destination);
-        FileUtils.copyFile(srcFile,destDir);
+        Path srcFile = FileSystems.getDefault().getPath(sourceFile);
+        Path destDir =FileSystems.getDefault().getPath(destination);
+        //FileUtils.copyFile(srcFile,destDir);
+        Files.copy(srcFile, destDir, StandardCopyOption.REPLACE_EXISTING);
     }
 
     public static boolean isRemoteExist(String branchName, String remotePath){

@@ -172,19 +172,19 @@ public class Controller {
 
     public void commit(ActionEvent actionEvent) {
         _clientManager.commit();
-        initRepo();
+        //initRepo();
     }
 
 
     public void createBranch(ActionEvent actionEvent) {
         _clientManager.createBranch();
 
-        initRepo();
+        //initRepo();
     }
 
     public void deleteBranch(ActionEvent actionEvent) {
         _clientManager.deleteBranch();
-        initRepo();
+        //initRepo();
     }
 
     public void resetBranch(ActionEvent actionEvent) {
@@ -197,16 +197,18 @@ public class Controller {
 
     private void onBranchClick(ActionEvent actionEvent) {
         Button branchBtn = (Button) actionEvent.getSource();
-        _clientManager.checkoutBranch(branchBtn.getId());
-
-        loadBranchesView();
+        String branchName = branchBtn.getId();
+        if(!branchName.contains(" (HEAD)")) {
+            _clientManager.checkoutBranch(branchBtn.getId());
+            loadBranchesView();
+        }
     }
 
     private void onRemoteBranchClick(ActionEvent actionEvent) {
         Button branchBtn = (Button) actionEvent.getSource();
-        _clientManager.checkoutRemoteBranch(branchBtn.getId());
+        _clientManager.checkoutRemoteBranch(branchBtn.getId().replace(" (remote)",""));
 
-        loadRemoteBranchView();
+        loadBranchesView();
     }
 
 
@@ -297,7 +299,7 @@ public class Controller {
                             conflicts.forEach(conflict -> handleConflict(conflict));
                         }
                         _clientManager.commit(branchName);
-                        initRepo();
+                        //initRepo();
                     } else {
                         throw new IOException("cant merge HEAD branch into HEAD branch");
                     }
@@ -483,14 +485,17 @@ public class Controller {
 
     public void pull(ActionEvent actionEvent) {
         _clientManager.pull();
+        initRepo();
     }
 
     public void push(ActionEvent actionEvent) {
         _clientManager.push();
+        initRepo();
     }
 
     public void fetch(ActionEvent actionEvent) {
         _clientManager.fetch();
+        initRepo();
     }
 
     public void clone(ActionEvent actionEvent) {
@@ -507,7 +512,8 @@ public class Controller {
         _clientManager.showStatus(coomitSha1, rootrepo);
     }
 
-    public void showWC(ActionEvent actionEvent) {
+    public void showWc(ActionEvent actionEvent) {
+        //_clientManager.showCurrentStatus();
         _clientManager.showWC();
     }
 }
