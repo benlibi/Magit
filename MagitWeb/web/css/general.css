@@ -1,0 +1,106 @@
+body {
+    background-color: #fcfaf9;
+    padding: 2em
+}
+.container {
+    display: flex;
+    flex-direction: column;
+
+}
+.container > * {
+
+    flex: 1 100%;
+}
+.header {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 130%;
+    font-style: italic;
+    font-weight: bold;
+    text-align: center;
+
+}
+
+
+#content{
+    position: relative;
+    flex: 0 auto;
+    height: 100px;
+    margin: auto;
+    border: 2px solid blueviolet ;
+    border-radius: 12px;
+    text-align: center;
+    padding: 10px;
+
+}
+
+#loadCsv{
+    height: 100px;
+    margin: auto;
+    padding: 10px;
+}
+
+.text1{
+    font-weight: bold;
+}
+
+#userTable {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+#userTable td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
+}
+
+#userTable tr:nth-child(even){
+    background-color: #dddddd;
+}
+
+textarea
+{
+    overflow-y:scroll;
+    overflow-x:scroll;
+}
+
+.link_button {
+    background: none!important;
+    border: none;
+    padding: 0!important;
+    /*optional*/
+    font-family: arial, sans-serif;
+    /*input has OS specific font-family*/
+    color: #069;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 25%;
+    background-color: #f1f1f1;
+    position: fixed;
+    height: 100%;
+    overflow: auto;
+}
+
+li a {
+    display: block;
+    color: #000;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+li a.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+li a:hover:not(.active) {
+    background-color: #555;
+    color: white;
+}

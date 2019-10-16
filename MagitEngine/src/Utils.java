@@ -104,14 +104,14 @@ class Utils {
         file.mkdir();
     }
 
-    private static void createUserFile(String path, String fileName, String blobContent) {
+    public static void createUserFile(String path, String fileName, String blobContent) {
         try {
             File file = new File(path, fileName);
-            if (file.createNewFile()) {
-                BufferedWriter output = new BufferedWriter(new FileWriter(file));
+            //if (file.createNewFile()) {
+                BufferedWriter output = new BufferedWriter(new FileWriter(file,false));
                 output.write(blobContent);
                 output.close();
-            }
+            //}
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -139,5 +139,15 @@ class Utils {
     public static boolean isRemoteExist(String branchName, String remotePath){
         File file = new File(remotePath + "/"  + branchName);
         return file.exists();
+    }
+
+    public static String readFile(String filePath) {
+        StringBuilder contentBuilder = new StringBuilder();
+        try (Stream<String> stream = Files.lines(Paths.get(filePath), StandardCharsets.UTF_8)) {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return contentBuilder.toString().trim();
     }
 }

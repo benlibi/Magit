@@ -47,6 +47,7 @@ public class Blob {
         this.owner = User.getName();
     }
 
+
     public Blob(MagitBlob maBlob, File blob) {
         this.name = maBlob.getName();
         this.content = maBlob.getContent();

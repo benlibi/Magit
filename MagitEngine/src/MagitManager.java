@@ -13,6 +13,65 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MagitManager {
+    public String rootRepo = "/opt/magit-ex3";
+    public String userFileName = "current_user";
+    private String currentUserString = User.getName();
+    public MagitManager(){
+        File rootDir = new File(rootRepo);
+        if (rootDir.exists()) {
+            rootDir.delete();
+        }
+        rootDir.mkdir();
+    }
+
+    public void setRepo(String repoName, String userName){
+        currentRepo = new Repository(rootRepo + "/" + userName + "/" + repoName);
+        latestFolderReflection = new Folder(rootRepo + "/" + userName + "/" + repoName);
+        String branchName = readBranchFile("HEAD");
+        currentCommit = getCommitRep(getHeadCommitOfBranch(branchName));
+        currentBranch = new Branch(branchName,currentCommit);
+    }
+//    public String getUserFromFile(){
+//        return Utils.readFile(rootRepo.concat("/" +  userFileName));
+//    }
+//
+//    public Set<Repository> getCurrentUserRepos(){
+//        Set<Repository> currentUserRepos = new HashSet<>();
+//        File rootDir = new File(rootRepo.concat("/" + currentUserString));
+//        for(File userRepo: rootDir.listFiles()){
+//            if(!userRepo.isFile()){
+//                Repository repo = new Repository(userRepo.getPath());
+//                currentUserRepos.add(repo);
+//            }
+//        }
+//        return currentUserRepos;
+//    }
+
+    public Set<Repository> getUserRepos(String userName){
+        Set<Repository> currentUserRepos = new HashSet<>();
+        File rootDir = new File(rootRepo.concat("/" + userName));
+        for(File userRepo: rootDir.listFiles()){
+            if(!userRepo.isFile()){
+                Repository repo = new Repository(userRepo.getPath());
+                currentUserRepos.add(repo);
+            }
+        }
+        return currentUserRepos;
+    }
+
+    public synchronized void addCurrentUser(String userName){
+        File rootDir = new File(rootRepo);
+        if(rootDir.exists()) {
+            File userDir = new File(rootRepo, userName);
+            if(!userDir.exists()){
+                userDir.mkdir();
+            }
+//            Utils.createUserFile(rootRepo,userFileName,userName);
+            appendUser(userName);
+            currentUserString = userName;
+        }
+    }
+
 
     public boolean isRemote() {
         return currentRepo==null || currentRepo.getRemote_name().equals("");
@@ -34,10 +93,23 @@ public class MagitManager {
     boolean isRemote = false;
 
     public String getCurrentUser() {
-        return currentUser.getName();
+        return User.getName();
     }
 
     private User currentUser = new User();
+    private final Set<String> logdInUsers = new HashSet<>();
+
+    public synchronized Set<String> getLogdInUsers(){
+        return logdInUsers;
+    }
+    public synchronized Set<String> getLogdInUsersWhithoutCurrent(){
+        return logdInUsers.stream().filter(x -> !x.equals(currentUserString)).collect(Collectors.toCollection(HashSet::new));
+    }
+
+    public synchronized void appendUser(String userName){
+        logdInUsers.add(userName);
+    }
+
     private Branch currentBranch;
     protected Commit currentCommit;
 
@@ -266,18 +338,19 @@ public class MagitManager {
         }
     }
 
-    public void showBranchCommitHistory() {
-        printCommitHistory(currentCommit);
+    public List<String> showBranchCommitHistory() {
+        List<String> commitList = new ArrayList<>();
+        printCommitHistory(commitList, currentCommit);
+        return commitList;
     }
 
-    private void printCommitHistory(Commit commit) {
-        ConsoleMenu.displayMsg(commit.commitInfo());
+    private void printCommitHistory(List<String> commitList, Commit commit) {
         List<String> previousCommitsSha1 = commit.getCommitHistory();
         for (String previousCommitSha1 : previousCommitsSha1) {
             String commitRepresentation = Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + previousCommitSha1),
                     this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
             Commit previousCommit = new Commit(commitRepresentation.replace("\n", ""));
-            printCommitHistory(previousCommit);
+            printCommitHistory(List<String> commitList, previousCommit);
         }
     }
 
@@ -440,12 +513,63 @@ public class MagitManager {
         }
     }
 
+    public String checkXML(InputStream xmlInputStream){
+        XmlLoader xmlLoader = null;
+        try {
+            xmlLoader = new XmlLoader(xmlInputStream, rootRepo + "/" + currentUserString);
+        } catch (JAXBException e) {
+            return e.toString();
+        }
+        try {
+           return checkXmlRepoPathAndLoad(xmlLoader);
+        } catch (IOException | JAXBException e) {
+            return e.toString();
+        }
+    }
 
-    public void loadXml(XmlLoader xmlLoader) throws IOException, JAXBException {
+
+    private String checkXmlRepoPathAndLoad(XmlLoader xmlLoader) throws IOException, JAXBException {
+        String repoPath = xmlLoader.get_path();
+        File directory = new File(repoPath);
+        String remotePath = xmlLoader.getRemote_path();
+        if (checkRemotePath(remotePath)) {
+            if (!directory.exists()) {
+                if (!directory.mkdir()) {
+                    return repoPath + " Faild to be created";
+                }
+                return loadXml(xmlLoader);
+            } else {
+                String[] repoFiles = directory.list();
+                List<String> repoFilesList = new ArrayList<>(Arrays.asList(repoFiles));
+                if (repoFilesList.size() != 0) {
+                    return repoPath + " Not empy\nAborting repo creation";
+                } else {
+                    return loadXml(xmlLoader);
+                }
+            }
+        } else {
+            return "remote path " + remotePath + " Not exist on not including .magit folder inside\nAborting xml loading" ;
+        }
+    }
+
+    private boolean checkRemotePath(String path) {
+        if (path.equals("")) {
+            return true;
+        }
+        File remote_directory = new File(path);
+        if (remote_directory.exists() && remote_directory.isDirectory()) {
+            String[] repoFiles = remote_directory.list();
+            List<String> repoFilesList = new ArrayList<>(Arrays.asList(repoFiles));
+            return repoFilesList.contains(".magit");
+        }
+        return false;
+    }
+
+    public String loadXml(XmlLoader xmlLoader) throws IOException, JAXBException {
         boolean isXmlValid;
         isXmlValid = xmlLoader.checkXml();
         if (!isXmlValid) {
-            throw new IOException(xmlLoader.getXmlPropriety());
+            return xmlLoader.getXmlPropriety();
         }
         Utils.createDir(xmlLoader.getMAGIT_DIR_PATH());
         if(!xmlLoader.getRemote_path().equals("")){
@@ -462,6 +586,7 @@ public class MagitManager {
         this.currentRepo.set_mainProjectSha1(currentCommit.getMainRepoSha1());
         this.latestFolderReflection = xmlLoader.getCurrentRootFolder();
         checkoutBranchNewWC(currentBranch.getName(), this.latestFolderReflection);
+        return "";
     }
 
     public void createCommitList(Commit commit, List<Commit> commitList) {
@@ -588,7 +713,7 @@ public class MagitManager {
     }
 
     public void setCurrentUser(String userName) {
-        this.currentUser.setName(userName);
+        User.setName(userName);
     }
 
     public Branch getCurrentBranch() {

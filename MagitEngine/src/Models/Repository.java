@@ -20,6 +20,10 @@ public class Repository {
     private String HEAD_PATH;
     private String name;
     private String remote_name = "";
+    private String headBranchName= "";
+    private int numberOfBranches;
+    private String lastCommitDate= "";
+    private String lastCommitMessage= "";
     public String MAGIT_DIR_PATH;
     public String OBJECTS_DIR_PATH;
     public String BRANCHES_DIR_PATH;
@@ -39,6 +43,7 @@ public class Repository {
             remote_path=repoFile[1];
             remote_name=repoFile[2];
         }
+//        Commit previousCommit = new Commit(commitRepresentation.replace("\n", ""));
     }
 
     public void createBlankRepository() throws IOException {

@@ -2,7 +2,6 @@ package Models;
 
 import generated.MagitSingleCommit;
 import org.apache.commons.codec.digest.DigestUtils;
-import puk.team.course.magit.ancestor.finder.AncestorFinder;
 import puk.team.course.magit.ancestor.finder.CommitRepresentative;
 
 import java.io.File;

@@ -1,4 +1,5 @@
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -19,6 +20,11 @@ public class Main extends Application {
         primaryStage.setTitle("M.a.g.i.t");
         primaryStage.setScene(scene);
         primaryStage.show();
+        Platform.runLater(() -> {
+            Controller.getTree().getUseViewportGestures().set(false);
+            Controller.getTree().getUseNodeGestures().set(false);
+        });
+
     }
 
 

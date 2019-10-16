@@ -1,10 +1,6 @@
 package Models;
 
-import org.apache.commons.collections4.list.SetUniqueList;
-
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 public class ExtendedCommit extends Commit {

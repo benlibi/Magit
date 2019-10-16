@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>repo</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="common/jquery-2.0.3.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="common/bootstrap.min.css"/>
+    <script src="common/bootstrap.min.js"></script>
+    <script src="common/context-path-helper.js"></script>
+    <script src="js/repo.js"></script>
+    <link rel="stylesheet" type="text/css" href="css\general.css"/>
+</head>
+<body>
+<header style="padding-bottom: 10px">
+    <h10 id="repo_heading"></h10>
+</header>
+<div class="form-inline" id="branch-row">
+    <select id="branch-select" style="padding-right: 10px">
+    </select>
+    <form class="form-inline" action="/create_branch">
+        <label for="new_branch">New Branch:</label>
+        <input type="new_branch" id="new_branch" placeholder="Branch Name" name="new_branch">
+        <button type="submit">+</button>
+    </form>
+</div>
+<!--<div id="side-menu"></div>-->
+</body>
+</html>

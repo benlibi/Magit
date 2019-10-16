@@ -2,6 +2,7 @@ import Enums.ConflictSections;
 import Models.Conflict;
 import com.fxgraph.graph.Graph;
 import com.fxgraph.graph.PannableCanvas;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -10,6 +11,7 @@ import javafx.geometry.Pos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.input.ZoomEvent;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
@@ -25,7 +27,11 @@ import static javafx.collections.FXCollections.observableArrayList;
 public class Controller {
 
 
-    private Graph tree = new Graph();
+    public static Graph getTree() {
+        return tree;
+    }
+
+    private static Graph tree = new Graph();
 
     private ClientManager _clientManager = new ClientManager();
 
@@ -117,9 +123,6 @@ public class Controller {
                                     onRemoteBranchClick(event);
                                 }
                             });
-
-                            initBranchContextMenu(branchRepresentation);
-
                             return branchRepresentation;
                         })
                         .collect(Collectors.toList())
@@ -264,16 +267,25 @@ public class Controller {
 
     private void initGraph() {
         tree = new Graph();
+        tree.beginUpdate();
         tree.getUseNodeGestures().set(false);
         tree.getUseViewportGestures().set(false);
-        tree.beginUpdate();
+
         _clientManager.createGraph(tree);
 
         PannableCanvas canvas = tree.getCanvas();
-
         scrollpaneContainer.setContent(canvas);
 
+        Platform.runLater(() -> {
+            tree.getUseViewportGestures().set(false);
+            tree.getUseNodeGestures().set(false);
+        });
+        tree.getUseNodeGestures().set(false);
+        tree.getUseViewportGestures().set(false);
+
     }
+
+
 
     private void initBranchContextMenu(Button branch) {
 
@@ -484,23 +496,27 @@ public class Controller {
     }
 
     public void pull(ActionEvent actionEvent) {
-        _clientManager.pull();
-        initRepo();
+        if(_clientManager.pull()) {
+            initRepo();
+        }
     }
 
     public void push(ActionEvent actionEvent) {
-        _clientManager.push();
-        initRepo();
+        if(_clientManager.push()) {
+            initRepo();
+        }
     }
 
     public void fetch(ActionEvent actionEvent) {
-        _clientManager.fetch();
-        initRepo();
+        if(_clientManager.fetch()) {
+            initRepo();
+        }
     }
 
     public void clone(ActionEvent actionEvent) {
-        _clientManager.gitClone((Stage) ((Node) actionEvent.getSource()).getScene().getWindow());
-        initRepo();
+        if(_clientManager.gitClone((Stage) ((Node) actionEvent.getSource()).getScene().getWindow())){
+            initRepo();
+        }
     }
 
 
@@ -513,7 +529,11 @@ public class Controller {
     }
 
     public void showWc(ActionEvent actionEvent) {
-        //_clientManager.showCurrentStatus();
         _clientManager.showWC();
     }
+
+    public void onZoomHandler(ZoomEvent zoomEvent) {
+        zoomEvent.consume();
+    }
+
 }

@@ -73,21 +73,21 @@ class ClientManager {
         }
     }
 
-    boolean loadXMLRepository(Stage stage) {
-        try {
-            Optional<String> repoPath = this.getRepoFilePath(stage);
-
-            if (repoPath.isPresent()) {
-                XmlLoader xmlLoader = new XmlLoader(repoPath.get());
-                checkXmlRepoPathAndLoad(xmlLoader);
-                infoMessage("Repo was loaded Successfully", "Success");
-                return true;
-            }
-        } catch (IOException | JAXBException e) {
-            handleException(e);
-        }
-        return false;
-    }
+//    boolean loadXMLRepository(Stage stage) {
+//        try {
+//            Optional<String> repoPath = this.getRepoFilePath(stage);
+//
+//            if (repoPath.isPresent()) {
+//                XmlLoader xmlLoader = new XmlLoader(repoPath.get());
+//                checkXmlRepoPathAndLoad(xmlLoader);
+//                infoMessage("Repo was loaded Successfully", "Success");
+//                return true;
+//            }
+//        } catch (IOException | JAXBException e) {
+//            handleException(e);
+//        }
+//        return false;
+//    }
 
     void changeUser() {
         Optional<String> userName = showDialogMsg("Please enter user name", "Change User Name");
@@ -667,7 +667,7 @@ class ClientManager {
                 " Repo Path: " + this.magitManager.currentRepo.get_path() + "\n" + this.magitManager.currentRepo.getRemoteString();
     }
 
-    void pull() {
+    boolean pull() {
         try {
             if(!magitManager.isRemote()) {
                 if(!magitManager.isChangesFound()) {
@@ -684,10 +684,12 @@ class ClientManager {
             }
         } catch (Exception e) {
             handleException(e);
+            return false;
         }
+        return true;
     }
 
-    void push() {
+    boolean push() {
         try {
             if(!magitManager.isRemote()) {
                     if(!magitManager.isLocalBehind()){
@@ -700,10 +702,12 @@ class ClientManager {
             }
         } catch (Exception e) {
             handleException(e);
+            return false;
         }
+        return true;
     }
 
-    void fetch() {
+    boolean fetch() {
         try {
             if(!magitManager.isRemote()) {
                 magitManager.fetch();
@@ -712,12 +716,14 @@ class ClientManager {
             }
         } catch (Exception e) {
             handleException(e);
+            return false;
         }
+        return true;
     }
 
-    void gitClone(Stage stage) {
+    boolean gitClone(Stage stage) {
         try {
-            if (magitManager.getCurrentRepo() != null) {
+            if (magitManager.getCurrentRepo() != null && magitManager.isRemote()) {
                 Optional<String> path = this.getRepoDirPath(stage);
                 if (path.isPresent()) {
                     Optional<String> repo_name = showDialogMsg("Please give your new repo name", "Repo Name");
@@ -730,11 +736,13 @@ class ClientManager {
                     });
                 }
             } else {
-                throw new IOException("No Repo Found");
+                throw new IOException("No Repo Found Or Working On Local Repo");
             }
         } catch (Exception e) {
             handleException(e);
+            return false;
         }
+        return true;
     }
 
     void showWC() {

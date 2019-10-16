@@ -8,12 +8,14 @@ public class User {
         name = "Administrator";
     }
 
-
+    public User(String name) {
+        this.name = name;
+    }
     public static String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    public static void setName(String name) {
         User.name = name;
     }
 }

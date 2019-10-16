@@ -7,6 +7,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,11 +76,11 @@ public class XmlLoader {
         return MAGIT_DIR_PATH;
     }
 
-    public XmlLoader(String path) throws JAXBException {
-        File file = new File(path);
+    public XmlLoader(InputStream inputStream, String repoPath) throws JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(MagitRepository.class);
         Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-        repository = (MagitRepository) jaxbUnmarshaller.unmarshal(file);
+        repository = (MagitRepository) jaxbUnmarshaller.unmarshal(inputStream);
+        repository.setLocation(repoPath.concat("/" + repository.getName()));
         blobs = repository.getMagitBlobs();
         branches = repository.getMagitBranches();
         folders = repository.getMagitFolders();
