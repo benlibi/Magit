@@ -346,11 +346,12 @@ public class MagitManager {
 
     private void printCommitHistory(List<String> commitList, Commit commit) {
         List<String> previousCommitsSha1 = commit.getCommitHistory();
+        commitList.add(commit.toString());
         for (String previousCommitSha1 : previousCommitsSha1) {
             String commitRepresentation = Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + previousCommitSha1),
                     this.currentRepo.MAGIT_DIR_PATH.concat("temp/resources/branchCommitSha1"));
             Commit previousCommit = new Commit(commitRepresentation.replace("\n", ""));
-            printCommitHistory(List<String> commitList, previousCommit);
+            printCommitHistory(commitList, previousCommit);
         }
     }
 
