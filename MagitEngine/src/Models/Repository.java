@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 
 public class Repository {
     private String remote_path="";
+    private String remote_user="";
     private String _path;
     private String _mainProjectSha1;
     private String HEAD_PATH;
@@ -40,8 +41,9 @@ public class Repository {
         name=repoFile[0];
         if(repoFile.length>1){
             isRemote=true;
-            remote_path=repoFile[1];
+            remote_path=repoFile[1] + "/" + repoFile[2];
             remote_name=repoFile[2];
+            remote_user=repoFile[3];
         }
 //        Commit previousCommit = new Commit(commitRepresentation.replace("\n", ""));
     }

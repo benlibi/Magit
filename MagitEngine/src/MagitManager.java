@@ -716,11 +716,11 @@ public class MagitManager {
         this.currentBranch.createBranchFile(this.currentRepo.BRANCHES_DIR_PATH);
     }
 
-    protected void createLocalRepository(String path, String repo_Name) throws IOException {
+    protected void createLocalRepository(String path, String repo_Name, String remote_user) throws IOException {
         Utils.createDir(path);
         Utils.createDir(path + "/.magit");
-        Utils.createDir(path + "/.magit/" + currentRepo.getRemote_name());
-        Utils.createRepoFile(path + "/.magit", repo_Name, currentRepo.getRemote_path(), currentRepo.getRemote_name());
+        //Utils.createDir(path + "/.magit/" + currentRepo.getRemote_name());
+        Utils.createRepoFile(path + "/.magit", repo_Name, rootRepo + "/" + remote_user, remote_user);
         this.currentRepo = new Repository(path);
         this.currentRepo.createBlankRepository();
     }
@@ -924,10 +924,10 @@ public class MagitManager {
     private void copyFiles() throws IOException {
         //copy remote branches
         Utils.copyFolderContent(this.currentRepo.getRemote_path() + "/.magit/Branches/",
-                this.currentRepo.MAGIT_DIR_PATH + "/" + this.currentRepo.getRemote_name());
+                this.currentRepo.BRANCHES_DIR_PATH);
         //move head
-        Utils.moveFile(this.currentRepo.MAGIT_DIR_PATH + "/" + this.currentRepo.getRemote_name() + "/HEAD",
-                this.currentRepo.BRANCHES_DIR_PATH + "/HEAD");
+//        Utils.moveFile(this.currentRepo.MAGIT_DIR_PATH + "/" + this.currentRepo.getRemote_name() + "/HEAD",
+//                this.currentRepo.BRANCHES_DIR_PATH + "/HEAD");
         //copy objects
         Utils.copyFolderContent(this.currentRepo.getRemote_path() + "/.magit/Objects/", this.currentRepo.OBJECTS_DIR_PATH);
 
@@ -936,7 +936,7 @@ public class MagitManager {
     private void logicPopulation() throws IOException {
         //create head branch
         String branchName = readBranchFile("HEAD");
-        String headCommitSha1 = readRemoteBranchFile(branchName);
+        String headCommitSha1 = readBranchFile(branchName);
         this.currentCommit = getCommitRep(headCommitSha1);
         this.currentBranch = new Branch(branchName, currentCommit, this.currentRepo.getRemote_name(), true);
         currentBranch.createBranchFile(this.currentRepo.BRANCHES_DIR_PATH);
@@ -944,9 +944,9 @@ public class MagitManager {
 //        this.currentBranch = new Branch(branchName)
     }
 
-    public void clone(String repo_name, String path) throws IOException {
-        path = path.concat("/" + currentRepo.getName());
-        createLocalRepository(path, repo_name);
+    public void clone(String repo_name, String remote_user, String currentUser) throws IOException {
+        String path = rootRepo.concat("/" + currentUser + "/" + repo_name);
+        createLocalRepository(path, repo_name, remote_user);
         copyFiles();
         logicPopulation();
     }

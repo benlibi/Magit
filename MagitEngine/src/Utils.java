@@ -84,14 +84,14 @@ class Utils {
 
     }
 
-    public static void createRepoFile(String path, String name,String remotePath, String remoteName) throws IOException {
+    public static void createRepoFile(String path, String name,String remotePath, String remoteUserName) throws IOException {
         File file = new File(path, "remote");
         if (file.createNewFile()){
             String s;
             if(remotePath.equals("")){
                 s = name;
             }else{
-                s = name + "," + remotePath + "," + remoteName;
+                s = name + "," + remotePath + "," + name + "," + remoteUserName;
             }
             BufferedWriter output = new BufferedWriter(new FileWriter(file));
             output.write(s);

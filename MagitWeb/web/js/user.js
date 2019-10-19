@@ -1,6 +1,8 @@
 var USER_LIST_URL = buildUrlWithContextPath("getUsers");
 var USER_REPO_LIST_URL = buildUrlWithContextPath("getRepos");
 var UPLOAD_XML_URL = buildUrlWithContextPath("upload");
+var GET_SESSION_USER_NAME = buildUrlWithContextPath("getSessionUserName");
+var DO_FORK = buildUrlWithContextPath("fork");
 
 function addUsers(usersDictionery){
     usersDictionery.forEach(function(user){
@@ -36,7 +38,7 @@ function addUsers(usersDictionery){
     })
 }
 
-function insertRows(table_elementId, repoRaws,isCurrent){
+function insertRows(table_elementId, repoRaws,isCurrent,user){
     var table = document.getElementById(table_elementId);
     for(var i=0;i< repoRaws.length;i++){
         var row = table.insertRow(i+1);
@@ -59,9 +61,26 @@ function insertRows(table_elementId, repoRaws,isCurrent){
         cell5.innerHTML = repoRaws[i].lastCommitMessage;
         if(!isCurrent){
             var cell6 = row.insertCell(5);
-            cell6.innerHTML = '<a href="user.html">fork</a>';
+            cell6.innerHTML = ' <form  id="submit-fork" ACTION="" METHOD="GET">' +
+                '<input type="hidden" name="repoName" value="' + repoRaws[i].name+ '" />' +
+                '<input type="hidden" name="userName" value="' + user+ '" />' +
+                '<input id="submit-fork-button" type="button" value="Fork" onClick="fork(this.form)">' +
+                '</form>';
         }
     }
+}
+function fork(e){
+    $.ajax({
+        method:'POST',
+        data: {repoName:e.repoName.value,
+            userName:e.userName.value},
+        dataType: 'json',
+        url: DO_FORK,
+        timeout: 2000,
+        success: function(r) {
+            location.reload(true);
+        }
+    });
 }
 
 function addUserRepos(userTable,user,isCurrent){ // getRepos
@@ -71,7 +90,17 @@ function addUserRepos(userTable,user,isCurrent){ // getRepos
         url: USER_REPO_LIST_URL,
         timeout: 2000,
         success: function(r) {
-            insertRows(userTable,r,isCurrent)
+            insertRows(userTable,r,isCurrent,user)
+        }
+    });
+}
+
+function setHeader(){
+    $.ajax({
+        url: GET_SESSION_USER_NAME,
+        timeout: 2000,
+        success: function (r) {
+            document.getElementById("logout").value = r + " Logout";
         }
     });
 }
@@ -88,8 +117,10 @@ $(function() { // onload...do   getUsers
         });
 });
 
+
 $(function() { // onload...do
     addUserRepos("userTable","currentUser",true);
+    setHeader()
 });
 
 $(function() { // onload...do
@@ -121,5 +152,6 @@ $(function() { // onload...do
         // return value of the submit operation
         // by default - we'll always return false so it doesn't redirect the user.
         return false;
-    })
+    });
+
 });
