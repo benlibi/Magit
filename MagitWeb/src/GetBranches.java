@@ -12,11 +12,8 @@ import java.util.ArrayList;
 @WebServlet(urlPatterns = {"/getBranches"})
 public class GetBranches extends HttpServlet {
 
-
-
     private MagitManager magitManager = new MagitManager();
     private static final String USER_NAME_PARAMETER = "UserName";
-
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

@@ -29,10 +29,9 @@ public class XmlLoader {
     private Map<String, MagitSingleBranch> branchesMap = new HashMap<String, MagitSingleBranch>();
 
     private String xmlPropriety = "";
-    private String remote_path="";
-    private String remote_name="";
+    private String remote_path = "";
+    private String remote_name = "";
     private String _path;
-
 
 
     private String name;
@@ -45,12 +44,15 @@ public class XmlLoader {
     public String getName() {
         return name;
     }
+
     public String getRemote_name() {
         return remote_name;
     }
+
     public String getRemote_path() {
         return remote_path;
     }
+
     public Folder getCurrentRootFolder() {
         return currentRootFolder;
     }
@@ -72,6 +74,7 @@ public class XmlLoader {
     public String get_path() {
         return _path;
     }
+
     public String getMAGIT_DIR_PATH() {
         return MAGIT_DIR_PATH;
     }
@@ -85,27 +88,30 @@ public class XmlLoader {
         branches = repository.getMagitBranches();
         folders = repository.getMagitFolders();
         commits = repository.getMagitCommits();
-        name=repository.getName();
+        name = repository.getName();
         this._path = repository.getLocation();
         MAGIT_DIR_PATH = this._path.concat("/.magit");
         OBJECTS_DIR_PATH = MAGIT_DIR_PATH.concat("/Objects");
         BRANCHES_DIR_PATH = MAGIT_DIR_PATH.concat("/Branches");
         HEAD_PATH = BRANCHES_DIR_PATH.concat("/HEAD");
-        if(repository.getMagitRemoteReference().getLocation()!=null){
-            remote_path = repository.getMagitRemoteReference().getLocation();
-            remote_name = repository.getMagitRemoteReference().getName();
-            REMOTE_BRANCHES_DIR_PATH = MAGIT_DIR_PATH.concat("/" + remote_name);
+        if (repository.getMagitRemoteReference() != null) {
+            if (repository.getMagitRemoteReference().getLocation() != null) {
+                remote_path = repository.getMagitRemoteReference().getLocation();
+                remote_name = repository.getMagitRemoteReference().getName();
+                REMOTE_BRANCHES_DIR_PATH = MAGIT_DIR_PATH.concat("/" + remote_name);
+            }
         }
+
     }
 
     public void createRepoRep() throws IOException {
         for (MagitSingleBranch magitBranch : branchesMap.values()) {
-                MagitSingleCommit magitCommit = commitsMap.get(magitBranch.getPointedCommit().getId());
-                MagitSingleFolder magitRootFolder = foldersMap.get(magitCommit.getRootFolder().getId());
-                Folder rootFolder = createRepoTree(magitRootFolder, _path);
-                List<String> previouseCommitSha1 = getPreviouseCommitSha1List(magitCommit, magitBranch);
-                Commit pCommit = new Commit(magitCommit, rootFolder.getFolderSha1(), previouseCommitSha1);
-            if(!magitBranch.getName().contains("\\")){
+            MagitSingleCommit magitCommit = commitsMap.get(magitBranch.getPointedCommit().getId());
+            MagitSingleFolder magitRootFolder = foldersMap.get(magitCommit.getRootFolder().getId());
+            Folder rootFolder = createRepoTree(magitRootFolder, _path);
+            List<String> previouseCommitSha1 = getPreviouseCommitSha1List(magitCommit, magitBranch);
+            Commit pCommit = new Commit(magitCommit, rootFolder.getFolderSha1(), previouseCommitSha1);
+            if (!magitBranch.getName().contains("\\")) {
                 pCommit.createCommitRepresentation(OBJECTS_DIR_PATH);
                 Branch branch = new Branch(magitBranch, pCommit);
                 branch.createBranchFile(BRANCHES_DIR_PATH);
@@ -115,7 +121,7 @@ public class XmlLoader {
                     currentCommit = pCommit;
                     currentRootFolder = rootFolder;
                 }
-            }else{
+            } else {
                 Branch branch = new Branch(magitBranch, pCommit);
                 branch.createBranchFile(REMOTE_BRANCHES_DIR_PATH);
                 branch.setpCommit(pCommit);
@@ -125,7 +131,7 @@ public class XmlLoader {
 
     private List<String> getPreviouseCommitSha1List(MagitSingleCommit rootCommit, MagitSingleBranch magitBranch) {
         List<String> previouseCommitSha1List = new ArrayList<String>();
-        if (rootCommit.getPrecedingCommits() !=null  && rootCommit.getPrecedingCommits().getPrecedingCommit() != null &&
+        if (rootCommit.getPrecedingCommits() != null && rootCommit.getPrecedingCommits().getPrecedingCommit() != null &&
                 rootCommit.getPrecedingCommits().getPrecedingCommit().size() != 0) {
             List<PrecedingCommits.PrecedingCommit> precedingCommitList = rootCommit.getPrecedingCommits().getPrecedingCommit();
             for (PrecedingCommits.PrecedingCommit precedingCommit : precedingCommitList) {
@@ -205,14 +211,14 @@ public class XmlLoader {
                 xmlPropriety = "for branch: " + branchName + "cannot find pointed commit " + branchRep.getPointedCommit().getId();
                 return false;
             }
-            if(branch.getValue().isTracking()){
+            if (branch.getValue().isTracking()) {
                 String tracked_branch = branch.getValue().getTrackingAfter();
-                if(branchesMap.keySet().contains(tracked_branch)){
-                    if(!branchesMap.get(tracked_branch).isIsRemote()){
+                if (branchesMap.keySet().contains(tracked_branch)) {
+                    if (!branchesMap.get(tracked_branch).isIsRemote()) {
                         xmlPropriety = "tracked branch: " + tracked_branch + "not remote";
                         return false;
                     }
-                }else{
+                } else {
                     xmlPropriety = "for branch: " + branchName + "cannot find remoteBranch " + tracked_branch;
                     return false;
                 }

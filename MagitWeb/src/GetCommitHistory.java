@@ -28,6 +28,12 @@ public class GetCommitHistory extends HttpServlet {
             Gson gson = new Gson();
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
+
+            String branchName = request.getParameter("branchName");
+            if (!branchName.isEmpty()) {
+                magitManager.checkoutBranch(branchName, true);
+            }
+
             List<String> CommitHistory = magitManager.showBranchCommitHistory();
             String json = gson.toJson(CommitHistory);
             out.println(json);
