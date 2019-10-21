@@ -16,7 +16,9 @@
     <link rel="stylesheet" type="text/css" href="css/general.css"/>
 </head>
 <body>
+
 <header style="padding-bottom: 10px">
+    <a href="user.html" id="go_to_home_page_link">&laquo; Previous</a>
     <h6 id="repo_heading"></h6>
 </header>
 
@@ -42,6 +44,12 @@
         <p class="repo-view-sections-headers">Working Directory</p>
         <ul id="working_directory" style="list-style-type:circle; width:100%;"></ul>
     </div>
+    <div class="repo-view-sections" style="margin-bottom: 15px;">
+        <p class="repo-view-sections-headers">Working Changes</p>
+        <ul id="working_changes" style="list-style-type:circle; width:100%;"></ul>
+    </div>
+    <button id="create_new_file_btn" class="button" onclick="createNewFile()">Create New File</button>
+    <button id="commit_btn" class="button" onclick="commit()">Commit</button>
 </div>
 <!--<div id="side-menu"></div>-->
 </body>

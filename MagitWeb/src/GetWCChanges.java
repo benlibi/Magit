@@ -1,4 +1,3 @@
-import Models.Blob;
 import com.google.gson.Gson;
 
 import javax.servlet.ServletException;
@@ -8,10 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Map;
 
-@WebServlet(urlPatterns = {"/getWorkingDirectory"})
-public class GetWorkingDir extends HttpServlet {
+@WebServlet(urlPatterns = {"/getWC"})
+public class GetWCChanges extends HttpServlet {
 
     private MagitManager magitManager = new MagitManager();
     private static final String USER_NAME_PARAMETER = "UserName";
@@ -26,8 +26,7 @@ public class GetWorkingDir extends HttpServlet {
             Gson gson = new Gson();
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
-            Map<String, Blob> workingChanges = magitManager.getWcFilesMap();
-//            Object[] repoFiles = workingChanges.values().toArray();
+            Map<String, List<String>> workingChanges = magitManager.getWcChanges();
 
             String json = gson.toJson(workingChanges.entrySet().toArray());
             out.println(json);

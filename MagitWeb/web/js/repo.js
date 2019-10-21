@@ -3,9 +3,12 @@ var GET_BRANCHES = buildUrlWithContextPath("getBranches");
 var CREATE_BRANCH = buildUrlWithContextPath("createBranch");
 var SHOW_COMMIT = buildUrlWithContextPath("showCommit");
 var GET_COMMIT_HISTORY = buildUrlWithContextPath("getCommitHistory");
+var GET_WORKING_DIRECTORY = buildUrlWithContextPath("getWorkingDirectory");
 var GET_WC = buildUrlWithContextPath("getWC");
 var DELETE_BLOB = buildUrlWithContextPath("deleteBlob");
 var SAVE_BLOB = buildUrlWithContextPath("saveBlob");
+var CREATE_NEW_FILE = buildUrlWithContextPath("createFile");
+var COMMIT = buildUrlWithContextPath("commit");
 var WORKING_DIR_FILES;
 
 function createBranch(branchName) {
@@ -90,10 +93,10 @@ function getCommitHistory(branchName) {
     });
 }
 
-function getWC() {
+function getWorkingDirectory() {
     $.ajax({
         type: "GET",
-        url: GET_WC,
+        url: GET_WORKING_DIRECTORY,
         timeout: 2000,
         success: function (r) {
             $("#working_directory").empty();
@@ -101,6 +104,25 @@ function getWC() {
             WORKING_DIR_FILES = r;
             r.forEach(function (blob) {
                 $("#working_directory").append('<li id="' + blob.value.name + '" style="width:100%;"><a style="width:100%;" onclick="changeFileView(this)">' + blob.key + '</a></li>');
+            });
+        }
+    });
+}
+
+function getWC() {
+    $.ajax({
+        type: "GET",
+        url: GET_WC,
+        timeout: 2000,
+        success: function (r) {
+            $("#working_changes").empty();
+
+            r.forEach(function (changes) {
+                $("#working_changes").append('<p style="text-decoration: underline">' + changes.key + '</p>');
+                changes.value.forEach(function (change) {
+                    $("#working_changes").append('<li style="width:100%;"><a style="width:100%; font-size: 15px">' + change + '</a></li>');
+                })
+
             });
         }
     });
@@ -208,7 +230,7 @@ function deleteBlob(blobPath) {
         data: {blobPath: blobPath},
         timeout: 2000,
         success: function (r) {
-            getWC();
+            getWorkingDirectory();
         }
     });
 }
@@ -219,7 +241,56 @@ function saveBlob(blobPath, content) {
         data: {blobPath: blobPath, blobContent: content},
         timeout: 2000,
         success: function (r) {
+            getWorkingDirectory();
+        }
+    });
+}
+
+function createNewFile() {
+
+    var filePath = prompt("Please Enter a File Relative Path");
+
+    if (!filePath) {
+        return;
+    }
+
+    $.ajax({
+        url: CREATE_NEW_FILE,
+        data: {filePath: filePath},
+        timeout: 2000,
+        success: function (r) {
+            getWorkingDirectory();
             getWC();
+        }
+    });
+}
+
+function commit() {
+
+    var commitMsg = prompt("Please Enter Commit Message");
+
+    if (!commitMsg) {
+        return;
+    }
+
+    $.ajax({
+        url: COMMIT,
+        data: {commitMsg: commitMsg},
+        timeout: 2000,
+        success: function (r) {
+            $.jAlert({
+                'title': "Commit Success",
+                'content': "Commit Was Successfully Done",
+                'theme': "blue",
+                'closeOnClick': true,
+                'backgroundColor': 'white',
+                'btns': [
+                    {'text': 'OK', 'theme': "blue"}
+                ]
+            });
+        },
+        error: function(xhr, status, error) {
+            alert("Sorry, we won't able to commit your changes");
         }
     });
 }
@@ -239,5 +310,6 @@ $(function () { // onload...init page
     getBranches();
     getRepoInfo();
     getCommitHistory("");
+    getWorkingDirectory();
     getWC();
 });
