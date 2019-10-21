@@ -1,5 +1,6 @@
 var GET_REPO_INFO = buildUrlWithContextPath("getRepoInfo");
 var GET_BRANCHES = buildUrlWithContextPath("getBranches");
+var GET_REMOTE_BRANCHES = buildUrlWithContextPath("getRemoteBranches");
 var CREATE_BRANCH = buildUrlWithContextPath("createBranch");
 var SHOW_COMMIT = buildUrlWithContextPath("showCommit");
 var GET_COMMIT_HISTORY = buildUrlWithContextPath("getCommitHistory");
@@ -7,9 +8,11 @@ var GET_WORKING_DIRECTORY = buildUrlWithContextPath("getWorkingDirectory");
 var GET_WC = buildUrlWithContextPath("getWC");
 var DELETE_BLOB = buildUrlWithContextPath("deleteBlob");
 var SAVE_BLOB = buildUrlWithContextPath("saveBlob");
+var PULL = buildUrlWithContextPath("pull");
 var CREATE_NEW_FILE = buildUrlWithContextPath("createFile");
 var COMMIT = buildUrlWithContextPath("commit");
 var WORKING_DIR_FILES;
+var CREATE_PR = buildUrlWithContextPath("createPr");
 
 function createBranch(branchName) {
     $.ajax({
@@ -62,6 +65,8 @@ function getBranches() {
     });
 }
 
+
+
 function getRepoInfo() {
     $.ajax({
         url: GET_REPO_INFO,
@@ -69,7 +74,7 @@ function getRepoInfo() {
         success: function (r) {
             var heading_text = "Repository: " + r.name;
             if (r.isRemote) {
-                heading_text += " Tracking after: " + r.remote_name + " of: " + r.remote_path;
+                heading_text += " Tracking after: " + r.remote_name + " of: " + r.remote_user;
             } else {
                 heading_text += " Local Repo"
             }
@@ -128,6 +133,86 @@ function getWC() {
     });
 }
 
+function setPr(){
+    $.ajax({
+        url: GET_BRANCHES,
+        timeout: 2000,
+        success: function (r) {
+            $('#pr-src-branch-select').empty();
+            r.forEach(function (branch) {
+                var optionBranch = new Option(branch.replace(" (HEAD)", ""), branch);
+                $('#pr-src-branch-select').append(optionBranch);
+
+            })
+        }
+    });
+    $.ajax({
+        url: GET_REMOTE_BRANCHES,
+        timeout: 2000,
+        success: function (r) {
+            $('#pr-trg-branch-select').empty();
+            r.forEach(function (branch) {
+                var optionBranch = new Option(branch, branch);
+                $('#pr-trg-branch-select').append(optionBranch);
+            })
+        }
+    });
+}
+
+function pr(){
+    $.jAlert({
+
+        'title': 'Submit Pull Request',
+
+        'content': '    <div>Src Branch:\n' +
+            '        <select id="pr-src-branch-select" style="padding-right: 10px"></select>\n' +
+            '    </div>' +
+        '    <div>Target Remote Branch:\n' +
+            '        <select id="pr-trg-branch-select" style="padding-right: 10px"></select>\n' +
+            '    </div>' +
+            '<textarea id="pr_textbox" placeholder="Please Enter Your Pull Request Massage"></textarea>'
+        ,
+
+        'theme': 'green',
+
+        'backgroundColor': 'white',
+
+        'btns': [
+
+            {'text': 'Submit', 'theme': 'green', 'onClick': function(){ createPr()}},
+            {'text': 'Cancel', 'theme': 'red', 'closeOnClick': true}
+
+        ]
+    });
+    setPr();
+}
+
+function createPr(){
+    var src_branch = $( "#pr-src-branch-select option:selected" ).text();
+    var trg_branch = $( "#pr-trg-branch-select option:selected" ).text();
+    var pr_msg = $('textarea#pr_textbox').val();
+    $.ajax({
+        url: CREATE_PR,
+        data: {src_branch: src_branch, trg_branch: trg_branch, pr_msg: pr_msg},
+        timeout: 2000,
+        success: function (r) {
+            $.jAlert({
+
+                'title': 'Pull Request',
+
+                'content': 'Pull Request Submitted successfully',
+
+                'theme': theme,
+
+                'closeOnClick': true,
+
+                'backgroundColor': 'black'
+
+            });
+        }
+    });
+}
+
 function changeFileView(blobElement) {
     var blob = WORKING_DIR_FILES.find(function (element) {
         return element.key === blobElement.text;
@@ -149,7 +234,7 @@ function changeFileView(blobElement) {
 
                     'title': 'Save Changes!',
 
-                    'content': 'File As Been Saved !',
+                    'content': 'File Has Been Saved !',
 
                     'theme': theme,
 
@@ -231,6 +316,17 @@ function deleteBlob(blobPath) {
         timeout: 2000,
         success: function (r) {
             getWorkingDirectory();
+        }
+    });
+}
+
+function pull(){
+    $.ajax({
+        method:'POST',
+        url: PULL,
+        timeout: 2000,
+        success: function(r) {
+            alert(r)
         }
     });
 }

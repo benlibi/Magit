@@ -22,6 +22,7 @@ public class DoFork extends HttpServlet {
         String repoName = request.getParameter("repoName");
         String remoteUser = request.getParameter("userName");
         magitManager.clone(repoName, remoteUser, currentUser);
+        magitManager.addMsg(remoteUser,currentUser + " forked your repo: " + repoName);
     }
 
     @Override

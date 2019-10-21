@@ -7,10 +7,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
-@WebServlet(urlPatterns = {"/getBranches"})
-public class GetBranches extends HttpServlet {
+@WebServlet(urlPatterns = {"/pull"})
+public class DoPull extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -19,18 +18,18 @@ public class GetBranches extends HttpServlet {
         try (PrintWriter out = response.getWriter()) {
             String user = (String) request.getSession().getAttribute("UserName");
             String repo = (String) request.getSession().getAttribute("repoName");
-            Gson gson = new Gson();
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
-            ArrayList<String> branches = magitManager.getAvailableBranches(true);
-            String json = gson.toJson(branches);
+            String msg = magitManager.pull();
+            Gson gson = new Gson();
+            String json = gson.toJson(msg);
             out.println(json);
             out.flush();
         }
     }
 
     @Override
-    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         processRequest(req, resp);
         }
 

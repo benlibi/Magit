@@ -9,8 +9,8 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-@WebServlet(urlPatterns = {"/getBranches"})
-public class GetBranches extends HttpServlet {
+@WebServlet(urlPatterns = {"/getRemoteBranches"})
+public class GetRemoteBranches extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -22,7 +22,7 @@ public class GetBranches extends HttpServlet {
             Gson gson = new Gson();
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
-            ArrayList<String> branches = magitManager.getAvailableBranches(true);
+            ArrayList<String> branches = magitManager.getRemoteAvailableBranches();
             String json = gson.toJson(branches);
             out.println(json);
             out.flush();

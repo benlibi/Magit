@@ -82,7 +82,19 @@ public class Commit implements Comparable<Commit>, CommitRepresentative{
         this.commitSha1 = DigestUtils.sha1Hex(this.toString());
     }
 
-    public Commit(String commitMassage, String mainProjectSha1, List<String> commitHistoryList) {
+    public Commit(String commitMassage, String mainProjectSha1, String committer) {
+
+        Date date = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS");
+
+        this.commitDate = formatter.format(date);
+        this.mainRepoSha1 = mainProjectSha1;
+        this.commitMassage = commitMassage;
+        this.commitSha1 = DigestUtils.sha1Hex(this.toString());
+        this.committer = committer;
+    }
+
+    public Commit(String commitMassage, String mainProjectSha1, List<String> commitHistoryList, String committer) {
 
         Date date = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("dd.MM.yyyy-hh:mm:ss:SSS");

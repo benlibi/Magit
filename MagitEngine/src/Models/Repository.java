@@ -48,6 +48,12 @@ public class Repository {
 //        Commit previousCommit = new Commit(commitRepresentation.replace("\n", ""));
     }
 
+
+
+    public String getRemote_user() {
+        return remote_user;
+    }
+
     public void createBlankRepository() throws IOException {
 
         // create the .magit directory

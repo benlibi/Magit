@@ -3,6 +3,7 @@ var USER_REPO_LIST_URL = buildUrlWithContextPath("getRepos");
 var UPLOAD_XML_URL = buildUrlWithContextPath("upload");
 var GET_SESSION_USER_NAME = buildUrlWithContextPath("getSessionUserName");
 var DO_FORK = buildUrlWithContextPath("fork");
+var GET_USER_MSG = buildUrlWithContextPath("getMsg");
 
 function addUsers(usersDictionery){
     usersDictionery.forEach(function(user){
@@ -61,7 +62,7 @@ function insertRows(table_elementId, repoRaws,isCurrent,user){
         cell5.innerHTML = repoRaws[i].lastCommitMessage;
         if(!isCurrent){
             var cell6 = row.insertCell(5);
-            cell6.innerHTML = ' <form  id="submit-fork" ACTION="" METHOD="GET">' +
+            cell6.innerHTML = '<form  id="submit-fork" ACTION="" METHOD="GET">' +
                 '<input type="hidden" name="repoName" value="' + repoRaws[i].name+ '" />' +
                 '<input type="hidden" name="userName" value="' + user+ '" />' +
                 '<input id="submit-fork-button" type="button" value="Fork" onClick="fork(this.form)">' +
@@ -120,8 +121,23 @@ $(function() { // onload...do   getUsers
 
 $(function() { // onload...do
     addUserRepos("userTable","currentUser",true);
-    setHeader()
+    setHeader();
+    getUserMsg();
 });
+
+function getUserMsg(){
+    $.ajax({
+        url: GET_USER_MSG,
+        timeout: 2000,
+        success: function(r) {
+            var usr_mag = "";
+            r.forEach(function(msg){
+                usr_mag += msg + "\n";
+            });
+            document.getElementById("usr_msg_textbox").value=usr_mag;
+        }
+    });
+}
 
 $(function() { // onload...do
     $("#uploadForm").submit(function() {
