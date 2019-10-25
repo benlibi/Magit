@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.Map;
 
 @WebServlet(urlPatterns = {"/getWorkingDirectory"})
@@ -26,18 +27,30 @@ public class GetWorkingDir extends HttpServlet {
             Gson gson = new Gson();
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
-            Map<String, Blob> workingChanges = magitManager.getWcFilesMap();
-//            Object[] repoFiles = workingChanges.values().toArray();
 
-            String json = gson.toJson(workingChanges.entrySet().toArray());
-            out.println(json);
-            out.flush();
+            boolean isInit = Boolean.parseBoolean(request.getParameter("init"));
+            if (isInit) {
+
+                Map<String, Blob> workingChanges = magitManager.initWcFilesMap();
+
+                String json = gson.toJson(workingChanges.entrySet().toArray());
+                out.println(json);
+                out.flush();
+            } else {
+
+                Map<String, List<Blob>> workingChanges = magitManager.getWcFilesMap();
+
+                String json = gson.toJson(workingChanges.entrySet().toArray());
+                out.println(json);
+                out.flush();
+            }
+
         }
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         processRequest(req, resp);
-        }
+    }
 
 }

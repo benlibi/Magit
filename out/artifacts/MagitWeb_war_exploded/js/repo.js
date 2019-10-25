@@ -129,6 +129,18 @@ function getCommitHistory(branchName) {
     });
 }
 
+function initWorkingDirectory() {
+    $.ajax({
+        type: "GET",
+        url: GET_WORKING_DIRECTORY,
+        data: {init: true},
+        timeout: 2000,
+        success: function (r) {
+            WORKING_DIR_FILES = r;
+        }
+    });
+}
+
 function getWorkingDirectory() {
     $.ajax({
         type: "GET",
@@ -136,11 +148,29 @@ function getWorkingDirectory() {
         timeout: 2000,
         success: function (r) {
             $("#working_directory").empty();
+            var nestedDirTreeView = "";
 
-            WORKING_DIR_FILES = r;
-            r.forEach(function (blob) {
-                $("#working_directory").append('<li id="' + blob.value.name + '" style="width:100%;"><a style="width:100%;" onclick="changeFileView(this)">' + blob.key + '</a></li>');
+            r.forEach(function (file) {
+                nestedDirTreeView = nestedDirTreeView.concat('<li><span class="caret" style="display: block; margin: 15px 15px;">' + file.key + '</span>');
+                nestedDirTreeView = nestedDirTreeView.concat('<ul class="nested" style="width: 100%">');
+
+                file.value.forEach(function (blob) {
+                    nestedDirTreeView = nestedDirTreeView.concat('<li id="' + blob.name + '" style="width:100%; margin-left: 15px;"><a style="width:100%;" onclick="changeFileView(this)">' + blob.path + '</a></li>');
+                });
             });
+
+            $("#working_directory").append(nestedDirTreeView);
+        },
+        complete: function () {
+            var toggler = document.getElementsByClassName("caret");
+            var i;
+
+            for (i = 0; i < toggler.length; i++) {
+                toggler[i].addEventListener("click", function() {
+                    this.parentElement.querySelector(".nested").classList.toggle("active");
+                    this.classList.toggle("caret-down");
+                });
+            }
         }
     });
 }
@@ -454,6 +484,7 @@ $(function () { // onload...init page
     getBranches();
     getRepoInfo();
     getCommitHistory("");
+    initWorkingDirectory();
     getWorkingDirectory();
     getWC();
 });

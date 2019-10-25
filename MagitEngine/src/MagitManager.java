@@ -16,8 +16,9 @@ public class MagitManager {
     public String rootRepo = "/opt/magit-ex3";
     public String userFileName = "current_user";
     private String currentUserString = User.getName();
-    private Map<String,List<PR>> prList = new HashMap<>();
-    private Map<String,List<String>> userMsg = new HashMap<>();
+    private Map<String, List<PR>> prList = new HashMap<>();
+    private Map<String, List<String>> userMsg = new HashMap<>();
+
     public MagitManager() {
         File rootDir = new File(rootRepo);
         if (rootDir.exists()) {
@@ -49,12 +50,14 @@ public class MagitManager {
 //        return currentUserRepos;
 //    }
 
-    public void createPr(String src_branch,String trg_branch,String pr_msg, String prAsker){
+    public void createPr(String src_branch, String trg_branch, String pr_msg, String prAsker) {
         String remoteUser = currentRepo.getRemote_user();
         String repoName = currentRepo.getName();
         PR pr = new PR(prAsker, remoteUser, repoName, pr_msg, trg_branch, src_branch);
         prList.get(remoteUser).add(pr);
-        String msg = "New pull request from: " + prAsker + " src branch: " + src_branch + " target branch: " + trg_branch + " msg: " + pr_msg + " repo: " + currentRepo.getName();
+        String msg =
+                "New pull request from: " + prAsker + " src branch: " + src_branch + " target branch: " + trg_branch + " msg: " + pr_msg +
+                        " repo: " + currentRepo.getName();
         addMsg(remoteUser, msg);
     }
 
@@ -70,14 +73,14 @@ public class MagitManager {
         return currentUserRepos;
     }
 
-    public void addMsg(String userName, String msg){
-        if(userMsg.get(userName).size()>6){
+    public void addMsg(String userName, String msg) {
+        if (userMsg.get(userName).size() > 6) {
             userMsg.get(userName).remove(0);
         }
         userMsg.get(userName).add(msg);
     }
 
-    public List<String> getUserMsg(String userName){
+    public List<String> getUserMsg(String userName) {
         return userMsg.get(userName);
     }
 
@@ -88,11 +91,11 @@ public class MagitManager {
             if (!userDir.exists()) {
                 userDir.mkdir();
             }
-            if(!userMsg.containsKey(userName)){
-                userMsg.put(userName,new ArrayList<String>());
+            if (!userMsg.containsKey(userName)) {
+                userMsg.put(userName, new ArrayList<String>());
             }
-            if(!prList.containsKey(userName)){
-                prList.put(userName,new ArrayList<PR>());
+            if (!prList.containsKey(userName)) {
+                prList.put(userName, new ArrayList<PR>());
             }
 //            Utils.createUserFile(rootRepo,userFileName,userName);
             appendUser(userName);
@@ -215,7 +218,7 @@ public class MagitManager {
         return readBranchFile(branchName);
     }
 
-    private Commit getHeadCommit(){
+    private Commit getHeadCommit() {
         String head_branch_name = readBranchFile("HEAD");
         String head_commit_rep = readBranchFile(head_branch_name);
         String commitRepresentation = Utils.getContentFromZip(this.currentRepo.OBJECTS_DIR_PATH.concat("/" + head_commit_rep),
@@ -361,7 +364,7 @@ public class MagitManager {
 
     public String readRemoteBranchFile(String branchName) {
         return Branch.getBranchCommitPointer(
-                this.currentRepo.BRANCHES_DIR_PATH.concat( "/" + branchName));
+                this.currentRepo.BRANCHES_DIR_PATH.concat("/" + branchName));
     }
 
     public String readRemoteRepoBranchFile(String branchName) {
@@ -657,13 +660,18 @@ public class MagitManager {
         }
     }
 
-    private void createFileMap(Map<String, Blob> wcFileMap, File path) {
+    private void createFileMap(Map<String, List<Blob>> wcFileMap, File path) {
         File[] files = path.listFiles();
         if (files != null && path.isDirectory()) {
             for (File file : files) {
                 if (file.isFile()) {
                     Blob blob = new Blob(file);
-                    wcFileMap.put(file.getPath(), blob);
+                    if (wcFileMap.containsKey(file.getParentFile().getName())) {
+                        wcFileMap.get(file.getParentFile().getName()).add(blob);
+                    } else {
+                        wcFileMap.put(file.getParentFile().getName(), new ArrayList<Blob>(
+                                Arrays.asList(blob)));
+                    }
                 } else if (file.isDirectory() && !file.getName().contains(".")) {
                     createFileMap(wcFileMap, file);
                 }
@@ -671,8 +679,29 @@ public class MagitManager {
         }
     }
 
-    public Map<String, Blob> getWcFilesMap() {
+    private void initFileMap(Map<String, Blob> wcFileMap, File path) {
+        File[] files = path.listFiles();
+        if (files != null && path.isDirectory()) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    Blob blob = new Blob(file);
+                    wcFileMap.put(file.getPath(), blob);
+                } else if (file.isDirectory() && !file.getName().contains(".")) {
+                    initFileMap(wcFileMap, file);
+                }
+            }
+        }
+    }
+
+    public Map<String, Blob> initWcFilesMap() {
         Map<String, Blob> wcFileMap = new HashMap<>();
+        File mainRepo = new File(currentRepo.get_path());
+        initFileMap(wcFileMap, mainRepo);
+        return wcFileMap;
+    }
+
+    public Map<String, List<Blob>> getWcFilesMap() {
+        Map<String, List<Blob>> wcFileMap = new HashMap<>();
         File mainRepo = new File(currentRepo.get_path());
         createFileMap(wcFileMap, mainRepo);
         return wcFileMap;
@@ -680,7 +709,7 @@ public class MagitManager {
 
     private List<String> getChangesDetected() {
         List<String> changeList = new ArrayList<>();
-        Map<String, Blob> wcFilesMap = getWcFilesMap();
+        Map<String, Blob> wcFilesMap = initWcFilesMap();
         currentCommit = getHeadCommit();
         Map<String, Blob> commitFilesMap = getCommitFilesMap(currentCommit.getCommitSha1());
         for (String wcFile : wcFilesMap.keySet()) {
@@ -736,7 +765,7 @@ public class MagitManager {
 
     public Map<String, List<String>> getWcChanges() {
         Map<String, List<String>> statusMap = new HashMap<>();
-        Map<String, Blob> wcFilesMap = getWcFilesMap();
+        Map<String, Blob> wcFilesMap = initWcFilesMap();
         currentCommit = getHeadCommit();
         Map<String, Blob> commitFilesMap = getCommitFilesMap(currentCommit.getCommitSha1());
         List<String> deletedFiles = getWcDeletedFiles(wcFilesMap, commitFilesMap);
@@ -807,7 +836,7 @@ public class MagitManager {
                     String blobName = entry[0];
                     String blobOwner = entry[3];
                     String blobLastModifyDate = entry[4];
-                    File blobFIle= new File(path,blobName);
+                    File blobFIle = new File(path, blobName);
                     Blob blob = new Blob(blobName, blobContent, blobOwner, blobLastModifyDate, blobFIle.getPath());
                     commitFilesMap.put(path + "/" + blobName, blob);
                 } else {
@@ -1118,15 +1147,15 @@ public class MagitManager {
         Utils.copyFolderContent(this.currentRepo.getRemote_path().concat("/.magit/Objects"), this.currentRepo.OBJECTS_DIR_PATH);
     }
 
-    public String pull(){
+    public String pull() {
         try {
-            if(isRemote()) {
-                if(!isChangesFound()) {
+            if (isRemote()) {
+                if (!isChangesFound()) {
                     doPull();
-                }else{
+                } else {
                     return "Found uncommited Files, pleas commit them first";
                 }
-            }else{
+            } else {
                 return "No Repo Found Or working on remote";
             }
         } catch (Exception e) {

@@ -22,6 +22,7 @@ public class Blob {
     private String owner;
     private String lastModifyDate;
     private String parentDir;
+    private String path;
 
 
     public Blob(String name, String content, String owner, String lastModifyDate, String parentDir){
@@ -45,6 +46,7 @@ public class Blob {
         this.blobSha1 = DigestUtils.sha1Hex(content);
         this.defineLastModifyDate();
         this.owner = User.getName();
+        this.path = file.getPath();
     }
 
 
