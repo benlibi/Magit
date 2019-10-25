@@ -22,9 +22,11 @@ function createBranch(branchName) {
         success: function (r) {
             getBranches();
             $("#new_branch").val("")
+        },
+        complete: function () {
+            location.reload(true);
         }
     });
-    location.reload(true);
 }
 
 function showCommit(commitSha1) {
@@ -90,9 +92,12 @@ function renderNewContent(branchName) {
                 $("#commit_history").append('<li style="width:100%;"><a style="width:100%;" onclick="showCommit(this)">' + commit + '</a></li>');
             });
 
+            // getWC();
+            // initWorkingDirectory();
+        },
+        complete: function () {
             getWC();
-            getWorkingDirectory();
-
+            initWorkingDirectory();
         }
     });
 }
@@ -137,6 +142,9 @@ function initWorkingDirectory() {
         timeout: 2000,
         success: function (r) {
             WORKING_DIR_FILES = r;
+        },
+        complete: function () {
+            getWorkingDirectory();
         }
     });
 }
@@ -151,8 +159,8 @@ function getWorkingDirectory() {
             var nestedDirTreeView = "";
 
             r.forEach(function (file) {
-                nestedDirTreeView = nestedDirTreeView.concat('<li><span class="caret" style="display: block; margin: 15px 15px;">' + file.key + '</span>');
-                nestedDirTreeView = nestedDirTreeView.concat('<ul class="nested" style="width: 100%">');
+                nestedDirTreeView = nestedDirTreeView.concat('<li><span class="caret" style="display: block; margin: 15px;">' + file.key + '</span>');
+                nestedDirTreeView = nestedDirTreeView.concat('<ul class="nested" style="width: 100%; overflow: unset;">');
 
                 file.value.forEach(function (blob) {
                     nestedDirTreeView = nestedDirTreeView.concat('<li id="' + blob.name + '" style="width:100%; margin-left: 15px;"><a style="width:100%;" onclick="changeFileView(this)">' + blob.path + '</a></li>');
@@ -166,7 +174,7 @@ function getWorkingDirectory() {
             var i;
 
             for (i = 0; i < toggler.length; i++) {
-                toggler[i].addEventListener("click", function() {
+                toggler[i].addEventListener("click", function () {
                     this.parentElement.querySelector(".nested").classList.toggle("active");
                     this.classList.toggle("caret-down");
                 });
@@ -286,15 +294,6 @@ function changeFileView(blobElement) {
 
                 theme = "green";
                 saveBlob(blob.key, $('#save_file_box').val());
-                $.jAlert({
-                    'title': 'Save Changes!',
-                    'content': 'File Has Been Saved !',
-                    'theme': theme,
-                    'closeOnClick': true,
-                    'backgroundColor': 'black',
-                    'showAnimation': 'fadeInUp',
-                    'hideAnimation': 'fadeOutDown',
-                });
             },
             'onDeny': function () {
                 $.jAlert({
@@ -304,16 +303,6 @@ function changeFileView(blobElement) {
                     'onConfirm': function () {
                         theme = "red";
                         deleteBlob(blob.key);
-
-                        $.jAlert({
-                            'title': 'File(s) Removed',
-                            'content': 'The files are removed!',
-                            'theme': theme,
-                            'closeOnClick': true,
-                            'backgroundColor': 'black',
-                            'showAnimation': 'fadeInUp',
-                            'hideAnimation': 'fadeOutDown',
-                        });
                     },
                     'onDeny': function () {
                         theme = "green";
@@ -343,10 +332,21 @@ function deleteBlob(blobPath) {
         data: {blobPath: blobPath},
         timeout: 2000,
         success: function (r) {
-            getWorkingDirectory();
+            $.jAlert({
+                'title': 'File(s) Removed',
+                'content': 'The files are removed!',
+                'theme': theme,
+                'closeOnClick': true,
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
+        },
+        complete: function () {
+            getWC();
+            initWorkingDirectory();
         }
     });
-    location.reload(true);
 }
 
 function pull() {
@@ -366,10 +366,21 @@ function saveBlob(blobPath, content) {
         data: {blobPath: blobPath, blobContent: content},
         timeout: 2000,
         success: function (r) {
-            getWorkingDirectory();
+            $.jAlert({
+                'title': 'Save Changes!',
+                'content': 'File Has Been Saved !',
+                'theme': theme,
+                'closeOnClick': true,
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
+        },
+        complete: function () {
+            getWC();
+            initWorkingDirectory();
         }
     });
-    location.reload(true);
 }
 
 function createNewFile() {
@@ -385,11 +396,10 @@ function createNewFile() {
         data: {filePath: filePath},
         timeout: 2000,
         success: function (r) {
-            getWorkingDirectory();
+            initWorkingDirectory();
             getWC();
         }
     });
-    location.reload(true);
 }
 
 function showCommitModal() {
@@ -450,13 +460,6 @@ function commit(commitMsg) {
                     'backgroundColor': 'white',
                     'showAnimation': 'fadeInUp',
                     'hideAnimation': 'fadeOutDown',
-                    'btns': [
-                        {
-                            'text': 'OK', 'theme': "white", 'onClick': function () {
-                                location.reload(true);
-                            }
-                        }
-                    ]
                 });
             } else {
                 $.jAlert({
@@ -485,6 +488,5 @@ $(function () { // onload...init page
     getRepoInfo();
     getCommitHistory("");
     initWorkingDirectory();
-    getWorkingDirectory();
     getWC();
 });
