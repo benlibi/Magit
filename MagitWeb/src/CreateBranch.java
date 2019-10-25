@@ -21,6 +21,7 @@ public class CreateBranch extends HttpServlet {
             Gson gson = new Gson();
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
+            magitManager.setCurrentUser(user);
             String branchName = request.getParameter("branchName");
             magitManager.createBranch(branchName, false);
             String json = gson.toJson(branchName);

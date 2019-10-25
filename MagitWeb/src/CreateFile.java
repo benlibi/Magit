@@ -21,6 +21,7 @@ public class CreateFile extends HttpServlet {
             Gson gson = new Gson();
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
+            magitManager.setCurrentUser(user);
             String filePath = request.getParameter("filePath");
             magitManager.createFile(magitManager.getCurrentRepo().get_path().concat("/").concat(filePath), "");
 

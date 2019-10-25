@@ -21,12 +21,20 @@ public class Commit extends HttpServlet {
             Gson gson = new Gson();
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
+            magitManager.setCurrentUser(user);
             String commitMsg = request.getParameter("commitMsg");
-            magitManager.commit(commitMsg, "", false, user);
 
-            String json = gson.toJson(commitMsg);
-            out.println(json);
-            out.flush();
+            try {
+                magitManager.commit(commitMsg, "", false, user);
+                String json = gson.toJson("success");
+                out.println(json);
+                out.flush();
+            } catch (IOException e) {
+                String json = gson.toJson(e.getMessage());
+                out.println(json);
+                out.flush();
+            }
+
         }
     }
 

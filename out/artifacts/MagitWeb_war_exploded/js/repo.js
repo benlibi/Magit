@@ -39,6 +39,8 @@ function showCommit(commitSha1) {
                 'theme': "blue",
                 'closeOnClick': true,
                 'backgroundColor': 'white',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown',
                 'btns': [
                     {'text': 'OK', 'theme': "blue"}
                 ]
@@ -54,20 +56,46 @@ function getBranches() {
         success: function (r) {
             $('#branch-select').empty();
             r.forEach(function (branch) {
-                var optionBranch = new Option(branch.replace(" (HEAD)", ""), branch);
-                $('#branch-select').append(optionBranch);
 
-                $('#branch-select').change(function (e) {
-                    e.stopImmediatePropagation();
-                    getCommitHistory($(this).val().replace(" (HEAD)", ""))
-                    getWC();
-                    getWorkingDirectory();
-                });
+                if (branch.includes('(HEAD)')) {
+                    var headBranchFixedName = branch.replace(" (HEAD)", "");
+                    var optionBranch = new Option(headBranchFixedName, branch);
+                    $('#branch-select').append(optionBranch);
+                    $('#branch-select').val(branch);
+
+                    renderNewContent(headBranchFixedName);
+                } else {
+                    var optionBranch = new Option(branch, branch);
+                    $('#branch-select').append(optionBranch);
+                }
             })
         }
     });
+
+    $('#branch-select').change(function (e) {
+        e.stopImmediatePropagation();
+        renderNewContent($(this).val().replace(" (HEAD)", ""));
+    });
 }
 
+function renderNewContent(branchName) {
+    $.ajax({
+        type: "GET",
+        data: {branchName: branchName},
+        url: GET_COMMIT_HISTORY,
+        timeout: 2000,
+        success: function (r) {
+            $("#commit_history").empty();
+            r.forEach(function (commit) {
+                $("#commit_history").append('<li style="width:100%;"><a style="width:100%;" onclick="showCommit(this)">' + commit + '</a></li>');
+            });
+
+            getWC();
+            getWorkingDirectory();
+
+        }
+    });
+}
 
 
 function getRepoInfo() {
@@ -136,7 +164,7 @@ function getWC() {
     });
 }
 
-function setPr(){
+function setPr() {
     $.ajax({
         url: GET_BRANCHES,
         timeout: 2000,
@@ -162,7 +190,7 @@ function setPr(){
     });
 }
 
-function pr(){
+function pr() {
     $.jAlert({
 
         'title': 'Submit Pull Request',
@@ -170,29 +198,30 @@ function pr(){
         'content': '    <div>Src Branch:\n' +
             '        <select id="pr-src-branch-select" style="padding-right: 10px"></select>\n' +
             '    </div>' +
-        '    <div>Target Remote Branch:\n' +
+            '    <div>Target Remote Branch:\n' +
             '        <select id="pr-trg-branch-select" style="padding-right: 10px"></select>\n' +
             '    </div>' +
             '<textarea id="pr_textbox" placeholder="Please Enter Your Pull Request Massage"></textarea>'
         ,
-
         'theme': 'green',
-
         'backgroundColor': 'white',
-
+        'showAnimation': 'fadeInUp',
+        'hideAnimation': 'fadeOutDown',
         'btns': [
-
-            {'text': 'Submit', 'theme': 'green', 'onClick': function(){ createPr()}},
+            {
+                'text': 'Submit', 'theme': 'green', 'onClick': function () {
+                    createPr()
+                }
+            },
             {'text': 'Cancel', 'theme': 'red', 'closeOnClick': true}
-
         ]
     });
     setPr();
 }
 
-function createPr(){
-    var src_branch = $( "#pr-src-branch-select option:selected" ).text();
-    var trg_branch = $( "#pr-trg-branch-select option:selected" ).text();
+function createPr() {
+    var src_branch = $("#pr-src-branch-select option:selected").text();
+    var trg_branch = $("#pr-trg-branch-select option:selected").text();
     var pr_msg = $('textarea#pr_textbox').val();
     $.ajax({
         url: CREATE_PR,
@@ -200,16 +229,13 @@ function createPr(){
         timeout: 2000,
         success: function (r) {
             $.jAlert({
-
                 'title': 'Pull Request',
-
                 'content': 'Pull Request Submitted successfully',
-
                 'theme': theme,
-
                 'closeOnClick': true,
-
-                'backgroundColor': 'black'
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown',
 
             });
         }
@@ -223,90 +249,59 @@ function changeFileView(blobElement) {
 
     $.jAlert({
             'type': 'confirm',
-
             'confirmQuestion': '<textarea id="save_file_box" type="text" style="width: 100%; margin-top: 0; margin-bottom: 0; height: 350px; text-align: left;">' +
                 blob.value.content.toString().replace("/n", "<br>") + '</textarea>',
-
             'theme': 'red',
-
             'onConfirm': function () {
 
                 theme = "green";
                 saveBlob(blob.key, $('#save_file_box').val());
                 $.jAlert({
-
                     'title': 'Save Changes!',
-
                     'content': 'File Has Been Saved !',
-
                     'theme': theme,
-
                     'closeOnClick': true,
-
-                    'backgroundColor': 'black'
-
+                    'backgroundColor': 'black',
+                    'showAnimation': 'fadeInUp',
+                    'hideAnimation': 'fadeOutDown',
                 });
-
             },
-
             'onDeny': function () {
-
                 $.jAlert({
                     'type': 'confirm',
-
                     'confirmQuestion': 'Do You Want To Delete This File ?',
-
                     'theme': 'red',
-
                     'onConfirm': function () {
-
                         theme = "red";
-
                         deleteBlob(blob.key);
 
                         $.jAlert({
-
                             'title': 'File(s) Removed',
-
                             'content': 'The files are removed!',
-
                             'theme': theme,
-
                             'closeOnClick': true,
-
-                            'backgroundColor': 'black'
-
+                            'backgroundColor': 'black',
+                            'showAnimation': 'fadeInUp',
+                            'hideAnimation': 'fadeOutDown',
                         });
-
                     },
-
                     'onDeny': function () {
-
                         theme = "green";
-
                         $.jAlert({
-
                             'title': 'Action Denied',
-
                             'content': 'File is not removed! Close the dialog by clicking the OK button',
-
                             'theme': theme,
-
                             'backgroundColor': 'white',
-
+                            'showAnimation': 'fadeInUp',
+                            'hideAnimation': 'fadeOutDown',
                             'btns': [
-
                                 {'text': 'OK', 'theme': theme}
-
                             ]
                         });
-
                     }
                 });
             },
-
             'confirmBtnText': "Save Changes!",
-
             'denyBtnText': 'Cancel'
         }
     );
@@ -324,12 +319,12 @@ function deleteBlob(blobPath) {
     location.reload(true);
 }
 
-function pull(){
+function pull() {
     $.ajax({
-        method:'POST',
+        method: 'POST',
         url: PULL,
         timeout: 2000,
-        success: function(r) {
+        success: function (r) {
             alert(r)
         }
     });
@@ -396,6 +391,18 @@ function hideCommitModal() {
 function commit(commitMsg) {
 
     if (!commitMsg || 0 === commitMsg.length) {
+        $.jAlert({
+            'title': "Commit Failure",
+            'content': "You Must Enter a Commit Message !",
+            'theme': "red",
+            'closeOnClick': true,
+            'backgroundColor': 'white',
+            'showAnimation': 'fadeInUp',
+            'hideAnimation': 'fadeOutDown',
+            'btns': [
+                {'text': 'OK', 'theme': "white"}
+            ]
+        });
         return;
     }
 
@@ -404,53 +411,49 @@ function commit(commitMsg) {
         data: {commitMsg: commitMsg},
         timeout: 2000,
         success: function (r) {
-            $.jAlert({
-                'title': "Commit Success",
-                'content': "Commit Was Successfully Done",
-                'theme': "blue",
-                'closeOnClick': true,
-                'backgroundColor': 'white',
-                'btns': [
-                    {'text': 'OK', 'theme': "blue"}
-                ]
-            });
-        },
-        error: function (xhr, status, error) {
-            alert("Sorry, we won't able to commit your changes");
+            if (r === "No Changes Detected !") {
+                $.jAlert({
+                    'title': "Commit Failure",
+                    'content': "No Changes Detected !",
+                    'theme': "red",
+                    'closeOnClick': true,
+                    'backgroundColor': 'white',
+                    'showAnimation': 'fadeInUp',
+                    'hideAnimation': 'fadeOutDown',
+                    'btns': [
+                        {
+                            'text': 'OK', 'theme': "white", 'onClick': function () {
+                                location.reload(true);
+                            }
+                        }
+                    ]
+                });
+            } else {
+                $.jAlert({
+                    'title': "Commit Success",
+                    'content': "Commit Was Successfully Done",
+                    'theme': "blue",
+                    'closeOnClick': true,
+                    'backgroundColor': 'white',
+                    'showAnimation': 'fadeInUp',
+                    'hideAnimation': 'fadeOutDown',
+                    'btns': [
+                        {
+                            'text': 'OK', 'theme': "white", 'onClick': function () {
+                                location.reload(true);
+                            }
+                        }
+                    ]
+                });
+            }
         }
     });
-    location.reload(true);
 }
 
 $(function () { // onload...init page
-    // $('#side-menu').append(
-    // '<ul>' +
-    // '<li><a class="active" href="user.html">Home</a></li>' +
-    // '<li><a href="branches.html">Branches</a></li>' +
-    // '<li><a href="commits.html">Commits</a></li>' +
-    // '<li><a href="wc.html">Working Copy</a></li>' +
-    // '<li><a href="merge.html">Merge</a></li>' +
-    // '<li><a href="remote.html">Remote</a></li>' +
-    // '<li><a href="pr.html">Pull Request</a></li>' +
-    // '</ul>'
-    // );
     getBranches();
     getRepoInfo();
     getCommitHistory("");
     getWorkingDirectory();
     getWC();
-
-//     // When the user clicks on <span> (x), close the modal
-//     $("#commit_modal_span").onclick = function () {
-//         var modal = document.getElementById("commitModal");
-//         modal.style.display = "none";
-//     };
-//
-// // When the user clicks anywhere outside of the modal, close it
-//     window.onclick = function (event) {
-//         var modal = document.getElementById("commitModal");
-//         if (event.target == modal) {
-//             modal.style.display = "none";
-//         }
-//     }
 });

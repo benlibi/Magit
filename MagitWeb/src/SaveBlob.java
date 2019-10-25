@@ -21,6 +21,7 @@ public class SaveBlob extends HttpServlet {
             Gson gson = new Gson();
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
+            magitManager.setCurrentUser(user);
             String path = request.getParameter("blobPath");
             String content = request.getParameter("blobContent");
             magitManager.saveFile(path, content);

@@ -21,6 +21,7 @@ public class DeleteBlob extends HttpServlet {
             Gson gson = new Gson();
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
+            magitManager.setCurrentUser(user);
             String path = request.getParameter("blobPath");
             magitManager.deleteFile(path);
 
