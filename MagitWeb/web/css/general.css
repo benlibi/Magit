@@ -238,6 +238,14 @@ a:hover {
     border-radius: 6px;
     display: inline-block;
     transition: all 0.3s ease 0s;
+    margin: 2px;
+}
+
+.button:disabled,
+.button[disabled]{
+    border: 1px solid #999999;
+    background: #cccccc;
+    color: #666666;
 }
 
 .button:hover {
@@ -249,7 +257,23 @@ a:hover {
     transition: all 0.3s ease 0s;
 }
 
+#pr-modal-content{
+    width: 100%;
+}
 
+#pr-modal-content .modal-header{
+    display: block;
+}
+
+#pr-modal-content .modal-body{
+    padding-top: 20px;
+}
+
+#cell-id{
+    display: inline-flex;
+    width: 90px;
+    box-sizing: unset;
+}
 /* The Modal (background) */
 .modal {
     display: none; /* Hidden by default */
@@ -330,3 +354,4 @@ ul, #myUL {
 #accordionExample {
     margin-top: 100px;
 }
+

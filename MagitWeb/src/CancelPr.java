@@ -17,7 +17,6 @@ public class CancelPr extends HttpServlet {
             String repo = (String) request.getSession().getAttribute("repoName");
             String id = request.getParameter("id");
             magitManager.cancelPr(currentUser, repo, id);
-
     }
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

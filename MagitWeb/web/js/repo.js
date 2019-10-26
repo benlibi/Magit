@@ -13,6 +13,7 @@ var PUSH = buildUrlWithContextPath("push");
 var CREATE_NEW_FILE = buildUrlWithContextPath("createFile");
 var COMMIT = buildUrlWithContextPath("commit");
 var WORKING_DIR_FILES;
+var GET_USER_MSG = buildUrlWithContextPath("getMsg");
 var CREATE_PR = buildUrlWithContextPath("createPr");
 var GET_PR = buildUrlWithContextPath("getPr");
 var CANCEL_PR = buildUrlWithContextPath("cancelPr");
@@ -30,6 +31,24 @@ function createBranch(branchName) {
         },
         complete: function () {
             location.reload(true);
+        }
+    });
+}
+
+
+function getUserMsg(){
+    $.ajax({
+        url: GET_USER_MSG,
+        timeout: 2000,
+        success: function(r) {
+            var usr_mag = "";
+            r.forEach(function(msg){
+                usr_mag += msg + "\n";
+            });
+            if(usr_mag===""){
+                usr_mag = "No messages..."
+            }
+            document.getElementById("usr_msg_textbox_repo").value=usr_mag;
         }
     });
 }
@@ -380,7 +399,25 @@ function pull() {
         url: PULL,
         timeout: 2000,
         success: function (r) {
-            alert(r)
+            $.jAlert({
+                'title': 'Pull:',
+                'content': 'Pull was successful',
+                'closeOnClick': true,
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
+        },
+        error: function (e) {
+            $.jAlert({
+                'title': 'Pull:',
+                'content': "Pull was unsuccessful \n\r"
+                    + JSON.stringify(e),
+                'closeOnClick': true,
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
         }
     });
 }
@@ -391,7 +428,25 @@ function push() {
         url: PUSH,
         timeout: 2000,
         success: function (r) {
-            alert(r)
+            $.jAlert({
+                'title': 'Push:',
+                'content': 'Push was successful',
+                'closeOnClick': true,
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
+        },
+        error: function (e) {
+            $.jAlert({
+                'title': 'Push:',
+                'content': "Push was unsuccessful\n\r"
+                    + JSON.stringify(e),
+                'closeOnClick': true,
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
         }
     });
 }
@@ -534,12 +589,12 @@ function setPrTable(){
                 var cell4 = row.insertCell(3);
                 var cell5 = row.insertCell(4);
                 var cell6 = row.insertCell(5);
+                cell6.id="cell-id";
                 cell1.innerHTML = prs[i].askUser;
                 cell2.innerHTML = prs[i].targetBranch;
                 cell3.innerHTML = prs[i].sourceBranch;
                 cell4.innerHTML = prs[i].prDate;
                 cell5.innerHTML = prs[i].prStatus;
-
                 if(prs[i].prStatus.toString()!=="Open"){
                     cell6.innerHTML = '<button id="'+ prs[i].id +'" class="button" onClick="showPrChanges(this)">?</button>'
                 }
@@ -587,6 +642,7 @@ function approvePr(button){
                 'hideAnimation': 'fadeOutDown'
             });
             rebuildTable()
+            location.reload(true);
         }
     });
 }
@@ -610,13 +666,27 @@ function showPrChanges(id){
     var pr = getPrById(id.id);
     $.jAlert({
         'title': pr.prMsg,
-        'content': '<textarea readonly>'+pr.changes+'</textarea>',
+        'content': '<textarea readonly style="width: 100%;height:200px">'+pr.changes+'</textarea>',
         'size': 'full',
         'theme': "green",
         'closeOnClick': true,
         'backgroundColor': 'white',
         'showAnimation': 'fadeInUp',
         'hideAnimation': 'fadeOutDown'
+    });
+}
+
+function disableButtons(){
+    $.ajax({
+        url: GET_REPO_INFO,
+        timeout: 2000,
+        success: function (r) {
+            if(!r.isRemote){
+                $(".remote").attr('disabled', true);
+                $(".remote").removeClass('hover');
+            }
+
+        }
     });
 }
 
@@ -627,7 +697,8 @@ $(function () { // onload...init page
     initWorkingDirectory();
     getWC();
     setPrTable();
-
+    disableButtons();
+    getUserMsg();
 //     // When the user clicks on <span> (x), close the modal
 //     $("#commit_modal_span").onclick = function () {
 //         var modal = document.getElementById("commitModal");

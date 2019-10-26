@@ -6,9 +6,18 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class PR {
+    public String getAskUser() {
+        return askUser;
+    }
+
     String askUser;
     String ownerUser;
     String repoName;
+
+    public String getPrMsg() {
+        return prMsg;
+    }
+
     String prMsg;
 
     public String getTargetBranch() {

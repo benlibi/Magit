@@ -16,7 +16,6 @@ public class DoPush extends HttpServlet {
             MagitManager magitManager = ServletUtils.getMagitManager(getServletContext());
             magitManager.setRepo(repo, user);
             magitManager.push();
-
     }
 
     @Override

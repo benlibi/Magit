@@ -78,7 +78,7 @@ function fork(e){
         dataType: 'json',
         url: DO_FORK,
         timeout: 2000,
-        success: function(r) {
+        complete: function () {
             location.reload(true);
         }
     });
@@ -134,6 +134,9 @@ function getUserMsg(){
             r.forEach(function(msg){
                 usr_mag += msg + "\n";
             });
+            if(usr_mag===""){
+                usr_mag = "No messages..."
+            }
             document.getElementById("usr_msg_textbox").value=usr_mag;
         }
     });

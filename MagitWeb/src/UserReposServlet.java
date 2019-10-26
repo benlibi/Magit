@@ -31,7 +31,7 @@ public class UserReposServlet extends HttpServlet {
             if(user.equals("currentUser")) {
                 user = (String) request.getSession().getAttribute("UserName");
             }
-                userRepoList = magitManager.getUserRepos(user);
+            userRepoList = magitManager.getUserRepos(user);
             String json = gson.toJson(userRepoList);
             out.println(json);
             out.flush();

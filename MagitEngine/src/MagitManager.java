@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class MagitManager {
+    //public String rootRepo = "c:\\magit-ex3";
     public String rootRepo = "/opt/magit-ex3";
     public String userFileName = "current_user";
     private String currentUserString = User.getName();
@@ -61,8 +62,13 @@ public class MagitManager {
         for(PR pr: prs){
             if(String.valueOf(pr.getId()).equals(id)){
                 pr.setPrStatus(PrStatus.Rejected);
+                addMsg(pr.getAskUser(),"Your PR for src  branch: " + pr.getSourceBranch() + " to trg branch: " +pr.getTargetBranch() + " with msg: " + pr.getPrMsg() + " was REJECTED");
             }
         }
+    }
+
+    public void deleteUserMsg(String user){
+        userMsg.get(user).clear();
     }
 
     public void approvePr(String currentUser,String repo,String id) throws IOException {
@@ -70,7 +76,9 @@ public class MagitManager {
         for(PR pr: prs){
             if(String.valueOf(pr.getId()).equals(id)){
                 pr.setPrStatus(PrStatus.Close);
+                addMsg(pr.getAskUser(),"Your PR for src  branch: " + pr.getSourceBranch() + " to trg branch: " +pr.getTargetBranch() + " with msg: " + pr.getPrMsg() + " was APPROVED");
                 merge(pr.getSourceBranch(),pr.getTargetBranch(),currentUser);
+
             }
         }
     }
@@ -122,6 +130,15 @@ public class MagitManager {
         for (File userRepo : rootDir.listFiles()) {
             if (!userRepo.isFile()) {
                 Repository repo = new Repository(userRepo.getPath());
+                this.currentRepo=repo;
+                String branchName = readBranchFile("HEAD");
+
+                Commit commit = getHeadCommit();
+                this.currentBranch = new Branch(branchName, commit);
+                String lastCommitDate = commit.getCommitDateString();
+                String lastCommitMsg = commit.getCommitMassage();
+                int numberOfBranches = getAvailableBranches(true).size();
+                repo.setRepoAttr(branchName,numberOfBranches,lastCommitMsg,lastCommitDate);
                 currentUserRepos.add(repo);
             }
         }
@@ -808,8 +825,6 @@ public class MagitManager {
                 if (!wcFilesMap.get(wcFile).getBlobSha1().equals(commitFilesMap.get(wcFile).getBlobSha1())) {
                     changeList.add(wcFile);
                 }
-            } else {
-                changeList.add(wcFile);
             }
         }
         return changeList;
@@ -892,17 +907,11 @@ public class MagitManager {
         String currentHeadCommit = getHeadCommitOfBranch(trgBranch);
         String theirHeadCommit = getHeadCommitOfBranch(srcBranch);
         String ancestorCommit = getAncestor(currentHeadCommit, theirHeadCommit);
-        List<Conflict> conflicts = getConflictListAndCreateFiles(
-                getCommitDiffsMap(getCommitFilesMap(currentHeadCommit),
-                        getCommitFilesMap(ancestorCommit)),
-                getCommitDiffsMap(getCommitFilesMap(theirHeadCommit),
-                        getCommitFilesMap(ancestorCommit)),
-                getCommitFilesMap(ancestorCommit));
         String s = "Merge " + srcBranch + " into " + trgBranch;
         commit(s, readBranchFile(trgBranch), true, user);
     }
 
-    private void createFolderWithoutFullPath(Map<String, Blob> commitFilesMap, String path, String folderSha1) {
+    private void createFolderWithoutFullPath(Map<String, Blob> commitFilesMap, String path, String folderSha1, String repoPath) {
         String folderContent = getSha1Content(folderSha1);
         for (String line : folderContent.split("\n")) {
             String[] entry = line.split(",");
@@ -914,9 +923,9 @@ public class MagitManager {
                     String blobLastModifyDate = entry[4];
                     File blobFIle = new File(path, blobName);
                     Blob blob = new Blob(blobName, blobContent, blobOwner, blobLastModifyDate, blobFIle.getPath());
-                    commitFilesMap.put(blobName, blob);
+                    commitFilesMap.put((path + "/" + blobName).replace(repoPath + "/",""), blob);
                 } else {
-                    createFolder(commitFilesMap, path + "/" + entry[0], entry[1]);
+                    createFolderWithoutFullPath(commitFilesMap, path + "/" + entry[0], entry[1], repoPath);
                 }
             }
         }
@@ -934,7 +943,7 @@ public class MagitManager {
                     String blobLastModifyDate = entry[4];
                     File blobFIle = new File(path, blobName);
                     Blob blob = new Blob(blobName, blobContent, blobOwner, blobLastModifyDate, blobFIle.getPath());
-                    commitFilesMap.put(path + "/" + blobName, blob);
+                    commitFilesMap.put(blobFIle.getPath(), blob);
                 } else {
                     createFolder(commitFilesMap, path + "/" + entry[0], entry[1]);
                 }
@@ -958,7 +967,7 @@ public class MagitManager {
                 }
         );
         Commit commit = getCommitRep(commitSha1);
-        createFolderWithoutFullPath(commitFilesMap,path, commit.getMainRepoSha1());
+        createFolderWithoutFullPath(commitFilesMap,path, commit.getMainRepoSha1(), path);
         return commitFilesMap;
     }
 

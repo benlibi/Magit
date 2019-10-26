@@ -12,12 +12,6 @@ import java.io.PrintWriter;
 @WebServlet(urlPatterns = {"/getRepoInfo"})
 public class GetRepoInfo extends HttpServlet {
 
-
-
-    private MagitManager magitManager = new MagitManager();
-    private static final String USER_NAME_PARAMETER = "UserName";
-
-
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         //returning JSON objects, not HTML

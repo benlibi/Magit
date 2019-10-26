@@ -22,14 +22,20 @@
     <h6 id="repo_heading"></h6>
 </header>
 
+<div style="width: 100%;padding: 2px">
+    <textarea id="usr_msg_textbox_repo" rows="8" cols="30" readonly style="width: 100%"></textarea>
+</div>
+
 <div id="branch-row">
-    <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Repo Pull Request</button>
+    <div>
+        <button type="button" class="button" data-toggle="modal" data-target="#myModal">Show this Repo Pull Requests</button>
+    </div>
     <!-- Modal -->
     <div id="myModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
             <!-- Modal content-->
-            <div class="modal-content">
+            <div class="modal-content" id="pr-modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <h4 class="modal-title">Repo Pull Request Managment</h4>
@@ -50,18 +56,19 @@
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 </div>
             </div>
-
         </div>
     </div>
-    <form  ACTION="" METHOD="GET">
-    <input class="button" id="submit-pull-button" type="button" value="Pull" onClick="pull(this.form)">
-    </form>
-    <form  ACTION="" METHOD="GET">
-        <input class="button" id="submit-push-button" type="button" value="Push" onClick="push(this.form)">
-    </form>
-    <form ACTION="" METHOD="GET">
-        <input class="button" id="submit-pr-button" type="button" value="Pull Request" onClick="pr(this.form)">
-    </form>
+    <div id="remote" style="display: inline-flex;">
+        <form  ACTION="" METHOD="GET">
+        <input class="button remote" id="submit-pull-button" type="button" value="Pull" onClick="pull(this.form)">
+        </form>
+        <form  ACTION="" METHOD="GET">
+            <input class="button remote" id="submit-push-button" type="button" value="Push" onClick="push(this.form)">
+        </form>
+        <form ACTION="" METHOD="GET">
+            <input class="button remote" id="submit-pr-button" type="button" value="Pull Request" onClick="pr(this.form)">
+        </form>
+    </div>
     <div>Available Branches:
         <select id="branch-select" style="padding-right: 10px"></select>
     </div>
@@ -114,6 +121,7 @@
         </form>
     </div>
 </div>
+
 
 <!--<script>-->
 <!--    window.onbeforeunload = function () {-->

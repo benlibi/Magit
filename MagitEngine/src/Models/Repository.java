@@ -31,6 +31,13 @@ public class Repository {
     public boolean isRemote=false;
 
 
+    public void setRepoAttr( String headBranchName, int numberOfBranches, String lastCommitMessage, String lastCommitDate){
+        this.headBranchName=headBranchName;
+        this.numberOfBranches=numberOfBranches;
+        this.lastCommitDate=lastCommitDate;
+        this.lastCommitMessage=lastCommitMessage;
+    }
+
     public Repository(String path) {
         this._path = path;
         MAGIT_DIR_PATH = this._path.concat("/.magit");

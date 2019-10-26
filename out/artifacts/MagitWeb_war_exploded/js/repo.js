@@ -9,10 +9,16 @@ var GET_WC = buildUrlWithContextPath("getWC");
 var DELETE_BLOB = buildUrlWithContextPath("deleteBlob");
 var SAVE_BLOB = buildUrlWithContextPath("saveBlob");
 var PULL = buildUrlWithContextPath("pull");
+var PUSH = buildUrlWithContextPath("push");
 var CREATE_NEW_FILE = buildUrlWithContextPath("createFile");
 var COMMIT = buildUrlWithContextPath("commit");
 var WORKING_DIR_FILES;
+var GET_USER_MSG = buildUrlWithContextPath("getMsg");
 var CREATE_PR = buildUrlWithContextPath("createPr");
+var GET_PR = buildUrlWithContextPath("getPr");
+var CANCEL_PR = buildUrlWithContextPath("cancelPr");
+var APPROVE_PR = buildUrlWithContextPath("approvePr");
+var repoPrs;
 
 function createBranch(branchName) {
     $.ajax({
@@ -25,6 +31,24 @@ function createBranch(branchName) {
         },
         complete: function () {
             location.reload(true);
+        }
+    });
+}
+
+
+function getUserMsg(){
+    $.ajax({
+        url: GET_USER_MSG,
+        timeout: 2000,
+        success: function(r) {
+            var usr_mag = "";
+            r.forEach(function(msg){
+                usr_mag += msg + "\n";
+            });
+            if(usr_mag===""){
+                usr_mag = "No messages..."
+            }
+            document.getElementById("usr_msg_textbox_repo").value=usr_mag;
         }
     });
 }
@@ -290,7 +314,6 @@ function createPr() {
             $.jAlert({
                 'title': 'Pull Request',
                 'content': 'Pull Request Submitted successfully',
-                'theme': theme,
                 'closeOnClick': true,
                 'backgroundColor': 'black',
                 'showAnimation': 'fadeInUp',
@@ -376,7 +399,54 @@ function pull() {
         url: PULL,
         timeout: 2000,
         success: function (r) {
-            alert(r)
+            $.jAlert({
+                'title': 'Pull:',
+                'content': 'Pull was successful',
+                'closeOnClick': true,
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
+        },
+        error: function (e) {
+            $.jAlert({
+                'title': 'Pull:',
+                'content': "Pull was unsuccessful \n\r"
+                    + JSON.stringify(e),
+                'closeOnClick': true,
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
+        }
+    });
+}
+
+function push() {
+    $.ajax({
+        method: 'POST',
+        url: PUSH,
+        timeout: 2000,
+        success: function (r) {
+            $.jAlert({
+                'title': 'Push:',
+                'content': 'Push was successful',
+                'closeOnClick': true,
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
+        },
+        error: function (e) {
+            $.jAlert({
+                'title': 'Push:',
+                'content': "Push was unsuccessful\n\r"
+                    + JSON.stringify(e),
+                'closeOnClick': true,
+                'backgroundColor': 'black',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
         }
     });
 }
@@ -480,7 +550,7 @@ function commit(commitMsg) {
                     'closeOnClick': true,
                     'backgroundColor': 'white',
                     'showAnimation': 'fadeInUp',
-                    'hideAnimation': 'fadeOutDown',
+                    'hideAnimation': 'fadeOutDown'
                 });
             } else {
                 $.jAlert({
@@ -504,10 +574,142 @@ function commit(commitMsg) {
     });
 }
 
+function setPrTable(){
+    $.ajax({
+        url: GET_PR,
+        timeout: 2000,
+        success: function (prs) {
+            repoPrs = prs;
+            var table = document.getElementById("pr-table");
+            for (var i = 0; i < prs.length; i++) {
+                var row = table.insertRow(i + 1);
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+                var cell5 = row.insertCell(4);
+                var cell6 = row.insertCell(5);
+                cell6.id="cell-id";
+                cell1.innerHTML = prs[i].askUser;
+                cell2.innerHTML = prs[i].targetBranch;
+                cell3.innerHTML = prs[i].sourceBranch;
+                cell4.innerHTML = prs[i].prDate;
+                cell5.innerHTML = prs[i].prStatus;
+                if(prs[i].prStatus.toString()!=="Open"){
+                    cell6.innerHTML = '<button id="'+ prs[i].id +'" class="button" onClick="showPrChanges(this)">?</button>'
+                }
+                else{
+                    cell6.innerHTML = '<button id="'+ prs[i].id +'" class="button" onClick="showPrChanges(this)">?</button>'+
+                    '<button id="'+ prs[i].id +'" class="button" onClick="cancelPr(this)">X</button>'+
+                    '<button id="'+ prs[i].id +'" class="button" onClick="approvePr(this)">V</button>'
+                }
+            }
+        }
+    });
+}
+
+function cancelPr(button){
+    $.ajax({
+        url: CANCEL_PR,
+        data: {id:button.id},
+        timeout: 2000,
+        success: function () {
+            $.jAlert({
+                'title': "Pull Request",
+                'content': "Pull Request Was Canceled",
+                'closeOnClick': true,
+                'backgroundColor': 'white',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
+            rebuildTable()
+        }
+    });
+}
+
+function approvePr(button){
+    $.ajax({
+        url: APPROVE_PR,
+        data: {id:button.id},
+        timeout: 2000,
+        success: function () {
+            $.jAlert({
+                'title': "Pull Request",
+                'content': "Pull Request Was Approved",
+                'closeOnClick': true,
+                'backgroundColor': 'white',
+                'showAnimation': 'fadeInUp',
+                'hideAnimation': 'fadeOutDown'
+            });
+            rebuildTable()
+            location.reload(true);
+        }
+    });
+}
+
+function rebuildTable(){
+    $("#pr-table").find("tr:gt(0)").remove();
+    setPrTable()
+}
+
+function getPrById(id){
+    var currentPr;
+    repoPrs.forEach(function(pr){
+        if(pr.id.toString() ===id){
+            currentPr = pr;
+        }
+    });
+    return currentPr
+}
+
+function showPrChanges(id){
+    var pr = getPrById(id.id);
+    $.jAlert({
+        'title': pr.prMsg,
+        'content': '<textarea readonly style="width: 100%;height:200px">'+pr.changes+'</textarea>',
+        'size': 'full',
+        'theme': "green",
+        'closeOnClick': true,
+        'backgroundColor': 'white',
+        'showAnimation': 'fadeInUp',
+        'hideAnimation': 'fadeOutDown'
+    });
+}
+
+function disableButtons(){
+    $.ajax({
+        url: GET_REPO_INFO,
+        timeout: 2000,
+        success: function (r) {
+            if(!r.isRemote){
+                $(".remote").attr('disabled', true);
+                $(".remote").removeClass('hover');
+            }
+
+        }
+    });
+}
+
 $(function () { // onload...init page
     getBranches();
     getRepoInfo();
     getCommitHistory("");
     initWorkingDirectory();
     getWC();
+    setPrTable();
+    disableButtons();
+    getUserMsg();
+//     // When the user clicks on <span> (x), close the modal
+//     $("#commit_modal_span").onclick = function () {
+//         var modal = document.getElementById("commitModal");
+//         modal.style.display = "none";
+//     };
+//
+// // When the user clicks anywhere outside of the modal, close it
+//     window.onclick = function (event) {
+//         var modal = document.getElementById("commitModal");
+//         if (event.target == modal) {
+//             modal.style.display = "none";
+//         }
+//     }
 });
