@@ -1,6 +1,19 @@
 body {
-    background-color: #fcfaf9;
+    /*background: #ADA996;  !* fallback for old browsers *!*/
+    /*background: -webkit-linear-gradient(to right, #EAEAEA, #DBDBDB, #F2F2F2, #ADA996);  !* Chrome 10-25, Safari 5.1-6 *!*/
+    /*background: linear-gradient(to right, #EAEAEA, #DBDBDB, #F2F2F2, #ADA996); !* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ *!*/
+
+    background: #000000; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #434343, #000000); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #434343, #000000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    color: white;
+
     padding: 2em
+}
+
+ul {
+    color: black;
+    background: white;
 }
 
 .container {
@@ -184,27 +197,48 @@ a:hover {
     background-color: #ddd;
 }
 
+/*.button {*/
+/*    border-radius: 12px;*/
+/*    background-image: linear-gradient(to right, #FF512F 0%, #F09819 51%, #FF512F 100%);*/
+/*    color: black;*/
+/*    border: 2px solid whitesmoke;*/
+/*    padding: 10px 20px;*/
+/*    text-align: center;*/
+/*    text-decoration: none;*/
+/*    display: inline-block;*/
+/*    font-size: 16px;*/
+/*    margin: 4px 2px;*/
+/*    -webkit-transition-duration: 0.4s; !* Safari *!*/
+/*    transition-duration: 0.4s;*/
+/*    cursor: pointer;*/
+/*}*/
+
+/*.button:hover {*/
+/*    background-position: right center;*/
+/*    color: white;*/
+/*}*/
+
 .button {
-    border-radius: 12px;
-    background-color: white;
-    color: black;
-    border: 2px solid #008CBA;
-    padding: 10px 20px;
-    text-align: center;
-    text-decoration: none;
+    background: whitesmoke;
+    border: none;
+    color: #FF512F;
+    font-weight: 100;
+    padding: 10px;
+    text-transform: uppercase;
+    border-radius: 6px;
     display: inline-block;
-    font-size: 16px;
-    margin: 4px 2px;
-    -webkit-transition-duration: 0.4s; /* Safari */
-    transition-duration: 0.4s;
-    cursor: pointer;
+    transition: all 0.3s ease 0s;
 }
 
 .button:hover {
-    background-color: #008CBA;
-    color: white;
+    color: whitesmoke !important;
+    font-weight: 700 !important;
+    letter-spacing: 3px;
+    background-image: linear-gradient(to right, #FF512F 0%, #F09819 51%, #FF512F 100%);
+    -webkit-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
+    -moz-box-shadow: 0px 5px 40px -10px rgba(0, 0, 0, 0.57);
+    transition: all 0.3s ease 0s;
 }
-
 
 
 /* The Modal (background) */
@@ -218,8 +252,8 @@ a:hover {
     width: 100%; /* Full width */
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
-    background-color: rgb(0,0,0); /* Fallback color */
-    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    background-color: rgb(0, 0, 0); /* Fallback color */
+    background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
 }
 
 /* Modal Content */
@@ -272,8 +306,8 @@ ul, #myUL {
 
 .caret-down::before {
     -ms-transform: rotate(90deg); /* IE 9 */
-    -webkit-transform: rotate(90deg); /* Safari */'
-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg); /* Safari */
+' transform: rotate(90 deg);
 }
 
 .nested {
@@ -282,4 +316,8 @@ transform: rotate(90deg);
 
 .active {
     display: block;
+}
+
+#accordionExample {
+    margin-top: 100px;
 }

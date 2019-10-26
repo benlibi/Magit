@@ -194,7 +194,7 @@ function f(file, map, nestedDirTreeView, marginLeft) {
             var childDir = map.find(function (element) {
                 return element.key === blob.name;
             });
-            nestedDirTreeView = f(childDir, map, nestedDirTreeView, marginLeft + 20);
+            nestedDirTreeView = f(childDir, map, nestedDirTreeView, marginLeft + 10);
         }
     });
 

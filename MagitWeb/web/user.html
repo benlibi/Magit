@@ -14,15 +14,15 @@
 <body>
 <div class="container">
     <header style="padding-bottom: 10px">
-        <form style=" float: right" action="index.html">
-            <input id="logout" class="button" type="submit" value="Logout" />
+        <form action="index.html">
+            <input id="logout" class="button" type="submit" value="Logout" style="display: block; margin: auto;"/>
         </form>
     </header>
     <div style="display:inline;">
-    <div style=" float:right">
-        <textarea id="usr_msg_textbox" rows="8" cols="30" readonly>daniel</textarea>
+    <div style="width: 100%;">
+        <textarea id="usr_msg_textbox" rows="8" cols="30" readonly style="width: 100%">daniel</textarea>
     </div>
-    <div style="float:left">
+    <div style="width: 100%;">
         <div>
             <table id="userTable">
                 <thead>
@@ -36,11 +36,11 @@
                 </thead>
             </table>
         </div>
-        <div id="loadCsv">
-            <h10>Select repository file to upload:</h10>
+        <div id="loadCsv" style="margin-top: 20px;">
+            <h6 align="center">Select repository file to upload:</h6>
             <form  id="uploadForm" action="/upload" enctype="multipart/form-data" method="POST">
-                <input class="button" style="padding-bottom: 1px;" type="file" name="file1"><br>
-                <input class="button" type="Submit" value="Upload File"><br>
+                <input style="margin: auto; display:block; padding-bottom: 1px;" class="button" type="file" name="file1"><br>
+                <input style="margin: auto; display:block;" class="button" type="Submit" value="Upload File"><br>
             </form>
 
             <div id="result">
