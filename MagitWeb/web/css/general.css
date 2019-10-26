@@ -19,7 +19,7 @@ ul {
 .container {
     display: flex;
     flex-direction: column;
-
+    color: whitesmoke;
 }
 
 .container > * {
