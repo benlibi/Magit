@@ -23,6 +23,7 @@ public class Blob {
     private String lastModifyDate;
     private String parentDir;
     private String path;
+    private Boolean isDir = false;
 
 
     public Blob(String name, String content, String owner, String lastModifyDate, String parentDir){
@@ -32,6 +33,15 @@ public class Blob {
         this.lastModifyDate=lastModifyDate;
         this.parentDir=parentDir;
         this.blobSha1=DigestUtils.sha1Hex(content);
+    }
+
+    public Blob(File file, Boolean isDir) {
+        this.isDir = true;
+        this.name = file.getName();
+        this.parentDir = file.getParentFile().getName();
+        this.defineLastModifyDate();
+        this.owner = User.getName();
+        this.path = file.getPath();
     }
 
     public Blob(File file) {
@@ -116,6 +126,10 @@ public class Blob {
 
     public String getParentDir() {
         return parentDir;
+    }
+
+    public void setParentDir(String parentDir) {
+        this.parentDir = parentDir;
     }
 
     public String getOwner() {

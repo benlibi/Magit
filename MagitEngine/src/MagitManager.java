@@ -673,6 +673,13 @@ public class MagitManager {
                                 Arrays.asList(blob)));
                     }
                 } else if (file.isDirectory() && !file.getName().contains(".")) {
+                    Blob blob = new Blob(file, true);
+                    if (wcFileMap.containsKey(file.getParentFile().getName())) {
+                        wcFileMap.get(file.getParentFile().getName()).add(blob);
+                    } else {
+                            wcFileMap.put(file.getParentFile().getName(), new ArrayList<Blob>(
+                                Arrays.asList(blob)));
+                    }
                     createFileMap(wcFileMap, file);
                 }
             }

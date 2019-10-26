@@ -154,18 +154,14 @@ function getWorkingDirectory() {
         type: "GET",
         url: GET_WORKING_DIRECTORY,
         timeout: 2000,
-        success: function (r) {
+        success: function (dirMap) {
             $("#working_directory").empty();
             var nestedDirTreeView = "";
 
-            r.forEach(function (file) {
-                nestedDirTreeView = nestedDirTreeView.concat('<li><span class="caret" style="display: block; margin: 15px;">' + file.key + '</span>');
-                nestedDirTreeView = nestedDirTreeView.concat('<ul class="nested" style="width: 100%; overflow: unset;">');
-
-                file.value.forEach(function (blob) {
-                    nestedDirTreeView = nestedDirTreeView.concat('<li id="' + blob.name + '" style="width:100%; margin-left: 15px;"><a style="width:100%;" onclick="changeFileView(this)">' + blob.path + '</a></li>');
-                });
+            var origin = dirMap.find(function (element) {
+                return element.key.includes("(HEAD)");
             });
+            nestedDirTreeView = f(origin, dirMap, nestedDirTreeView, 10);
 
             $("#working_directory").append(nestedDirTreeView);
         },
@@ -181,6 +177,31 @@ function getWorkingDirectory() {
             }
         }
     });
+}
+
+function f(file, map, nestedDirTreeView, marginLeft) {
+    nestedDirTreeView = nestedDirTreeView.concat('<li><span class="caret" style="display: block;margin-left: ' + marginLeft + 'px' + ';">' + file.key.replace(" (HEAD)", "") + '</span>');
+    nestedDirTreeView = nestedDirTreeView.concat('<ul class="nested" style="width: 100%; overflow: unset;">');
+
+    file.value.forEach(function (blob) {
+        if (!blob.isDir) {
+            nestedDirTreeView = nestedDirTreeView.concat('<li id="' + blob.name + '" style="width:100%; margin-left: 15px;"><a style="width:100%;" onclick="changeFileView(this)">' + blob.path + '</a></li>');
+        }
+    });
+
+    file.value.forEach(function (blob) {
+        if (blob.isDir) {
+            var childDir = map.find(function (element) {
+                return element.key === blob.name;
+            });
+            nestedDirTreeView = f(childDir, map, nestedDirTreeView, marginLeft + 10);
+        }
+    });
+
+    nestedDirTreeView = nestedDirTreeView.concat('</ul></li>');
+
+    return nestedDirTreeView;
+
 }
 
 function getWC() {

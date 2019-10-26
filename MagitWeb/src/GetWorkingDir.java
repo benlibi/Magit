@@ -39,6 +39,8 @@ public class GetWorkingDir extends HttpServlet {
             } else {
 
                 Map<String, List<Blob>> workingChanges = magitManager.getWcFilesMap();
+                workingChanges.put(magitManager.getCurrentRepo().getName() + " (HEAD)",
+                        workingChanges.remove(magitManager.getCurrentRepo().getName()));
 
                 String json = gson.toJson(workingChanges.entrySet().toArray());
                 out.println(json);
