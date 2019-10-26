@@ -3,9 +3,9 @@ body {
     /*background: -webkit-linear-gradient(to right, #EAEAEA, #DBDBDB, #F2F2F2, #ADA996);  !* Chrome 10-25, Safari 5.1-6 *!*/
     /*background: linear-gradient(to right, #EAEAEA, #DBDBDB, #F2F2F2, #ADA996); !* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ *!*/
 
-    background: #000000; /* fallback for old browsers */
-    background: -webkit-linear-gradient(to right, #434343, #000000); /* Chrome 10-25, Safari 5.1-6 */
-    background: linear-gradient(to right, #434343, #000000); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: #525252; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #adadad, #525252);
+    background: linear-gradient(to right, #adadad, #525252);
     color: white;
 
     padding: 2em
@@ -219,10 +219,10 @@ a:hover {
 /*}*/
 
 .button {
-    background: whitesmoke;
+    background: linear-gradient(to right, #ff6c4f 0%, #ffb344cf 51%, #ff6c4f 100%);
     border: none;
-    color: #FF512F;
-    font-weight: 100;
+    color: ghostwhite;
+    font-weight: 400;
     padding: 10px;
     text-transform: uppercase;
     border-radius: 6px;
@@ -231,7 +231,6 @@ a:hover {
 }
 
 .button:hover {
-    color: whitesmoke !important;
     font-weight: 700 !important;
     letter-spacing: 3px;
     background-image: linear-gradient(to right, #FF512F 0%, #F09819 51%, #FF512F 100%);
