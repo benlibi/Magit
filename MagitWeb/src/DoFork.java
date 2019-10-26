@@ -24,7 +24,6 @@ public class DoFork extends HttpServlet {
         magitManager.clone(repoName, remoteUser, currentUser);
         magitManager.addMsg(remoteUser,currentUser + " forked your repo: " + repoName);
     }
-
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         processRequest(req, resp);

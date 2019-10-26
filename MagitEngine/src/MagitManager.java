@@ -1,4 +1,5 @@
 import Enums.ConflictSections;
+import Enums.PrStatus;
 import Models.*;
 import org.apache.commons.io.FileUtils;
 import puk.team.course.magit.ancestor.finder.AncestorFinder;
@@ -16,7 +17,7 @@ public class MagitManager {
     public String rootRepo = "/opt/magit-ex3";
     public String userFileName = "current_user";
     private String currentUserString = User.getName();
-    private Map<String, List<PR>> prList = new HashMap<>();
+    private Map<String, Map<String,List<PR>>> prList = new HashMap<>();
     private Map<String, List<String>> userMsg = new HashMap<>();
 
     public MagitManager() {
@@ -25,6 +26,11 @@ public class MagitManager {
             rootDir.delete();
         }
         rootDir.mkdir();
+    }
+
+    public List<PR> getPrs(String userName, String repoName){
+        prList.get(userName).computeIfAbsent(repoName, k -> new ArrayList<>());
+        return prList.get(userName).get(repoName);
     }
 
     public void setRepo(String repoName, String userName) {
@@ -50,14 +56,63 @@ public class MagitManager {
 //        return currentUserRepos;
 //    }
 
+    public void cancelPr(String currentUser,String repo,String id){
+        List<PR> prs = prList.get(currentUser).get(repo);
+        for(PR pr: prs){
+            if(String.valueOf(pr.getId()).equals(id)){
+                pr.setPrStatus(PrStatus.Rejected);
+            }
+        }
+    }
+
+    public void approvePr(String currentUser,String repo,String id) throws IOException {
+        List<PR> prs = prList.get(currentUser).get(repo);
+        for(PR pr: prs){
+            if(String.valueOf(pr.getId()).equals(id)){
+                pr.setPrStatus(PrStatus.Close);
+                merge(pr.getSourceBranch(),pr.getTargetBranch(),currentUser);
+            }
+        }
+    }
+
+    private String getChangedFiles(String src_branch, String trg_branch, String prAsker, String remoteUser, String srcBranch, String remoteBranch){
+        String headCommit = getHeadCommitOfBranch(srcBranch);
+        String headTrgCommit = Branch.getBranchCommitPointer(currentRepo.getRemote_path()+"/.magit/Branches/"+remoteBranch);
+        return getChangesSring(headCommit, headTrgCommit);
+    }
+
+    public String getChangesSring(String firstCommitSha1, String secondCommitSha1) {
+        Map<String, Blob> firstCommitFiles = getCommitFilesMap(firstCommitSha1, currentRepo.get_path());
+        Map<String, Blob> secondCommitFiles = getCommitFilesMap(secondCommitSha1, currentRepo.getRemote_path());
+        Map<String, Blob> changesMap = getCommitDiffsMap(firstCommitFiles, secondCommitFiles);
+        Map<String, Blob> newFilesMap = getNewFilesMap(firstCommitFiles, secondCommitFiles);
+        StringBuilder newFiles = new StringBuilder("New Files:\n");
+        StringBuilder deletedFiles = new StringBuilder("Deleted Files:\n");
+        StringBuilder updatedFiles = new StringBuilder("Updated Files:\n");
+        for (String filePath : newFilesMap.keySet()) {
+            newFiles.append(filePath + "\n");
+        }
+        for (String filePath : changesMap.keySet()) {
+            if (changesMap.get(filePath) == null) {
+                deletedFiles.append(filePath + "\n");
+            } else if (!newFilesMap.keySet().contains(filePath)) {
+                updatedFiles.append(filePath + "\n");
+            }
+        }
+        return newFiles.append(deletedFiles.append(updatedFiles)).toString();
+    }
+
     public void createPr(String src_branch, String trg_branch, String pr_msg, String prAsker) {
         String remoteUser = currentRepo.getRemote_user();
         String repoName = currentRepo.getName();
-        PR pr = new PR(prAsker, remoteUser, repoName, pr_msg, trg_branch, src_branch);
-        prList.get(remoteUser).add(pr);
-        String msg =
-                "New pull request from: " + prAsker + " src branch: " + src_branch + " target branch: " + trg_branch + " msg: " + pr_msg +
-                        " repo: " + currentRepo.getName();
+        String changedFilesString = getChangedFiles(src_branch,trg_branch, prAsker, remoteUser, src_branch, trg_branch);
+        PR pr = new PR(prAsker, remoteUser, repoName, pr_msg, trg_branch, src_branch, changedFilesString);
+        Map<String,List<PR>> user_repos = prList.get(remoteUser);
+        if(!user_repos.containsKey(repoName)){
+            prList.get(remoteUser).put(repoName,new ArrayList<>());
+        }
+        prList.get(remoteUser).get(repoName).add(pr);
+        String msg = "New pull request from: " + prAsker + " src branch: " + src_branch + " target branch: " + trg_branch + " msg: " + pr_msg + " repo: " + currentRepo.getName();
         addMsg(remoteUser, msg);
     }
 
@@ -94,8 +149,8 @@ public class MagitManager {
             if (!userMsg.containsKey(userName)) {
                 userMsg.put(userName, new ArrayList<String>());
             }
-            if (!prList.containsKey(userName)) {
-                prList.put(userName, new ArrayList<PR>());
+            if(!prList.containsKey(userName)){
+                prList.put(userName,new HashMap<>());
             }
 //            Utils.createUserFile(rootRepo,userFileName,userName);
             appendUser(userName);
@@ -833,6 +888,40 @@ public class MagitManager {
         return ancestorFinder.traceAncestor(currentCommitSha1, mergedSha1);
     }
 
+    public void merge(String srcBranch, String trgBranch,String user) throws IOException {
+        String currentHeadCommit = getHeadCommitOfBranch(trgBranch);
+        String theirHeadCommit = getHeadCommitOfBranch(srcBranch);
+        String ancestorCommit = getAncestor(currentHeadCommit, theirHeadCommit);
+        List<Conflict> conflicts = getConflictListAndCreateFiles(
+                getCommitDiffsMap(getCommitFilesMap(currentHeadCommit),
+                        getCommitFilesMap(ancestorCommit)),
+                getCommitDiffsMap(getCommitFilesMap(theirHeadCommit),
+                        getCommitFilesMap(ancestorCommit)),
+                getCommitFilesMap(ancestorCommit));
+        String s = "Merge " + srcBranch + " into " + trgBranch;
+        commit(s, readBranchFile(trgBranch), true, user);
+    }
+
+    private void createFolderWithoutFullPath(Map<String, Blob> commitFilesMap, String path, String folderSha1) {
+        String folderContent = getSha1Content(folderSha1);
+        for (String line : folderContent.split("\n")) {
+            String[] entry = line.split(",");
+            if (entry.length > 2) {
+                if (entry[2].equals("file")) {
+                    String blobContent = getSha1Content(entry[1]);
+                    String blobName = entry[0];
+                    String blobOwner = entry[3];
+                    String blobLastModifyDate = entry[4];
+                    File blobFIle = new File(path, blobName);
+                    Blob blob = new Blob(blobName, blobContent, blobOwner, blobLastModifyDate, blobFIle.getPath());
+                    commitFilesMap.put(blobName, blob);
+                } else {
+                    createFolder(commitFilesMap, path + "/" + entry[0], entry[1]);
+                }
+            }
+        }
+    }
+
     private void createFolder(Map<String, Blob> commitFilesMap, String path, String folderSha1) {
         String folderContent = getSha1Content(folderSha1);
         for (String line : folderContent.split("\n")) {
@@ -851,6 +940,26 @@ public class MagitManager {
                 }
             }
         }
+    }
+
+    public Map<String, Blob> getCommitFilesMap(String commitSha1, String path) {
+        Map<String, Blob> commitFilesMap = new TreeMap<>(
+                new Comparator<String>() {
+                    @Override
+                    public int compare(String s1, String s2) {
+                        if (s1.length() > s2.length()) {
+                            return 1;
+                        } else if (s1.length() < s2.length()) {
+                            return -1;
+                        } else {
+                            return s1.compareTo(s2);
+                        }
+                    }
+                }
+        );
+        Commit commit = getCommitRep(commitSha1);
+        createFolderWithoutFullPath(commitFilesMap,path, commit.getMainRepoSha1());
+        return commitFilesMap;
     }
 
     public Map<String, Blob> getCommitFilesMap(String commitSha1) {
@@ -954,26 +1063,7 @@ public class MagitManager {
         return conflictList;
     }
 
-    public String getChangesSring(String firstCommitSha1, String secondCommitSha1) {
-        Map<String, Blob> firstCommitFiles = getCommitFilesMap(firstCommitSha1);
-        Map<String, Blob> secondCommitFiles = getCommitFilesMap(secondCommitSha1);
-        Map<String, Blob> changesMap = getCommitDiffsMap(firstCommitFiles, secondCommitFiles);
-        Map<String, Blob> newFilesMap = getNewFilesMap(firstCommitFiles, secondCommitFiles);
-        StringBuilder newFiles = new StringBuilder("New Files:\n");
-        StringBuilder deletedFiles = new StringBuilder("Deleted Files:\n");
-        StringBuilder updatedFiles = new StringBuilder("Updated Files:\n");
-        for (String filePath : newFilesMap.keySet()) {
-            newFiles.append(filePath + "\n");
-        }
-        for (String filePath : changesMap.keySet()) {
-            if (changesMap.get(filePath) == null) {
-                deletedFiles.append(filePath + "\n");
-            } else if (!newFilesMap.keySet().contains(filePath)) {
-                updatedFiles.append(filePath + "\n");
-            }
-        }
-        return newFiles.append(deletedFiles.append(updatedFiles)).toString();
-    }
+
 
     private Map<String, List<Blob>> createFolderMap(Map<String, Blob> CommitFiles) {
         Map<String, List<Blob>> folderMap = new HashMap<>();
@@ -1114,19 +1204,12 @@ public class MagitManager {
     }
 
 
-    private void copyBranchAndCommitsToRemoteRepo(String remoteBranchName, List<String> RemoteRepoRemoteBranchList) throws IOException {
-        String remoteHeadCommitSha1 = readRemoteBranchFile(remoteBranchName);
-        if (RemoteRepoRemoteBranchList.contains(remoteBranchName)) {
-            String remoteRepoHeadCommitSha1 = readRemoteRepoBranchFile(remoteBranchName);
-            //           if(!remoteRepoHeadCommitSha1.equals(remoteHeadCommitSha1)){
-            copyCommitsToRemote(remoteHeadCommitSha1);
-            //           }
-        } else {
-            copyCommitsToRemote(remoteHeadCommitSha1);
-        }
+    private void copyBranchAndCommitsToRemoteRepo(String BranchName) throws IOException {
+        String remoteHeadCommitSha1 = readBranchFile(BranchName);
+        copyCommitsToRemote(remoteHeadCommitSha1);
         //copy branch file
-        Utils.copyFile(this.currentRepo.MAGIT_DIR_PATH + "/" + this.currentRepo.getRemote_name() + "/" + remoteBranchName,
-                this.currentRepo.getRemote_path().concat("/.magit/Branches/" + remoteBranchName));
+        Utils.copyFile(this.currentRepo.BRANCHES_DIR_PATH + "/" + BranchName,
+                this.currentRepo.getRemote_path().concat("/.magit/Branches/" + BranchName));
     }
 
 
@@ -1194,12 +1277,8 @@ public class MagitManager {
     }
 
     public void push() throws IOException {
-        copyRTBtoRB();
-        List<String> remoteRepoBranchList = getRemoteRepoBranchList();
-        List<String> localRepoRemoteBranchList = getRemoteAvailableBranches("");
-        for (String remoteBranchName : localRepoRemoteBranchList) {
-            copyBranchAndCommitsToRemoteRepo(remoteBranchName, remoteRepoBranchList);
-        }
+        String branchName = this.currentBranch.getName();
+        copyBranchAndCommitsToRemoteRepo(branchName);
         Utils.copyFolderContent(this.currentRepo.OBJECTS_DIR_PATH, this.currentRepo.getRemote_path().concat("/.magit/Objects"));
     }
 
