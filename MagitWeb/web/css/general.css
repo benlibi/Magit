@@ -22,6 +22,10 @@ ul {
     color: whitesmoke;
 }
 
+.card-body {
+    color: black;
+}
+
 .container > * {
 
     flex: 1 100%;
