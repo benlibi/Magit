@@ -19,7 +19,11 @@ ul {
 .container {
     display: flex;
     flex-direction: column;
+    color: whitesmoke;
+}
 
+.card-body {
+    color: black;
 }
 
 .container > * {
