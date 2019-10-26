@@ -6,7 +6,7 @@ body {
     background: #525252; /* fallback for old browsers */
     background: -webkit-linear-gradient(to right, #adadad, #525252);
     background: linear-gradient(to right, #adadad, #525252);
-    color: white;
+    color: black;
 
     padding: 2em
 }
@@ -28,8 +28,8 @@ ul {
 }
 
 .header {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 130%;
+    font-family: sans-serif;
+    font-size: 200%;
     font-style: italic;
     font-weight: bold;
     text-align: center;
@@ -42,8 +42,6 @@ ul {
     flex: 0 auto;
     height: 100px;
     margin: auto;
-    border: 2px solid blueviolet;
-    border-radius: 12px;
     text-align: center;
     padding: 10px;
 
@@ -57,6 +55,14 @@ ul {
 
 .text1 {
     font-weight: bold;
+    font-size: 17px;
+    margin-bottom: 12px;
+    display: block;
+}
+
+.text2 {
+    display: block;
+    margin-bottom: 5px;
 }
 
 #userTable {
@@ -219,7 +225,7 @@ a:hover {
 /*}*/
 
 .button {
-    background: linear-gradient(to right, #ff6c4f 0%, #ffb344 51%, #ff6c4f 100%);
+    background: linear-gradient(to right, #ff6c4f 0%, #ffb344cf 51%, #ff6c4f 100%);
     border: none;
     color: ghostwhite;
     font-weight: 400;
