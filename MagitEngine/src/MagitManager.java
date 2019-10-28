@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 
 public class MagitManager {
     //public String rootRepo = "c:\\magit-ex3";
-    public String rootRepo = "/opt/magit-ex3";
+    public String rootRepo = "/Users/daniel/Desktop/magit-ex3";
     public String userFileName = "current_user";
     private String currentUserString = User.getName();
     private Map<String, Map<String,List<PR>>> prList = new HashMap<>();

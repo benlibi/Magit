@@ -27,10 +27,9 @@ function createBranch(branchName) {
         timeout: 2000,
         success: function (r) {
             getBranches();
-            $("#new_branch").val("")
-        },
-        complete: function () {
-            location.reload(true);
+            $("#new_branch").val("");
+            getWC();
+            initWorkingDirectory();
         }
     });
 }
@@ -475,9 +474,31 @@ function saveBlob(blobPath, content) {
 }
 
 function createNewFile() {
+    $.jAlert({
 
-    var filePath = prompt("Please Enter a File Relative Path");
+        'title': 'New File',
 
+        'content': '    <div>Relative File Path:\n\r' +
+            '<textarea id="file_msg_textbox" rows="1" style="width: 100%; margin-top: 0; margin-bottom: 0;" placeholder="Relative File Path..."></textarea>' +
+            '    </div>'
+        ,
+        'theme': 'green',
+        'backgroundColor': 'white',
+        'showAnimation': 'fadeInUp',
+        'hideAnimation': 'fadeOutDown',
+        'btns': [
+            {
+                'text': 'Create', 'theme': 'green', 'onClick': function () {
+                    createFile()
+                }
+            },
+            {'text': 'Cancel', 'theme': 'red', 'closeOnClick': true}
+        ]
+    });
+}
+
+function createFile(){
+    var filePath = $('textarea#file_msg_textbox').val();
     if (!filePath) {
         return;
     }
@@ -486,9 +507,9 @@ function createNewFile() {
         url: CREATE_NEW_FILE,
         data: {filePath: filePath},
         timeout: 2000,
-        success: function (r) {
-            initWorkingDirectory();
+        complete: function () {
             getWC();
+            initWorkingDirectory();
         }
     });
 }
@@ -564,7 +585,9 @@ function commit(commitMsg) {
                     'btns': [
                         {
                             'text': 'OK', 'theme': "white", 'onClick': function () {
-                                location.reload(true);
+                                getWC();
+                                initWorkingDirectory();
+                                getCommitHistory("");
                             }
                         }
                     ]
@@ -572,6 +595,7 @@ function commit(commitMsg) {
             }
         }
     });
+    hideCommitModal()
 }
 
 function setPrTable(){
@@ -642,7 +666,11 @@ function approvePr(button){
                 'hideAnimation': 'fadeOutDown'
             });
             rebuildTable()
-            location.reload(true);
+        },
+        complete: function () {
+            getWC();
+            initWorkingDirectory();
+            getCommitHistory("");
         }
     });
 }
