@@ -2,6 +2,7 @@ var GET_REPO_INFO = buildUrlWithContextPath("getRepoInfo");
 var GET_BRANCHES = buildUrlWithContextPath("getBranches");
 var GET_REMOTE_BRANCHES = buildUrlWithContextPath("getRemoteBranches");
 var CREATE_BRANCH = buildUrlWithContextPath("createBranch");
+var REMOVE_BRANCH = buildUrlWithContextPath("removeBranch");
 var SHOW_COMMIT = buildUrlWithContextPath("showCommit");
 var GET_COMMIT_HISTORY = buildUrlWithContextPath("getCommitHistory");
 var GET_WORKING_DIRECTORY = buildUrlWithContextPath("getWorkingDirectory");
@@ -80,6 +81,7 @@ function getBranches() {
         timeout: 2000,
         success: function (r) {
             $('#branch-select').empty();
+            $('#remove-branch-select').empty();
             r.forEach(function (branch) {
 
                 if (branch.includes('(HEAD)')) {
@@ -92,6 +94,8 @@ function getBranches() {
                 } else {
                     var optionBranch = new Option(branch, branch);
                     $('#branch-select').append(optionBranch);
+                    var removeoptionBranch = new Option(branch, branch);
+                    $('#remove-branch-select').append(removeoptionBranch);
                 }
             })
         }
@@ -101,6 +105,7 @@ function getBranches() {
         e.stopImmediatePropagation();
         renderNewContent($(this).val().replace(" (HEAD)", ""));
     });
+    $('#remove-branch-select').val("");
 }
 
 function renderNewContent(branchName) {
@@ -647,6 +652,20 @@ function cancelPr(button){
                 'hideAnimation': 'fadeOutDown'
             });
             rebuildTable()
+        }
+    });
+}
+
+function removeBranch(){
+    var branchName = $("#remove-branch-select").val();
+    $.ajax({
+        url: REMOVE_BRANCH,
+        data: {branchName: branchName},
+        timeout: 2000,
+        success: function (r) {
+            getBranches();
+            getWC();
+            initWorkingDirectory();
         }
     });
 }

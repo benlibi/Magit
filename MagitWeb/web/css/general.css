@@ -183,6 +183,10 @@ ul li a {
     margin: auto;
 }
 
+select {
+    background: white;
+}
+
 .full_width select {
     width: 100%;
     float: left;

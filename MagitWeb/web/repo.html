@@ -72,6 +72,12 @@
     <div>Available Branches:
         <select id="branch-select" style="padding-right: 10px"></select>
     </div>
+    <div>remove Branch:
+        <select id="remove-branch-select" style="padding-right: 10px">
+            <option hidden disabled selected value> -- select an option -- </option>
+        </select>
+        <button id="remove_branch_btn" onClick="removeBranch()()">-</button>
+    </div>
 
     <form class="form-inline full_width" action="Javascript:createBranch(this.new_branch.value)">
         <label for="new_branch">New Branch:</label>

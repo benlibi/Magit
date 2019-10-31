@@ -7,8 +7,8 @@ import java.nio.file.Paths;
 import java.util.Comparator;
 
 public class MagitContextListener implements ServletContextListener {
-    //private String rootRepo = "c:\\magit-ex3";
-    private String rootRepo = "/Users/daniel/Desktop/magit-ex3";
+    private String rootRepo = "c:\\magit-ex3";
+    //private String rootRepo = "/Users/daniel/Desktop/magit-ex3";
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         Path index = Paths.get(rootRepo);
